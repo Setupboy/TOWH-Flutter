@@ -31,13 +31,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         onNext: _nextPage,
       ),
       OnboardingStep(
-        image: kOnboardingStep1Img,
+        image: kOnboardingStep2Img,
         title: 'Vote Without Pressure',
         description: 'Everyone picks secretly — no names, just\nfun choices.',
         onNext: _nextPage,
       ),
       OnboardingStep(
-        image: kOnboardingStep1Img,
+        image: kOnboardingStep3Img,
         title: 'Vote with Mystery',
         description: 'Everyone picks secretly — no names, just\nfun choices.',
         onNext: _finishOnboarding,
@@ -49,8 +49,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _nextPage() {
     _pageController.nextPage(
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOut,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeIn,
     );
   }
 
@@ -71,6 +71,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       appBar: AppBar(
         backgroundColor: kWitheColor50,
         elevation: 0,
+        leading: AnimatedBuilder(
+          animation: _pageController,
+          builder: (context, _) {
+            final isFirstPage = (_pageController.page ?? 0) < 1;
+
+            return isFirstPage
+                ? const SizedBox.shrink()
+                : IconButton(
+                    onPressed: () {
+                      _pageController.previousPage(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeIn,
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 18,
+                      color: kBlueColor800,
+                    ),
+                  );
+          },
+        ),
+
         actions: [
           TextButton(
             onPressed: _finishOnboarding,

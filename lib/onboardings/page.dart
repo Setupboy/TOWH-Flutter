@@ -21,7 +21,7 @@ class OnboardingPage extends StatelessWidget {
             color: kWitheColor50,
             borderRadius: BorderRadius.only(bottomRight: Radius.circular(400)),
           ),
-          child: Image.asset(step.image, fit: BoxFit.contain),
+          child: Image.asset(step.image),
         ),
 
         const SizedBox(height: 24),
