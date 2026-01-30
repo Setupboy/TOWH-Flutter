@@ -1,9 +1,13 @@
 // Onboarding Screen
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:towh/utilities/font_constants.dart';
+import 'package:towh/utilities/image_constants.dart';
+
+import '../utilities/color_constants.dart';
 
 class OnboardingScreen extends StatefulWidget {
-  OnboardingScreen({super.key});
+  const OnboardingScreen({super.key});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -27,9 +31,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF2C230),
+      backgroundColor: kYellowColor200,
       appBar: AppBar(
-        backgroundColor: Color(0xFFF9F6ED),
+        backgroundColor: kWitheColor50,
         elevation: 0,
         actions: [
           TextButton(
@@ -42,18 +46,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Text(
                   'Skip',
                   style: TextStyle(
-                    color: Color(0xA80E251F),
+                    color: kBlueColor800,
                     fontSize: 16,
                     fontWeight: FontWeight.w500,
-                    fontFamily: 'MPLUSR1',
+                    fontFamily: kMPLFont,
                   ),
                 ),
                 SizedBox(width: 6),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 14,
-                  color: Color(0xA80E251F),
-                ),
+                Icon(Icons.arrow_forward_ios, size: 14, color: kBlueColor800),
               ],
             ),
           ),
@@ -67,15 +67,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               height: 412,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Color(0xFFF9F6ED),
+                color: kWitheColor50,
                 borderRadius: BorderRadius.only(
                   bottomRight: Radius.circular(400),
                 ),
               ),
-              child: Image.asset(
-                'assets/images/onboardings/first.png',
-                fit: BoxFit.contain,
-              ),
+              child: Image.asset(kOnboardingStep1Img, fit: BoxFit.contain),
             ),
 
             SizedBox(height: 24),
@@ -91,10 +88,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Text(
                     'Never Argue Where To Go',
                     style: TextStyle(
-                      fontFamily: 'Baloo2',
+                      fontFamily: kBaloo2Font,
                       fontWeight: FontWeight.w700,
                       fontSize: 48,
-                      color: Color(0xFF0E251F),
+                      color: kBlueColor900,
                       height: 57 / 48,
                       letterSpacing: 0,
                     ),
@@ -105,10 +102,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Text(
                     'Make group decisions with your friends\nusing a creative poll system.',
                     style: TextStyle(
-                      fontFamily: 'MPLUSR1',
+                      fontFamily: kMPLFont,
                       fontSize: 16,
                       fontWeight: FontWeight.w400,
-                      color: Color(0xA80E251F),
+                      color: kBlueColor800,
                       height: 1.5,
                     ),
                   ),
@@ -133,8 +130,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         dotWidth: 10,
                         dotHeight: 10,
                         spacing: 4,
-                        activeDotColor: Color(0xFFF9F6ED),
-                        dotColor: Color(0xFFFFE081),
+                        activeDotColor: kWitheColor50,
+                        dotColor: kYellowColor100,
                         expansionFactor: 2,
                       ),
                     ),
@@ -147,7 +144,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         // TODO: Navigate to next page
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFFF9F6ED),
+                        backgroundColor: kWitheColor50,
                         padding: EdgeInsets.symmetric(
                           horizontal: 16,
                           vertical: 8,
@@ -164,17 +161,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           Text(
                             'Next',
                             style: TextStyle(
-                              fontFamily: 'MPLUSR1',
+                              fontFamily: kMPLFont,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: Color(0xFF0E251F),
+                              color: kBlueColor800,
                             ),
                           ),
                           SizedBox(width: 4),
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
-                            color: Color(0xFF0E251F),
+                            color: kBlueColor800,
                           ),
                         ],
                       ),
