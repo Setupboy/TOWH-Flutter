@@ -41,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
       OnboardingStep(
         image: kOnboardingStep3Img,
-        title: 'Vote with Mystery',
+        title: 'Vote With Mystery',
         description: 'Everyone picks secretly — no names,\njust fun choices.',
         imageWidth: 369,
         imageHeight: 330,

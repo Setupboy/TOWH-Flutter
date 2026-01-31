@@ -35,7 +35,7 @@ class OnboardingPage extends StatelessWidget {
 
         // Text section
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 30),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
