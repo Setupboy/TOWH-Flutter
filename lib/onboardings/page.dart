@@ -21,14 +21,20 @@ class OnboardingPage extends StatelessWidget {
             color: kWitheColor50,
             borderRadius: BorderRadius.only(bottomRight: Radius.circular(400)),
           ),
-          child: Image.asset(step.image),
+          child: Center(
+            child: SizedBox(
+              width: step.imageWidth,
+              height: step.imageHeight,
+              child: Image.asset(step.image, fit: BoxFit.contain),
+            ),
+          ),
         ),
 
         const SizedBox(height: 24),
 
         // Text section
-        SizedBox(
-          width: 364,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -38,8 +44,8 @@ class OnboardingPage extends StatelessWidget {
                   fontFamily: kBaloo2Font,
                   fontWeight: FontWeight.w700,
                   fontSize: 48,
-                  color: kBlueColor900,
                   height: 57 / 48,
+                  color: kBlueColor900,
                 ),
               ),
               const SizedBox(height: 16),
@@ -49,8 +55,8 @@ class OnboardingPage extends StatelessWidget {
                   fontFamily: kMPLFont,
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
-                  color: kBlueColor800,
                   height: 1.5,
+                  color: kBlueColor800,
                 ),
               ),
             ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
-import '../constants//color.dart';
+import '../constants/color.dart';
 import '../constants/font.dart';
 import '../constants/image.dart';
 import 'page.dart';
@@ -15,12 +15,15 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  late final PageController _pageController;
+  final PageController _pageController = PageController();
+
+  int _currentIndex = 0;
+
   late final List<OnboardingStep> _steps;
 
   @override
   void initState() {
-    _pageController = PageController();
+    super.initState();
 
     _steps = [
       OnboardingStep(
@@ -28,23 +31,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         title: 'Never Argue Where To Go',
         description:
             'Make group decisions with your friends\nusing a creative poll system.',
+        imageWidth: 300,
+        imageHeight: 418,
         onNext: _nextPage,
       ),
       OnboardingStep(
         image: kOnboardingStep2Img,
         title: 'Vote Without Pressure',
-        description: 'Everyone picks secretly — no names, just\nfun choices.',
+        description: 'Everyone picks secretly — no names,\njust fun choices.',
+        imageWidth: 351,
+        imageHeight: 336,
         onNext: _nextPage,
       ),
       OnboardingStep(
         image: kOnboardingStep3Img,
         title: 'Vote with Mystery',
-        description: 'Everyone picks secretly — no names, just\nfun choices.',
+        description: 'Everyone picks secretly — no names,\njust fun choices.',
+        imageWidth: 369,
+        imageHeight: 330,
         onNext: _finishOnboarding,
       ),
     ];
-
-    super.initState();
   }
 
   void _nextPage() {
@@ -71,50 +78,50 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       appBar: AppBar(
         backgroundColor: kWitheColor50,
         elevation: 0,
-        leading: AnimatedBuilder(
-          animation: _pageController,
-          builder: (context, _) {
-            final isFirstPage = (_pageController.page ?? 0) < 1;
 
-            return isFirstPage
-                ? const SizedBox.shrink()
-                : IconButton(
-                    onPressed: () {
-                      _pageController.previousPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeIn,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.arrow_back_ios_new,
-                      size: 18,
+        // ✅ BACK BUTTON — APPEARS IMMEDIATELY
+        leading: _currentIndex > 0
+            ? IconButton(
+                icon: const Icon(
+                  Icons.arrow_back_ios_new,
+                  size: 18,
+                  color: kBlueColor900,
+                ),
+                onPressed: () {
+                  _pageController.previousPage(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeIn,
+                  );
+                },
+              )
+            : const SizedBox.shrink(),
+
+        // ✅ SKIP BUTTON WITH PROPER SPACING
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: TextButton(
+              onPressed: _finishOnboarding,
+              child: const Row(
+                children: [
+                  Text(
+                    'Skip',
+                    style: TextStyle(
+                      fontFamily: kMPLFont,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                       color: kBlueColor800,
                     ),
-                  );
-          },
-        ),
-
-        actions: [
-          TextButton(
-            onPressed: _finishOnboarding,
-            child: Row(
-              children: const [
-                Text(
-                  'Skip',
-                  style: TextStyle(
-                    color: kBlueColor800,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: kMPLFont,
                   ),
-                ),
-                SizedBox(width: 6),
-                Icon(Icons.arrow_forward_ios, size: 14, color: kBlueColor800),
-              ],
+                  SizedBox(width: 6),
+                  Icon(Icons.arrow_forward_ios, size: 14, color: kBlueColor800),
+                ],
+              ),
             ),
           ),
         ],
       ),
+
       body: SafeArea(
         child: Column(
           children: [
@@ -122,7 +129,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView.builder(
                 controller: _pageController,
                 itemCount: _steps.length,
-                itemBuilder: (context, index) {
+
+                // ✅ THIS MAKES BACK BUTTON INSTANT
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+
+                itemBuilder: (_, index) {
                   return OnboardingPage(step: _steps[index]);
                 },
               ),
@@ -145,16 +160,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      final index = _pageController.page?.round() ?? 0;
-                      _steps[index].onNext?.call();
-                    },
+                    onPressed: _steps[_currentIndex].onNext,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kWitheColor50,
+                      elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      elevation: 0,
                     ),
                     child: const Row(
                       children: [
@@ -164,14 +176,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             fontFamily: kMPLFont,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: kBlueColor800,
+                            color: kBlueColor900,
                           ),
                         ),
                         SizedBox(width: 4),
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 14,
-                          color: kBlueColor800,
+                          color: kBlueColor900,
                         ),
                       ],
                     ),

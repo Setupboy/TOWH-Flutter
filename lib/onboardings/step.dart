@@ -4,14 +4,16 @@ class OnboardingStep {
   final String image;
   final String title;
   final String description;
-  final VoidCallback? onNext;
-  final VoidCallback? onSkip;
+  final double imageWidth;
+  final double imageHeight;
+  final VoidCallback onNext;
 
   const OnboardingStep({
     required this.image,
     required this.title,
     required this.description,
-    this.onNext,
-    this.onSkip,
+    required this.imageWidth,
+    required this.imageHeight,
+    required this.onNext,
   });
 }
