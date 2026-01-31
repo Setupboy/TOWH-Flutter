@@ -15,8 +15,6 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final PageController _pageController = PageController();
-
   int _currentIndex = 0;
 
   late final List<OnboardingStep> _steps;
@@ -33,7 +31,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             'Make group decisions with your friends\nusing a creative poll system.',
         imageWidth: 300,
         imageHeight: 418,
-        onNext: _nextPage,
       ),
       OnboardingStep(
         image: kOnboardingStep2Img,
@@ -41,7 +38,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         description: 'Everyone picks secretly — no names,\njust fun choices.',
         imageWidth: 351,
         imageHeight: 336,
-        onNext: _nextPage,
       ),
       OnboardingStep(
         image: kOnboardingStep3Img,
@@ -49,27 +45,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         description: 'Everyone picks secretly — no names,\njust fun choices.',
         imageWidth: 369,
         imageHeight: 330,
-        onNext: _finishOnboarding,
       ),
     ];
   }
 
   void _nextPage() {
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeIn,
-    );
+    if (_currentIndex < _steps.length - 1) {
+      setState(() {
+        _currentIndex++;
+      });
+    } else {
+      _finishOnboarding();
+    }
   }
 
-  void _finishOnboarding() {
-    // TODO: Navigate to home screen
+  void _previousPage() {
+    if (_currentIndex > 0) {
+      setState(() {
+        _currentIndex--;
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
+  void _finishOnboarding() {}
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +76,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       appBar: AppBar(
         backgroundColor: kWitheColor50,
         elevation: 0,
-
-        // ✅ BACK BUTTON — APPEARS IMMEDIATELY
         leading: _currentIndex > 0
             ? IconButton(
                 icon: const Icon(
@@ -87,16 +83,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   size: 18,
                   color: kBlueColor900,
                 ),
-                onPressed: () {
-                  _pageController.previousPage(
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeIn,
-                  );
-                },
+                onPressed: _previousPage,
               )
-            : const SizedBox.shrink(),
-
-        // ✅ SKIP BUTTON WITH PROPER SPACING
+            : null,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
@@ -121,25 +110,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
-
       body: SafeArea(
         child: Column(
           children: [
             Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: _steps.length,
+              child: Stack(
+                children: [
+                  Container(
+                    height: 412,
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: kWitheColor50,
+                      borderRadius: BorderRadius.only(
+                        bottomRight: Radius.circular(400),
+                      ),
+                    ),
+                  ),
 
-                // ✅ THIS MAKES BACK BUTTON INSTANT
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-
-                itemBuilder: (_, index) {
-                  return OnboardingPage(step: _steps[index]);
-                },
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    switchInCurve: Curves.easeIn,
+                    switchOutCurve: Curves.easeOut,
+                    transitionBuilder: (child, animation) =>
+                        FadeTransition(opacity: animation, child: child),
+                    child: OnboardingPage(
+                      key: ValueKey<int>(_currentIndex),
+                      step: _steps[_currentIndex],
+                    ),
+                  ),
+                ],
               ),
             ),
 
@@ -149,7 +148,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   SmoothPageIndicator(
-                    controller: _pageController,
+                    controller: PageController(initialPage: _currentIndex),
                     count: _steps.length,
                     effect: ExpandingDotsEffect(
                       dotWidth: 10,
@@ -160,7 +159,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   ElevatedButton(
-                    onPressed: _steps[_currentIndex].onNext,
+                    onPressed: _nextPage,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: kWitheColor50,
                       elevation: 0,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+
 
 class OnboardingStep {
   final String image;
@@ -6,7 +6,6 @@ class OnboardingStep {
   final String description;
   final double imageWidth;
   final double imageHeight;
-  final VoidCallback onNext;
 
   const OnboardingStep({
     required this.image,
@@ -14,6 +13,5 @@ class OnboardingStep {
     required this.description,
     required this.imageWidth,
     required this.imageHeight,
-    required this.onNext,
   });
 }

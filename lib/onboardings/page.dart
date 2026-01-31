@@ -13,8 +13,9 @@ class OnboardingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Image section
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
           height: 412,
           width: double.infinity,
           decoration: const BoxDecoration(
