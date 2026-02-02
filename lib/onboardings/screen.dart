@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:towh/home/view.dart';
 
 import '../constants/color.dart';
 import '../constants/font.dart';
@@ -67,7 +68,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _finishOnboarding() {}
+  void _finishOnboarding() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Homeview()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
