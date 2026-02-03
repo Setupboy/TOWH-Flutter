@@ -3,6 +3,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:towh/constants/color.dart';
 import 'package:towh/constants/font.dart';
 
+import 'widgets/game_box.dart';
+import 'widgets/nav_bar_item.dart';
+import 'widgets/player_chip.dart';
+
 class Homeview extends StatefulWidget {
   const Homeview({super.key});
 
@@ -11,12 +15,14 @@ class Homeview extends StatefulWidget {
 }
 
 class _HomeviewState extends State<Homeview> {
+  int selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kWitheColor50,
 
-      // ───────────────── AppBar ─────────────────
+      // AppBar
       appBar: AppBar(
         backgroundColor: kWitheColor50,
         elevation: 0,
@@ -31,7 +37,7 @@ class _HomeviewState extends State<Homeview> {
               width: 36,
               height: 36,
               colorFilter: const ColorFilter.mode(
-                kYellowColor200, // apply the color you want
+                kYellowColor200,
                 BlendMode.srcIn,
               ),
             ),
@@ -52,7 +58,7 @@ class _HomeviewState extends State<Homeview> {
         surfaceTintColor: Colors.transparent,
       ),
 
-      // ───────────────── Body ─────────────────
+      // Body
       body: SingleChildScrollView(
         child: SafeArea(
           child: Padding(
@@ -118,24 +124,24 @@ class _HomeviewState extends State<Homeview> {
                 const SizedBox(height: 24),
 
                 // In progress game
-                _GameBox(
+                GameBox(
                   title: 'In progress game',
                   gameTitle: 'Restaurant Night',
                   players: [
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Stephen',
                       imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
                     ),
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Alice',
                       imageUrl:
                           'https://randomuser.me/api/portraits/women/2.jpg',
                     ),
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Samuel',
                       imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg',
                     ),
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Tony',
                       imageUrl: 'https://randomuser.me/api/portraits/men/4.jpg',
                     ),
@@ -145,26 +151,26 @@ class _HomeviewState extends State<Homeview> {
                 const SizedBox(height: 24),
 
                 // Repeat game
-                _GameBox(
+                GameBox(
                   title: 'Repeat game',
                   gameTitle: 'Cafe Morning',
                   players: [
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Stephen',
                       imageUrl:
                           'https://randomuser.me/api/portraits/men/12.jpg',
                     ),
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Alice',
                       imageUrl:
                           'https://randomuser.me/api/portraits/women/20.jpg',
                     ),
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Samuel',
                       imageUrl:
                           'https://randomuser.me/api/portraits/men/22.jpg',
                     ),
-                    _PlayerChip(
+                    PlayerChip(
                       name: 'Tony',
                       imageUrl:
                           'https://randomuser.me/api/portraits/men/40.jpg',
@@ -177,10 +183,10 @@ class _HomeviewState extends State<Homeview> {
         ),
       ),
 
-      // ───────────────── Bottom Navigation ─────────────────
+      // Bottom Navigation
       bottomNavigationBar: Container(
-        margin: const EdgeInsets.all(16),
-        height: 80,
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        height: 64,
         decoration: BoxDecoration(
           color: kWitheColor100,
           borderRadius: BorderRadius.circular(24),
@@ -190,221 +196,40 @@ class _HomeviewState extends State<Homeview> {
           child: Row(
             children: [
               Expanded(
-                child: _NavBarItem(
+                child: NavBarItem(
                   iconPath: 'assets/icons/play.svg',
                   label: 'Play',
-                  isSelected: true,
-                  onTap: () {},
+                  isSelected: selectedIndex == 0,
+                  onTap: () => setState(() => selectedIndex = 0),
                 ),
               ),
               Expanded(
-                child: _NavBarItem(
+                child: NavBarItem(
                   iconPath: 'assets/icons/templates.svg',
                   label: 'Templates',
-                  isSelected: false,
-                  onTap: () {},
+                  isSelected: selectedIndex == 1,
+                  onTap: () => setState(() => selectedIndex = 1),
                 ),
               ),
               Expanded(
-                child: _NavBarItem(
+                child: NavBarItem(
                   iconPath: 'assets/icons/game_history.svg',
                   label: 'History',
-                  isSelected: false,
-                  onTap: () {},
+                  isSelected: selectedIndex == 2,
+                  onTap: () => setState(() => selectedIndex = 2),
                 ),
               ),
               Expanded(
-                child: _NavBarItem(
+                child: NavBarItem(
                   iconPath: 'assets/icons/profile.svg',
                   label: 'Profile',
-                  isSelected: false,
-                  onTap: () {},
+                  isSelected: selectedIndex == 3,
+                  onTap: () => setState(() => selectedIndex = 3),
                 ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _NavBarItem extends StatelessWidget {
-  final String iconPath;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _NavBarItem({
-    required this.iconPath,
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: isSelected ? kYellowColor200 : Colors.transparent,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(
-                isSelected ? kBlueColor900 : kBlueColor800,
-                BlendMode.srcIn,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: isSelected ? kBlueColor900 : kBlueColor800,
-                fontWeight: FontWeight.w400,
-                fontFamily: kMPLFont,
-                height: 1.0,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _GameBox extends StatelessWidget {
-  final String title;
-  final String gameTitle;
-  final List<Widget> players;
-
-  const _GameBox({
-    required this.title,
-    required this.gameTitle,
-    required this.players,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 380,
-      height: 232,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: kMPLFont,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: kBlueColor800,
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            width: 380,
-            height: 194,
-            child: Card(
-              color: kWitheColor100,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          gameTitle,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: kBlueColor900,
-                            fontFamily: kMPLFont,
-                          ),
-                        ),
-                        const Icon(Icons.chevron_right, color: kBlueColor800),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(spacing: 8, runSpacing: 8, children: players),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: const [
-                        Text(
-                          'Stage:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: kBlueColor800,
-                            fontFamily: kMPLFont,
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Voting',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: kBlueColor900,
-                            fontFamily: kMPLFont,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PlayerChip extends StatelessWidget {
-  final String name;
-  final String imageUrl;
-
-  const _PlayerChip({required this.name, required this.imageUrl});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        border: Border.all(color: kYellowColor200),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CircleAvatar(radius: 13, backgroundImage: NetworkImage(imageUrl)),
-          const SizedBox(width: 6),
-          Text(
-            name,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: kBlueColor900,
-              fontFamily: kMPLFont,
-              height: 1.2,
-            ),
-          ),
-        ],
       ),
     );
   }
