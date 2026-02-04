@@ -13,7 +13,7 @@ class PlayerChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
-        border: Border.all(color: kYellowColor200),
+        border: Border.all(color: kColorYellow200),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -26,8 +26,8 @@ class PlayerChip extends StatelessWidget {
             style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: kBlueColor900,
-              fontFamily: kMPLFont,
+              color: kColorBlue900,
+              fontFamily: kFontMPL,
               height: 1.2,
             ),
           ),

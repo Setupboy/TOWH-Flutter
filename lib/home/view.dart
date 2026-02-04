@@ -20,11 +20,11 @@ class _HomeviewState extends State<Homeview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kWitheColor50,
+      backgroundColor: kColorWithe50,
 
       // AppBar
       appBar: AppBar(
-        backgroundColor: kWitheColor50,
+        backgroundColor: kColorWithe50,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: false,
@@ -37,7 +37,7 @@ class _HomeviewState extends State<Homeview> {
               width: 36,
               height: 36,
               colorFilter: const ColorFilter.mode(
-                kYellowColor200,
+                kColorYellow200,
                 BlendMode.srcIn,
               ),
             ),
@@ -49,12 +49,12 @@ class _HomeviewState extends State<Homeview> {
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
                 height: 1.0,
-                color: kBlueColor900,
+                color: kColorBlue900,
               ),
             ),
           ],
         ),
-        foregroundColor: kBlueColor900,
+        foregroundColor: kColorBlue900,
         surfaceTintColor: Colors.transparent,
       ),
 
@@ -81,38 +81,43 @@ class _HomeviewState extends State<Homeview> {
                           fontSize: 42,
                           fontWeight: FontWeight.w700,
                           height: 1.14,
-                          color: kBlueColor900,
+                          color: kColorBlue900,
                         ),
                       ),
                       const SizedBox(height: 4),
                       const Text(
                         'Create a new game with friends present',
                         style: TextStyle(
-                          fontFamily: kMPLFont,
+                          fontFamily: kFontMPL,
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           height: 1.625,
-                          color: kBlueColor800,
+                          color: kColorBlue800,
                         ),
                       ),
                       const Spacer(),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => NewGame()),
+                          );
+                        },
                         child: Container(
                           width: 380,
                           height: 124,
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: kYellowColor200,
+                            color: kColorYellow200,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Text(
                             '+ New Game',
                             style: TextStyle(
-                              fontFamily: kMPLFont,
+                              fontFamily: kFontMPL,
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
-                              color: kBlueColor900,
+                              color: kColorBlue900,
                             ),
                           ),
                         ),
@@ -188,7 +193,7 @@ class _HomeviewState extends State<Homeview> {
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         height: 64,
         decoration: BoxDecoration(
-          color: kWitheColor100,
+          color: kColorWithe100,
           borderRadius: BorderRadius.circular(24),
         ),
         child: ClipRRect(
@@ -229,6 +234,67 @@ class _HomeviewState extends State<Homeview> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class NewGame extends StatefulWidget {
+  const NewGame({super.key});
+
+  @override
+  State<NewGame> createState() => _NewGameState();
+}
+
+class _NewGameState extends State<NewGame> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: kColorWithe50,
+      appBar: AppBar(
+        backgroundColor: kColorWithe50,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        title: Row(
+          children: [
+            Icon(Icons.arrow_back_ios_new, size: 20, color: kColorBlue800),
+            const SizedBox(width: 12),
+            Text(
+              'Game Set Up',
+              style: TextStyle(
+                fontSize: 24,
+                fontFamily: kFontBaloo2,
+                fontWeight: FontWeight.w600,
+                color: kColorBlue900,
+                letterSpacing: 0,
+                height: 1.0,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Text(
+                "Let’s get the polling hit Up and running",
+                style: TextStyle(
+                  color: kColorBlue800,
+                  fontFamily: kFontMPL,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  height: 1.6,
+                  letterSpacing: 0,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

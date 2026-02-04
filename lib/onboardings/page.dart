@@ -19,7 +19,7 @@ class OnboardingPage extends StatelessWidget {
           height: 412,
           width: double.infinity,
           decoration: const BoxDecoration(
-            color: kWitheColor50,
+            color: kColorWithe50,
             borderRadius: BorderRadius.only(bottomRight: Radius.circular(400)),
           ),
           child: Center(
@@ -41,22 +41,22 @@ class OnboardingPage extends StatelessWidget {
               Text(
                 step.title,
                 style: const TextStyle(
-                  fontFamily: kBaloo2Font,
+                  fontFamily: kFontBaloo2,
                   fontWeight: FontWeight.w700,
                   fontSize: 48,
                   height: 57 / 48,
-                  color: kBlueColor900,
+                  color: kColorBlue900,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 step.description,
                 style: const TextStyle(
-                  fontFamily: kMPLFont,
+                  fontFamily: kFontMPL,
                   fontSize: 16,
                   fontWeight: FontWeight.w400,
                   height: 1.5,
-                  color: kBlueColor800,
+                  color: kColorBlue800,
                 ),
               ),
             ],

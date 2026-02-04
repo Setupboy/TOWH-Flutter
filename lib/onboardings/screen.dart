@@ -78,16 +78,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kYellowColor200,
+      backgroundColor: kColorYellow200,
       appBar: AppBar(
-        backgroundColor: kWitheColor50,
+        backgroundColor: kColorWithe50,
         elevation: 0,
         leading: _currentIndex > 0
             ? IconButton(
                 icon: const Icon(
                   Icons.arrow_back_ios_new,
                   size: 18,
-                  color: kBlueColor900,
+                  color: kColorBlue900,
                 ),
                 onPressed: _previousPage,
               )
@@ -102,14 +102,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   Text(
                     'Skip',
                     style: TextStyle(
-                      fontFamily: kMPLFont,
+                      fontFamily: kFontMPL,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: kBlueColor800,
+                      color: kColorBlue800,
                     ),
                   ),
                   SizedBox(width: 6),
-                  Icon(Icons.arrow_forward_ios, size: 14, color: kBlueColor800),
+                  Icon(Icons.arrow_forward_ios, size: 14, color: kColorBlue800),
                 ],
               ),
             ),
@@ -126,7 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     height: 412,
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      color: kWitheColor50,
+                      color: kColorWithe50,
                       borderRadius: BorderRadius.only(
                         bottomRight: Radius.circular(400),
                       ),
@@ -160,14 +160,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       dotWidth: 10,
                       dotHeight: 10,
                       spacing: 4,
-                      activeDotColor: kWitheColor50,
-                      dotColor: kYellowColor100,
+                      activeDotColor: kColorWithe50,
+                      dotColor: kColorYellow100,
                     ),
                   ),
                   ElevatedButton(
                     onPressed: _nextPage,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kWitheColor50,
+                      backgroundColor: kColorWithe50,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -178,17 +178,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         Text(
                           'Next',
                           style: TextStyle(
-                            fontFamily: kMPLFont,
+                            fontFamily: kFontMPL,
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
-                            color: kBlueColor900,
+                            color: kColorBlue900,
                           ),
                         ),
                         SizedBox(width: 4),
                         Icon(
                           Icons.arrow_forward_ios,
                           size: 14,
-                          color: kBlueColor900,
+                          color: kColorBlue900,
                         ),
                       ],
                     ),

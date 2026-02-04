@@ -23,7 +23,7 @@ class NavBarItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: isSelected ? kYellowColor200 : Colors.transparent,
+          color: isSelected ? kColorYellow200 : Colors.transparent,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -33,7 +33,7 @@ class NavBarItem extends StatelessWidget {
               width: 24,
               height: 24,
               colorFilter: ColorFilter.mode(
-                isSelected ? kBlueColor900 : kBlueColor800,
+                isSelected ? kColorBlue900 : kColorBlue800,
                 BlendMode.srcIn,
               ),
             ),
@@ -42,9 +42,9 @@ class NavBarItem extends StatelessWidget {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isSelected ? kBlueColor900 : kBlueColor800,
+                color: isSelected ? kColorBlue900 : kColorBlue800,
                 fontWeight: FontWeight.w400,
-                fontFamily: kMPLFont,
+                fontFamily: kFontMPL,
                 height: 1.0,
                 letterSpacing: 0.5,
               ),

@@ -25,10 +25,10 @@ class GameBox extends StatelessWidget {
           Text(
             title,
             style: const TextStyle(
-              fontFamily: kMPLFont,
+              fontFamily: kFontMPL,
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: kBlueColor800,
+              color: kColorBlue800,
             ),
           ),
           const SizedBox(height: 8),
@@ -36,7 +36,7 @@ class GameBox extends StatelessWidget {
             width: 380,
             height: 194,
             child: Card(
-              color: kWitheColor100,
+              color: kColorWithe100,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
@@ -54,11 +54,11 @@ class GameBox extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
-                            color: kBlueColor900,
-                            fontFamily: kMPLFont,
+                            color: kColorBlue900,
+                            fontFamily: kFontMPL,
                           ),
                         ),
-                        const Icon(Icons.chevron_right, color: kBlueColor800),
+                        const Icon(Icons.chevron_right, color: kColorBlue800),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -70,8 +70,8 @@ class GameBox extends StatelessWidget {
                           'Stage:',
                           style: TextStyle(
                             fontSize: 12,
-                            color: kBlueColor800,
-                            fontFamily: kMPLFont,
+                            color: kColorBlue800,
+                            fontFamily: kFontMPL,
                           ),
                         ),
                         SizedBox(width: 4),
@@ -80,8 +80,8 @@ class GameBox extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: kBlueColor900,
-                            fontFamily: kMPLFont,
+                            color: kColorBlue900,
+                            fontFamily: kFontMPL,
                           ),
                         ),
                       ],

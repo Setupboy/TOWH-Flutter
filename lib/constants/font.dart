@@ -1,2 +1,2 @@
-const kMPLFont = 'MPLUSR1';
-const kBaloo2Font = 'Baloo2';
+const kFontMPL = 'MPLUSR1';
+const kFontBaloo2 = 'Baloo2';
