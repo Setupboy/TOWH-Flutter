@@ -289,212 +289,335 @@ class _NewGameState extends State<NewGame> {
           ],
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            Center(
-              child: Text(
-                'Let’s get the polling hit Up and running',
-                style: TextStyle(
-                  color: kColorBlue800,
-                  fontFamily: kFontMPL,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  height: 1.6,
-                  letterSpacing: 0,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // Middle content scrolls if needed
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Text(
+                          'Let’s get the polling hit Up and running',
+                          style: TextStyle(
+                            color: kColorBlue800,
+                            fontFamily: kFontMPL,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            height: 1.6,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+
+                      // MAIN CARD
+                      Container(
+                        padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                        decoration: BoxDecoration(
+                          color: kColorWithe100,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // ACTIVITY
+                            const Text(
+                              'Activity Name',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                fontFamily: kFontMPL,
+                                color: kColorBlue900,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 37,
+                              child: TextField(
+                                enableSuggestions: false,
+                                cursorColor: kColorBlue100,
+                                textAlignVertical: TextAlignVertical.center,
+                                style: const TextStyle(
+                                  fontFamily: kFontMPL,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0,
+                                  color: kColorBlue800,
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: 'Write an activity title',
+                                  hintStyle: const TextStyle(
+                                    fontFamily: kFontMPL,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.5,
+                                    letterSpacing: 0,
+                                    color: kColorBlue100,
+                                  ),
+                                  filled: true,
+                                  fillColor: kColorWithe50,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                    borderSide: const BorderSide(
+                                      color: kColorGray100,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                    borderSide: const BorderSide(
+                                      color: kColorGray100,
+                                      width: 1,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            const Text(
+                              'Number of Players',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
+                                fontFamily: kFontMPL,
+                                color: kColorBlue900,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            // PLAYERS
+                            Container(
+                              height: 89,
+                              decoration: BoxDecoration(
+                                color: kColorWithe50,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: kColorYellow100,
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  // REMOVE SIDE
+                                  Container(
+                                    width: 72,
+                                    height: double.infinity,
+                                    decoration: const BoxDecoration(
+                                      color: kColorYellow50,
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(24),
+                                        bottomLeft: Radius.circular(24),
+                                      ),
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.remove,
+                                        size: 25,
+                                        color: kColorBlue100,
+                                      ),
+                                      onPressed: players > 3
+                                          ? () {
+                                              setState(() {
+                                                players--;
+                                              });
+                                            }
+                                          : null,
+                                    ),
+                                  ),
+
+                                  // CENTER CONTENT
+                                  Expanded(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          '$players',
+                                          style: const TextStyle(
+                                            fontSize: 42,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: kFontMPL,
+                                            color: kColorGreen400,
+                                            height: 1.0,
+                                            letterSpacing: 0.14,
+                                          ),
+                                        ),
+                                        const Text(
+                                          'Players',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: kFontMPL,
+                                            color: kColorGreen400,
+                                            height: 1.0,
+                                            letterSpacing: 0.14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // ADD SIDE
+                                  Container(
+                                    width: 72,
+                                    height: double.infinity,
+                                    decoration: const BoxDecoration(
+                                      color: kColorYellow200,
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(24),
+                                        bottomRight: Radius.circular(24),
+                                      ),
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.add,
+                                        color: kColorBlue800,
+                                        size: 25,
+                                      ),
+                                      onPressed: () {
+                                        setState(() {
+                                          players++;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Center(
+                              child: const Text(
+                                'ⓘ Minimum of 3 is required',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: kFontRoboto,
+                                  fontWeight: FontWeight.w400,
+                                  color: kColorBlue100,
+                                  letterSpacing: 0.5,
+                                  height: 2,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 24),
 
-            // MAIN CARD
-            Container(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-              decoration: BoxDecoration(
-                color: kColorWithe100,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // ACTIVITY
-                  const Text(
-                    'Activity Name',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 14,
-                      fontFamily: kFontMPL,
-                      color: kColorBlue900,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    height: 37,
-                    width: 348,
-                    child: TextField(
-                      enableSuggestions: false,
-                      cursorColor: kColorBlue100,
-                      style: const TextStyle(
-                        fontFamily: kFontMPL,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        height: 1.5,
-                        letterSpacing: 0,
-                        color: kColorBlue800,
-                      ),
-                      decoration: InputDecoration(
-                        hintText: 'Write an activity title',
-                        hintStyle: const TextStyle(
-                          fontFamily: kFontMPL,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                          height: 1.5,
-                          letterSpacing: 0,
-                          color: kColorBlue100,
+              // QUICK GUIDE at bottom
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: kColorGreen50,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: kColorGreen100, width: 1),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: const [
+                        Icon(
+                          Icons.info_outline,
+                          color: kColorBlue800,
+                          size: 16,
                         ),
-                        filled: true,
-                        fillColor: kColorWithe50,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                          horizontal: 12,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                            color: kColorGray100,
-                            width: 1,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                            color: kColorGray100,
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // PLAYERS
-                  Container(
-                    height: 89,
-                    width: 348,
-                    decoration: BoxDecoration(
-                      color: kColorWithe50,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: kColorYellow200, width: 1),
-                    ),
-                    child: Row(
-                      children: [
-                        // REMOVE SIDE (LEFT)
-                        Container(
-                          width: 72,
-                          height: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: kColorYellow100,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(24),
-                              bottomLeft: Radius.circular(24),
-                            ),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.remove,
-                              size: 25,
-                              color: kColorBlue100,
-                            ),
-                            onPressed: players > 3
-                                ? () {
-                                    setState(() {
-                                      players--;
-                                    });
-                                  }
-                                : null,
-                          ),
-                        ),
-
-                        // CENTER CONTENT
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '$players',
-                                style: const TextStyle(
-                                  fontSize: 42,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: kFontMPL,
-                                  color: kColorGreen100,
-                                  height: 1.0,
-                                  letterSpacing: 0.14,
-                                ),
-                              ),
-                              const Text(
-                                'Players',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: kFontMPL,
-                                  color: kColorGreen100,
-                                  height: 1.0,
-                                  letterSpacing: 0.14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // ADD SIDE (RIGHT)
-                        Container(
-                          width: 72,
-                          height: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: kColorYellow200,
-                            borderRadius: BorderRadius.only(
-                              topRight: Radius.circular(24),
-                              bottomRight: Radius.circular(24),
-                            ),
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.add,
-                              color: kColorBlue800,
-                              size: 25,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                players++;
-                              });
-                            },
+                        SizedBox(width: 8),
+                        Text(
+                          "Quick guide:",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontFamily: kFontMPL,
+                            color: kColorBlue900,
                           ),
                         ),
                       ],
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    Text.rich(
+                      TextSpan(
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontFamily: kFontMPL,
+                          fontWeight: FontWeight.w400,
+                          color: kColorGreen200,
+                          height: 1.6,
+                        ),
+                        children: const [
+                          TextSpan(
+                            text: "Choose Player and activities, Select ",
+                          ),
+                          TextSpan(
+                            text: "mystery",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: kColorGreen300,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "\ncolors, Decide on activity by the ",
+                          ),
+                          TextSpan(
+                            text: "mystery",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color: kColorGreen300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
 
-                  const SizedBox(height: 4),
-                  Center(
+              // Add Continue button **outside** the Quick Guide container
+              const SizedBox(height: 12),
+              SizedBox(
+                width: 380,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kColorYellow200,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  onPressed: () {},
+                  child: SizedBox(
+                    width: 69,
+                    height: 23,
                     child: const Text(
-                      'ⓘ Minimum of 3 is required',
+                      "Continue",
                       style: TextStyle(
-                        fontSize: 12,
-                        fontFamily: kFontRoboto,
-                        fontWeight: FontWeight.w400,
-                        color: kColorBlue100,
-                        letterSpacing: 0.5,
-                        height: 2,
+                        fontSize: 16,
+                        fontFamily: kFontMPL,
+                        fontWeight: FontWeight.w500,
+                        color: kColorBlue900,
+                        height: 1.46,
+                        letterSpacing: 0,
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
