@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:towh/home/view.dart';
+import 'package:towh/core/theme/color.dart';
+import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/utils/image.dart';
+import 'package:towh/features/home/screens/home_view.dart';
 
-import '../constants/color.dart';
-import '../constants/font.dart';
-import '../constants/image.dart';
-import 'page.dart';
-import 'step.dart';
+import '../models/onboarding_step.dart';
+import '../widgets/onboarding_page.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});

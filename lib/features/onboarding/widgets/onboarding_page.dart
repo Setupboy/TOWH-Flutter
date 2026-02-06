@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../constants/color.dart';
-import '../constants/font.dart';
-import 'step.dart';
+import 'package:towh/core/theme/color.dart';
+import 'package:towh/core/theme/font.dart';
+
+import '../models/onboarding_step.dart';
 
 class OnboardingPage extends StatelessWidget {
   final OnboardingStep step;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:towh/constants/color.dart';
-import 'package:towh/constants/font.dart';
+import 'package:towh/core/theme/color.dart';
+import 'package:towh/core/theme/font.dart';
 
 class GameBox extends StatelessWidget {
   final String title;

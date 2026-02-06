@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:towh/constants/color.dart';
-import 'package:towh/constants/font.dart';
+import 'package:towh/core/theme/color.dart';
+import 'package:towh/core/theme/font.dart';
 
 class NavBarItem extends StatelessWidget {
   final String iconPath;
