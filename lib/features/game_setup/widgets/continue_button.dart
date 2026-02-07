@@ -4,7 +4,14 @@ import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
 
 class ContinueButton extends StatelessWidget {
-  const ContinueButton({super.key});
+  final String label;
+  final VoidCallback onPressed;
+
+  const ContinueButton({
+    super.key,
+    this.label = 'Continue',
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,16 +19,16 @@ class ContinueButton extends StatelessWidget {
       width: 380,
       height: 48,
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: kColorYellow200,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        child: const Text(
-          'Continue',
-          style: TextStyle(
+        child: Text(
+          label,
+          style: const TextStyle(
             fontSize: 16,
             fontFamily: kFontMPL,
             fontWeight: FontWeight.w500,

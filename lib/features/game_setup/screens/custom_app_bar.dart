@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
-import '../../home/screens/home_view.dart';
-
-PreferredSizeWidget customAppBar(BuildContext context) {
+PreferredSizeWidget customAppBar(
+  BuildContext context, {
+  required VoidCallback onBack,
+  String title = 'Game Set Up',
+}) {
   return AppBar(
     backgroundColor: kColorWithe50,
     elevation: 0,
@@ -13,18 +15,13 @@ PreferredSizeWidget customAppBar(BuildContext context) {
     title: Row(
       children: [
         GestureDetector(
-          onTap: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const Homeview()),
-            );
-          },
+          onTap: onBack,
           child: Icon(Icons.arrow_back_ios_new, size: 20, color: kColorBlue800),
         ),
         const SizedBox(width: 12),
-        const Text(
-          'Game Set Up',
-          style: TextStyle(
+        Text(
+          title,
+          style: const TextStyle(
             fontSize: 24,
             fontFamily: kFontBaloo2,
             fontWeight: FontWeight.w600,

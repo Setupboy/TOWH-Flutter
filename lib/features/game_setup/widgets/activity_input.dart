@@ -4,7 +4,9 @@ import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
 
 class ActivityInput extends StatelessWidget {
-  const ActivityInput({super.key});
+  final TextEditingController controller;
+
+  const ActivityInput({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +26,7 @@ class ActivityInput extends StatelessWidget {
         SizedBox(
           height: 37,
           child: TextField(
+            controller: controller,
             enableSuggestions: false,
             cursorColor: kColorBlue100,
             textAlignVertical: TextAlignVertical.center,
