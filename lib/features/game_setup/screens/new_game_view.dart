@@ -21,6 +21,7 @@ class _NewGameViewState extends State<NewGameView> {
   int players = 3;
   int _stepIndex = 0;
   int _currentPlayerIndex = 0;
+  bool _autoAssignEnabled = false;
 
   final TextEditingController _activityController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -192,6 +193,40 @@ class _NewGameViewState extends State<NewGameView> {
                     fontFamily: kFontBaloo2,
                     color: kColorBlue900,
                     height: 1.0,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Auto assign',
+                style: TextStyle(
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                  fontFamily: kFontMPL,
+                  color: kColorBlue800,
+                  height: 1.86,
+                ),
+              ),
+              const SizedBox(width: 6),
+              SizedBox(
+                width: 28,
+                height: 16,
+                child: FittedBox(
+                  fit: BoxFit.fill,
+                  child: Switch.adaptive(
+                    value: _autoAssignEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        _autoAssignEnabled = value;
+                      });
+                      if (value) _autoAssignPlayers();
+                    },
+
+                    activeThumbColor: Colors.white,
+                    activeTrackColor: kColorGreen100,
+                    inactiveThumbColor: Colors.white,
+                    inactiveTrackColor: kColorGray100,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ),
@@ -489,5 +524,13 @@ class _NewGameViewState extends State<NewGameView> {
     while (_playerControllers.length > players) {
       _playerControllers.removeLast().dispose();
     }
+  }
+
+  void _autoAssignPlayers() {
+    setState(() {
+      for (int i = 0; i < _playerControllers.length; i++) {
+        _playerControllers[i].text = 'Player ${i + 1}';
+      }
+    });
   }
 }

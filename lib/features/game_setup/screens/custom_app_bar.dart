@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
+
 PreferredSizeWidget customAppBar(
   BuildContext context, {
   required VoidCallback onBack,
   String title = 'Game Set Up',
 }) {
   return AppBar(
+    foregroundColor: kColorBlue900,
+    surfaceTintColor: Colors.transparent,
     backgroundColor: kColorWithe50,
     elevation: 0,
     automaticallyImplyLeading: false,
