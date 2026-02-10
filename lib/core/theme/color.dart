@@ -11,7 +11,8 @@ const kColorBlue100 = Color(0x5413322B); //#13322B54
 const kColorBlue800 = Color(0xA80E251F); //#0E251FA8
 const kColorBlue900 = Color(0xFF0E251F); //#0E251F
 
-const kColorGray100 = Color(0xFFD3D3D3); //#D3D3D3
+const kColorGray50 = Color(0xFFD3D3D3); //#D3D3D3
+const kColorGray100 = Color(0xFFD5D4D4); // #D5D4D4
 
 const kColorGreen50 = Color(0xFFD3E3D8); //#D3E3D8
 const kColorGreen100 = Color(0xFFB4D4C7); //#B4D4C7

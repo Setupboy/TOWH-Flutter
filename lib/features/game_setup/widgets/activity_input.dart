@@ -50,11 +50,11 @@ class ActivityInput extends StatelessWidget {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray100, width: 1),
+                borderSide: const BorderSide(color: kColorGray50, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray100, width: 1),
+                borderSide: const BorderSide(color: kColorGray50, width: 1),
               ),
             ),
           ),

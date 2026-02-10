@@ -19,20 +19,25 @@ class NewGameView extends StatefulWidget {
 class _NewGameViewState extends State<NewGameView> {
   int players = 3;
   int _stepIndex = 0;
+  bool _autoAssignEnabled = false;
 
   final TextEditingController _activityController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  final List<TextEditingController> _playerControllers = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _syncPlayerControllers();
+  }
 
   @override
   void dispose() {
     _activityController.dispose();
-    _locationController.dispose();
-    _dateController.dispose();
-    _timeController.dispose();
     _noteController.dispose();
+    for (final controller in _playerControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -135,9 +140,13 @@ class _NewGameViewState extends State<NewGameView> {
               const SizedBox(height: 12),
               PlayersCounter(
                 players: players,
-                onAdd: () => setState(() => players++),
+                onAdd: () => setState(() {
+                  players++;
+                  _syncPlayerControllers();
+                }),
                 onRemove: () => setState(() {
                   if (players > 3) players--;
+                  _syncPlayerControllers();
                 }),
               ),
               const SizedBox(height: 4),
@@ -155,34 +164,89 @@ class _NewGameViewState extends State<NewGameView> {
   }
 
   Widget _buildDetailsStep() {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-      decoration: BoxDecoration(
-        color: kColorWithe100,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _labeledInput(
-            label: 'Player 1',
-            hintText: 'Player Name',
-            controller: _locationController,
+    return Column(
+      children: [
+        SizedBox(
+          height: 38,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  'Players Names',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 24,
+                    fontFamily: kFontBaloo2,
+                    color: kColorBlue900,
+                    height: 1.0,
+                  ),
+                ),
+              ),
+
+              const SizedBox(width: 12),
+
+              Container(
+                height: 34,
+                width: 139,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: kColorGreen50, width: 1),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Auto assign',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: kColorBlue800,
+                          fontWeight: FontWeight.w400,
+                          fontFamily: kFontMPL,
+                          fontSize: 14,
+                          height: 1.6,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _labeledInput(
-            label: 'Player 2',
-            hintText: 'Player Name',
-            controller: _locationController,
+        ),
+
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+          decoration: BoxDecoration(
+            color: kColorWithe100,
+            borderRadius: BorderRadius.circular(24),
           ),
-          const SizedBox(height: 16),
-          _labeledInput(
-            label: 'Player 3',
-            hintText: 'Player Name',
-            controller: _locationController,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                children: List.generate(players, (index) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: index == players - 1 ? 0 : 16,
+                    ),
+                    child: _labeledInput(
+                      label: 'Player ${index + 1}',
+                      hintText: 'Player Name',
+                      controller: _playerControllers[index],
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -253,11 +317,11 @@ class _NewGameViewState extends State<NewGameView> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray100, width: 1),
+                borderSide: const BorderSide(color: kColorGray50, width: 1),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray100, width: 1),
+                borderSide: const BorderSide(color: kColorGray50, width: 1),
               ),
             ),
           ),
@@ -295,5 +359,24 @@ class _NewGameViewState extends State<NewGameView> {
     if (_stepIndex > 0) {
       setState(() => _stepIndex--);
     }
+  }
+
+  void _syncPlayerControllers() {
+    while (_playerControllers.length < players) {
+      _playerControllers.add(TextEditingController());
+    }
+    while (_playerControllers.length > players) {
+      _playerControllers.removeLast().dispose();
+    }
+  }
+
+  void _autoAssignPlayers() {
+    setState(() {
+      for (int i = 0; i < _playerControllers.length; i++) {
+        if (_playerControllers[i].text.trim().isEmpty) {
+          _playerControllers[i].text = 'Player ${i + 1}';
+        }
+      }
+    });
   }
 }
