@@ -19,3 +19,7 @@ const kColorGreen100 = Color(0xFFB4D4C7); //#B4D4C7
 const kColorGreen200 = Color(0xFF72857D); //#72857D
 const kColorGreen300 = Color(0xFF51665E); //#3A9883
 const kColorGreen400 = Color(0xFF3A9883); //#3A9883
+
+const kColorPink50 = Color(0xFFFFE8E8); //#FFE8E8
+
+const kColorRed600 = Color(0xFFDF2323); //#DF2323

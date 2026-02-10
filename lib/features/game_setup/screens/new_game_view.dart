@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
+import '../../../core/utils/player_data.dart';
 import '../../home/screens/home_view.dart';
 import '../widgets/activity_input.dart';
 import '../widgets/continue_button.dart';
@@ -19,7 +20,7 @@ class NewGameView extends StatefulWidget {
 class _NewGameViewState extends State<NewGameView> {
   int players = 3;
   int _stepIndex = 0;
-  bool _autoAssignEnabled = false;
+  int _currentPlayerIndex = 0;
 
   final TextEditingController _activityController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -66,16 +67,22 @@ class _NewGameViewState extends State<NewGameView> {
                   child: Column(
                     children: [
                       const SizedBox(height: 12),
-                      _introText(),
-                      const SizedBox(height: 12),
-                      const SizedBox(height: 24),
+                      if (_stepIndex != 2) ...[
+                        _introText(),
+                        const SizedBox(height: 12),
+                        const SizedBox(height: 24),
+                      ],
                       _buildStepContent(),
                     ],
                   ),
                 ),
               ),
               if (_stepIndex == 0) ...[const QuickGuide()],
-              const SizedBox(height: 12),
+              if (_stepIndex == 2) ...[
+                const SizedBox(height: 12),
+                _buildSecretWarning(),
+              ],
+              const SizedBox(height: 24),
               _buildBottomActions(),
             ],
           ),
@@ -85,6 +92,9 @@ class _NewGameViewState extends State<NewGameView> {
   }
 
   Widget _introText() {
+    if (_stepIndex == 2) {
+      return const SizedBox.shrink();
+    }
     return Text(
       'Let’s get the polling hit Up and running',
       textAlign: TextAlign.center,
@@ -251,19 +261,146 @@ class _NewGameViewState extends State<NewGameView> {
   }
 
   Widget _buildFinalStep() {
+    final activityName = _activityController.text.trim().isEmpty
+        ? 'Restaurant Night'
+        : _activityController.text.trim();
+
+    return SizedBox(
+      width: 380,
+      height: 370,
+      child: Column(
+        children: [
+          const SizedBox(height: 1),
+          SizedBox(
+            width: 380,
+            height: 118,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Its time for choose:',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontFamily: kFontMPL,
+                    fontWeight: FontWeight.w400,
+                    color: kColorBlue800,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundImage: NetworkImage(_currentPlayer.imageUrl),
+                      backgroundColor: kColorWithe100,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      _currentPlayer.name,
+                      style: const TextStyle(
+                        fontSize: 42,
+                        fontFamily: kFontMPL,
+                        fontWeight: FontWeight.w800,
+                        color: kColorBlue900,
+                        height: 1.0,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Text(
+            'Choose your desired answer',
+            style: TextStyle(
+              fontSize: 16,
+              fontFamily: kFontMPL,
+              fontWeight: FontWeight.w400,
+              color: kColorBlue800,
+              height: 1.86,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+            decoration: BoxDecoration(
+              color: kColorWithe100,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      '🚀  Activity:',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: kFontMPL,
+                        fontWeight: FontWeight.w400,
+                        color: kColorBlue800,
+                        height: 1.86,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      activityName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: kFontMPL,
+                        fontWeight: FontWeight.w500,
+                        color: kColorBlue900,
+                        height: 1.86,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _labeledInput(
+                  label: 'Your Choice',
+                  hintText: 'Write Answer',
+                  controller: _noteController,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecretWarning() {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
       decoration: BoxDecoration(
-        color: kColorWithe100,
+        color: kColorPink50,
         borderRadius: BorderRadius.circular(24),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _labeledInput(
-            label: 'Your Choice',
-            hintText: 'Write Answer ',
-            controller: _noteController,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(text: '🤫  Do not share your '),
+                TextSpan(
+                  text: 'Answer',
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+              ],
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: kFontMPL,
+                fontWeight: FontWeight.w400,
+                color: kColorRed600,
+                height: 1.86,
+              ),
+            ),
           ),
         ],
       ),
@@ -350,8 +487,15 @@ class _NewGameViewState extends State<NewGameView> {
     if (_stepIndex < 2) {
       setState(() => _stepIndex++);
     } else {
-      // Final step action (placeholder)
-      Navigator.pop(context);
+      if (_currentPlayerIndex < players - 1) {
+        setState(() {
+          _currentPlayerIndex++;
+          _noteController.clear();
+        });
+      } else {
+        // Final step action (placeholder)
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -359,6 +503,13 @@ class _NewGameViewState extends State<NewGameView> {
     if (_stepIndex > 0) {
       setState(() => _stepIndex--);
     }
+  }
+
+  PlayerData get _currentPlayer {
+    if (kDemoPlayers.isEmpty) {
+      return const PlayerData(name: 'Player', imageUrl: '');
+    }
+    return kDemoPlayers[_currentPlayerIndex % kDemoPlayers.length];
   }
 
   void _syncPlayerControllers() {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:towh/core/theme/color.dart';
 import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/utils/player_data.dart';
 
 import '../../game_setup/screens/new_game_view.dart';
 import '../widgets/game_box.dart';
@@ -135,25 +136,14 @@ class _HomeviewState extends State<Homeview> {
                 GameBox(
                   title: 'In progress game',
                   gameTitle: 'Restaurant Night',
-                  players: [
-                    PlayerChip(
-                      name: 'Stephen',
-                      imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
-                    ),
-                    PlayerChip(
-                      name: 'Alice',
-                      imageUrl:
-                          'https://randomuser.me/api/portraits/women/2.jpg',
-                    ),
-                    PlayerChip(
-                      name: 'Samuel',
-                      imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg',
-                    ),
-                    PlayerChip(
-                      name: 'Tony',
-                      imageUrl: 'https://randomuser.me/api/portraits/men/4.jpg',
-                    ),
-                  ],
+                  players: kDemoPlayers
+                      .map(
+                        (player) => PlayerChip(
+                          name: player.name,
+                          imageUrl: player.imageUrl,
+                        ),
+                      )
+                      .toList(),
                 ),
 
                 const SizedBox(height: 24),
@@ -162,28 +152,14 @@ class _HomeviewState extends State<Homeview> {
                 GameBox(
                   title: 'Repeat game',
                   gameTitle: 'Cafe Morning',
-                  players: [
-                    PlayerChip(
-                      name: 'Stephen',
-                      imageUrl:
-                          'https://randomuser.me/api/portraits/men/12.jpg',
-                    ),
-                    PlayerChip(
-                      name: 'Alice',
-                      imageUrl:
-                          'https://randomuser.me/api/portraits/women/20.jpg',
-                    ),
-                    PlayerChip(
-                      name: 'Samuel',
-                      imageUrl:
-                          'https://randomuser.me/api/portraits/men/22.jpg',
-                    ),
-                    PlayerChip(
-                      name: 'Tony',
-                      imageUrl:
-                          'https://randomuser.me/api/portraits/men/40.jpg',
-                    ),
-                  ],
+                  players: kDemoPlayers
+                      .map(
+                        (player) => PlayerChip(
+                          name: player.name,
+                          imageUrl: player.imageUrl,
+                        ),
+                      )
+                      .toList(),
                 ),
               ],
             ),
