@@ -1,5 +1,6 @@
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:towh/core/theme/color.dart';
 import 'package:towh/core/theme/font.dart';
 import 'package:towh/core/utils/player_data.dart';
@@ -181,7 +182,7 @@ class _HomeviewState extends State<Homeview> {
             children: [
               Expanded(
                 child: NavBarItem(
-                  iconPath: 'assets/icons/play.svg',
+                  icon: FluentIcons.xbox_controller_24_regular,
                   label: 'Play',
                   isSelected: selectedIndex == 0,
                   onTap: () => setState(() => selectedIndex = 0),
@@ -189,15 +190,7 @@ class _HomeviewState extends State<Homeview> {
               ),
               Expanded(
                 child: NavBarItem(
-                  iconPath: 'assets/icons/templates.svg',
-                  label: 'Templates',
-                  isSelected: selectedIndex == 1,
-                  onTap: () => setState(() => selectedIndex = 1),
-                ),
-              ),
-              Expanded(
-                child: NavBarItem(
-                  iconPath: 'assets/icons/game_history.svg',
+                  icon: FluentIcons.history_24_regular,
                   label: 'History',
                   isSelected: selectedIndex == 2,
                   onTap: () => setState(() => selectedIndex = 2),
@@ -205,7 +198,7 @@ class _HomeviewState extends State<Homeview> {
               ),
               Expanded(
                 child: NavBarItem(
-                  iconPath: 'assets/icons/profile.svg',
+                  icon: FluentIcons.person_circle_24_regular,
                   label: 'Profile',
                   isSelected: selectedIndex == 3,
                   onTap: () => setState(() => selectedIndex = 3),

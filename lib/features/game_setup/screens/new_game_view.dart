@@ -195,36 +195,6 @@ class _NewGameViewState extends State<NewGameView> {
                   ),
                 ),
               ),
-
-              const SizedBox(width: 12),
-
-              Container(
-                height: 34,
-                width: 139,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: kColorGreen50, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Auto assign',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: kColorBlue800,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: kFontMPL,
-                          fontSize: 14,
-                          height: 1.6,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -519,15 +489,5 @@ class _NewGameViewState extends State<NewGameView> {
     while (_playerControllers.length > players) {
       _playerControllers.removeLast().dispose();
     }
-  }
-
-  void _autoAssignPlayers() {
-    setState(() {
-      for (int i = 0; i < _playerControllers.length; i++) {
-        if (_playerControllers[i].text.trim().isEmpty) {
-          _playerControllers[i].text = 'Player ${i + 1}';
-        }
-      }
-    });
   }
 }

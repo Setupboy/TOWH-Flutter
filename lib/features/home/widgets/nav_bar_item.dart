@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:towh/core/theme/color.dart';
 import 'package:towh/core/theme/font.dart';
 
 class NavBarItem extends StatelessWidget {
-  final String iconPath;
+  final IconData icon;
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
   const NavBarItem({
-    required this.iconPath,
+    required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
@@ -28,14 +27,10 @@ class NavBarItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(
-                isSelected ? kColorBlue900 : kColorBlue800,
-                BlendMode.srcIn,
-              ),
+            Icon(
+              icon,
+              size: 24,
+              color: isSelected ? kColorBlue900 : kColorBlue800,
             ),
             const SizedBox(height: 4),
             Text(
