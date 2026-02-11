@@ -5,7 +5,9 @@ import '../../../core/theme/font.dart';
 import '../../game/screens/game_view.dart';
 
 class ReadyToPlayView extends StatefulWidget {
-  const ReadyToPlayView({super.key});
+  final int playersCount;
+
+  const ReadyToPlayView({super.key, required this.playersCount});
 
   @override
   State<ReadyToPlayView> createState() => _ReadyToPlayViewState();
@@ -144,7 +146,10 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(
                       context,
-                      MaterialPageRoute(builder: (_) => const GameView()),
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            GameView(playersCount: widget.playersCount),
+                      ),
                       (route) => false,
                     );
                   },

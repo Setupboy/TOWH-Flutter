@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:towh/features/onboarding/screens/onboarding_screen.dart';
 
 void main() {

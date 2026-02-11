@@ -500,7 +500,7 @@ class _NewGameViewState extends State<NewGameView> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => const ReadyToPlayView(),
+            builder: (_) => ReadyToPlayView(playersCount: players),
           ),
         );
       }
