@@ -17,18 +17,15 @@ class GameView extends StatefulWidget {
 }
 
 class _GameViewState extends State<GameView> {
-  final int _currentPlayerIndex = 0;
+  int _currentPlayerIndex = 0;
   final Random _random = Random();
   late final List<_ChoiceColor> _choiceColors;
-  int _selectedColorIndex = 0;
+  int? _selectedColorIndex;
 
   @override
   void initState() {
     super.initState();
     _choiceColors = _buildRandomChoices(widget.playersCount);
-    if (_choiceColors.isNotEmpty) {
-      _selectedColorIndex = _random.nextInt(_choiceColors.length);
-    }
   }
 
   @override
@@ -176,7 +173,7 @@ class _GameViewState extends State<GameView> {
                 width: double.infinity,
                 height: 48,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _onContinuePressed,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kColorYellow200,
                     shape: RoundedRectangleBorder(
@@ -238,6 +235,14 @@ class _GameViewState extends State<GameView> {
       generated.add(_ChoiceColor(name: 'Color ${i + 1}', color: color));
     }
     return generated;
+  }
+
+  void _onContinuePressed() {
+    if (_currentPlayerIndex >= widget.playersCount - 1) return;
+    setState(() {
+      _currentPlayerIndex++;
+      _selectedColorIndex = null;
+    });
   }
 
   Widget _buildColorCard(_ChoiceColor choice, bool isSelected) {
