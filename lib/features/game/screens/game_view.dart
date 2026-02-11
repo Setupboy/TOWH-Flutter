@@ -217,7 +217,7 @@ class _GameViewState extends State<GameView> {
       _ChoiceColor(name: 'Orange', color: Color(0xFFF38B25)),
       _ChoiceColor(name: 'Red', color: Color(0xFFE54B4B)),
       _ChoiceColor(name: 'Pink', color: Color(0xFFE45FB4)),
-      _ChoiceColor(name: 'Amber', color: Color(0xFFF1B51C)),
+      _ChoiceColor(name: 'Yellow', color: Color(0xFFF1B51C)),
     ];
 
     final safeCount = count < 1 ? 1 : count;
@@ -262,13 +262,23 @@ class _GameViewState extends State<GameView> {
                     width: 40,
                     height: 40,
                     decoration: const BoxDecoration(
-                      color: kColorYellow200,
+                      color: kColorWithe100,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      size: 25,
-                      color: kColorWithe100,
+                    child: Center(
+                      child: Container(
+                        width: 25,
+                        height: 25,
+                        decoration: const BoxDecoration(
+                          color: kColorYellow200,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.check_rounded,
+                          size: 20,
+                          color: kColorWithe100,
+                        ),
+                      ),
                     ),
                   ),
                 )
