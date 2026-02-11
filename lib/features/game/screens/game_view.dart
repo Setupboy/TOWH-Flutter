@@ -248,15 +248,20 @@ class _GameViewState extends State<GameView> {
           width: 182,
           height: 167,
           decoration: BoxDecoration(
-            color: choice.color,
+            color: isSelected ? kColorYellow200 : Colors.transparent,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isSelected ? kColorYellow200 : Colors.transparent,
-              width: 2,
-            ),
           ),
-          child: isSelected
-              ? Align(
+          padding: const EdgeInsets.all(2),
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: choice.color,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+              ),
+              if (isSelected)
+                Align(
                   alignment: Alignment.center,
                   child: Container(
                     width: 40,
@@ -281,25 +286,29 @@ class _GameViewState extends State<GameView> {
                       ),
                     ),
                   ),
-                )
-              : null,
+                ),
+            ],
+          ),
         ),
         Positioned(
-          bottom: 0,
+          bottom: 2,
           child: Container(
             width: 134,
             height: 22,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             decoration: BoxDecoration(
               color: kColorWithe100,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
             ),
             child: Center(
               child: Text(
                 choice.name,
                 style: const TextStyle(
                   fontSize: 14,
-                  fontFamily: kFontBaloo2,
+                  fontFamily: kFontMPL,
                   fontWeight: FontWeight.w500,
                   color: kColorBlue900,
                   height: 1.0,
