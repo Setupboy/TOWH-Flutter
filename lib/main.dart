@@ -11,9 +11,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: OnboardingScreen(),
+      theme: ThemeData(appBarTheme: AppBarTheme(centerTitle: false)),
+      home: const OnboardingScreen(),
     );
   }
 }

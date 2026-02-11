@@ -9,6 +9,7 @@ import '../widgets/continue_button.dart';
 import '../widgets/players_counter.dart';
 import '../widgets/quick_guide.dart';
 import 'custom_app_bar.dart';
+import 'ready_to_play_view.dart';
 
 class NewGameView extends StatefulWidget {
   const NewGameView({super.key});
@@ -473,8 +474,6 @@ class _NewGameViewState extends State<NewGameView> {
   }
 
   Widget _buildBottomActions() {
-    final bool isLastStep = _stepIndex == 2;
-
     final String labelName;
     switch (_stepIndex) {
       case 1:
@@ -498,8 +497,12 @@ class _NewGameViewState extends State<NewGameView> {
           _noteController.clear();
         });
       } else {
-        // Final step action (placeholder)
-        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => const ReadyToPlayView(),
+          ),
+        );
       }
     }
   }
