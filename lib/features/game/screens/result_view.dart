@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
+import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/new_game_view.dart';
 import '../../home/screens/home_view.dart';
 
 class ResultView extends StatefulWidget {
-  const ResultView({super.key});
+  final List<Color> resultColors;
+
+  const ResultView({super.key, this.resultColors = const []});
 
   @override
   State<ResultView> createState() => _ResultViewState();
@@ -32,6 +35,8 @@ class _ResultViewState extends State<ResultView> {
 
   @override
   Widget build(BuildContext context) {
+    final rowColors = widget.resultColors;
+
     return Scaffold(
       backgroundColor: kColorWithe50,
       appBar: AppBar(
@@ -92,27 +97,24 @@ class _ResultViewState extends State<ResultView> {
                           height: 1.62,
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      const _ResultRow(
-                        score: '2',
-                        scoreColor: Color(0xFF3277D1),
-                        title: 'Pizza',
-                        playerName: 'Alice',
-                      ),
                       const SizedBox(height: 12),
-                      const _ResultRow(
-                        score: '1',
-                        scoreColor: Color(0xFF70B80C),
-                        title: 'Steak',
-                        playerName: 'Stephen',
-                      ),
-                      const SizedBox(height: 12),
-                      const _ResultRow(
-                        score: '0',
-                        scoreColor: Color(0xFF9500F2),
-                        title: 'Felafel',
-                        playerName: 'Dory',
-                      ),
+                      ...List.generate(rowColors.length, (index) {
+                        const titles = ['Pizza', 'Steak', 'Felafel'];
+                        final score = (rowColors.length - 1 - index).toString();
+                        final player =
+                            kDemoPlayers[index % kDemoPlayers.length];
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            bottom: index == rowColors.length - 1 ? 0 : 12,
+                          ),
+                          child: _ResultRow(
+                            score: score,
+                            scoreColor: rowColors[index],
+                            title: titles[index % titles.length],
+                            playerName: player.name,
+                          ),
+                        );
+                      }),
                     ],
                   ),
                 ),

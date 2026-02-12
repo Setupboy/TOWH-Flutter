@@ -242,7 +242,11 @@ class _GameViewState extends State<GameView> {
     if (_currentPlayerIndex >= widget.playersCount - 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const ResultView()),
+        MaterialPageRoute(
+          builder: (_) => ResultView(
+            resultColors: _choiceColors.map((choice) => choice.color).toList(),
+          ),
+        ),
       );
       return;
     }
