@@ -32,15 +32,19 @@ class PlayersCounter extends StatelessWidget {
     return Container(
       width: 72,
       height: double.infinity,
-      decoration: const BoxDecoration(
-        color: kColorYellow50,
+      decoration: BoxDecoration(
+        color: players > 3 ? kColorYellow200 : kColorYellow100,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(24),
           bottomLeft: Radius.circular(24),
         ),
       ),
       child: IconButton(
-        icon: const Icon(Icons.remove, size: 25, color: kColorBlue100),
+        icon: Icon(
+          Icons.remove,
+          size: 25,
+          color: players > 3 ? kColorBlue800 : kColorBlue100,
+        ),
         onPressed: onRemove,
       ),
     );
