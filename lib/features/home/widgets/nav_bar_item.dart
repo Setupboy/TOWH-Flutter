@@ -23,6 +23,7 @@ class NavBarItem extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: isSelected ? kColorYellow200 : Colors.transparent,
+          borderRadius: BorderRadius.circular(24),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
