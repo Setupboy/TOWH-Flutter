@@ -6,6 +6,7 @@ import '../../../core/theme/color.dart';
 import '../../../core/theme/font.dart';
 import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/ready_to_play_view.dart';
+import 'result_view.dart';
 
 class GameView extends StatefulWidget {
   final int playersCount;
@@ -238,7 +239,13 @@ class _GameViewState extends State<GameView> {
   }
 
   void _onContinuePressed() {
-    if (_currentPlayerIndex >= widget.playersCount - 1) return;
+    if (_currentPlayerIndex >= widget.playersCount - 1) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ResultView()),
+      );
+      return;
+    }
     setState(() {
       _currentPlayerIndex++;
       _selectedColorIndex = null;
