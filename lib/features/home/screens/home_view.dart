@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:towh/core/theme/color.dart';
 import 'package:towh/core/theme/font.dart';
 import 'package:towh/core/utils/player_data.dart';
+import 'package:towh/features/history/screens/history_view.dart';
 
 import '../../game_setup/screens/new_game_view.dart';
 import '../widgets/game_box.dart';
@@ -185,7 +186,13 @@ class _HomeviewState extends State<Homeview> {
                   icon: FluentIcons.xbox_controller_24_regular,
                   label: 'Play',
                   isSelected: selectedIndex == 0,
-                  onTap: () => setState(() => selectedIndex = 0),
+                  onTap: () {
+                    setState(() => selectedIndex = 0);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const Homeview()),
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -193,7 +200,12 @@ class _HomeviewState extends State<Homeview> {
                   icon: FluentIcons.history_24_regular,
                   label: 'History',
                   isSelected: selectedIndex == 2,
-                  onTap: () => setState(() => selectedIndex = 2),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HistoryView()),
+                    );
+                  },
                 ),
               ),
               Expanded(
