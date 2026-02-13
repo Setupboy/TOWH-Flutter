@@ -6,9 +6,14 @@ import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/home/screens/home_view.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
 
-class HistoryView extends StatelessWidget {
+class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
 
+  @override
+  State<HistoryView> createState() => _HistoryViewState();
+}
+
+class _HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
     final inProgressGame = _HistoryGame(
@@ -99,12 +104,13 @@ class HistoryView extends StatelessWidget {
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         height: 64,
+        width: 380,
         decoration: BoxDecoration(
           color: kColorWithe100,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(16),
           child: Row(
             children: [
               Expanded(
