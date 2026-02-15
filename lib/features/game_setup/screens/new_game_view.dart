@@ -19,10 +19,16 @@ class NewGameView extends StatefulWidget {
 }
 
 class _NewGameViewState extends State<NewGameView> {
+  static const Duration _stepZeroBottomAnimationDuration = Duration(
+    milliseconds: 320,
+  );
+
   int players = 3;
   int _stepIndex = 0;
   int _currentPlayerIndex = 0;
   bool _autoAssignEnabled = false;
+  bool _showStepZeroBottom = false;
+  bool _isStepZeroExitAnimating = false;
 
   final TextEditingController _activityController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -32,6 +38,7 @@ class _NewGameViewState extends State<NewGameView> {
   void initState() {
     super.initState();
     _syncPlayerControllers();
+    _startStepZeroBottomEntrance();
   }
 
   @override
@@ -74,12 +81,24 @@ class _NewGameViewState extends State<NewGameView> {
                         const SizedBox(height: 12),
                         const SizedBox(height: 24),
                       ],
-                      _buildStepContent(),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        switchInCurve: Curves.easeIn,
+                        switchOutCurve: Curves.easeOut,
+                        transitionBuilder: (child, animation) =>
+                            FadeTransition(opacity: animation, child: child),
+                        child: KeyedSubtree(
+                          key: ValueKey<int>(_stepIndex),
+                          child: _buildStepContent(),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
-              if (_stepIndex == 0) ...[const QuickGuide()],
+              if (_stepIndex == 0) ...[
+                _buildStepZeroAnimatedBottom(child: const QuickGuide()),
+              ],
               if (_stepIndex == 2) ...[
                 const SizedBox(height: 12),
                 _buildSecretWarning(),
@@ -484,31 +503,80 @@ class _NewGameViewState extends State<NewGameView> {
         labelName = 'Continue';
     }
 
-    return ContinueButton(label: labelName, onPressed: _nextStep);
+    final button = ContinueButton(label: labelName, onPressed: _nextStep);
+
+    if (_stepIndex == 0) {
+      return _buildStepZeroAnimatedBottom(child: button);
+    }
+
+    return button;
   }
 
-  void _nextStep() {
-    if (_stepIndex < 2) {
-      setState(() => _stepIndex++);
+  Widget _buildStepZeroAnimatedBottom({required Widget child}) {
+    return AnimatedSlide(
+      duration: _stepZeroBottomAnimationDuration,
+      curve: Curves.easeInOut,
+      offset: _showStepZeroBottom ? Offset.zero : const Offset(0, 0.28),
+      child: AnimatedOpacity(
+        duration: _stepZeroBottomAnimationDuration,
+        curve: Curves.easeInOut,
+        opacity: _showStepZeroBottom ? 1 : 0,
+        child: child,
+      ),
+    );
+  }
+
+  void _startStepZeroBottomEntrance() {
+    _showStepZeroBottom = false;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _stepIndex != 0) return;
+      setState(() => _showStepZeroBottom = true);
+    });
+  }
+
+  Future<void> _nextStep() async {
+    if (_stepIndex == 0) {
+      if (_isStepZeroExitAnimating) return;
+      setState(() {
+        _isStepZeroExitAnimating = true;
+        _showStepZeroBottom = false;
+      });
+      await Future.delayed(_stepZeroBottomAnimationDuration);
+      if (!mounted) return;
+      setState(() {
+        _isStepZeroExitAnimating = false;
+        _stepIndex = 1;
+      });
+      return;
+    }
+
+    if (_stepIndex == 1) {
+      setState(() => _stepIndex = 2);
+      return;
+    }
+
+    if (_currentPlayerIndex < players - 1) {
+      setState(() {
+        _currentPlayerIndex++;
+        _noteController.clear();
+      });
     } else {
-      if (_currentPlayerIndex < players - 1) {
-        setState(() {
-          _currentPlayerIndex++;
-          _noteController.clear();
-        });
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ReadyToPlayView(playersCount: players),
-          ),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ReadyToPlayView(playersCount: players),
+        ),
+      );
     }
   }
 
   void _previousStep() {
-    if (_stepIndex > 0) {
+    if (_stepIndex == 1) {
+      setState(() => _stepIndex = 0);
+      _startStepZeroBottomEntrance();
+      return;
+    }
+    if (_stepIndex > 1) {
       setState(() => _stepIndex--);
     }
   }

@@ -20,6 +20,16 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   int selectedIndex = 0;
+  bool _showPageContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _showPageContent = true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,110 +73,120 @@ class _HomeViewState extends State<HomeView> {
       ),
 
       // Body
-      body: SingleChildScrollView(
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeIn,
+        switchOutCurve: Curves.easeOut,
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: _showPageContent
+            ? SingleChildScrollView(
+                key: const ValueKey<String>('home-content'),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 24),
 
-                // Welcome box
-                SizedBox(
-                  width: 380,
-                  height: 226,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Welcome',
-                        style: TextStyle(
-                          fontFamily: 'Baloo2',
-                          fontSize: 42,
-                          fontWeight: FontWeight.w700,
-                          height: 1.14,
-                          color: kColorBlue900,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Create a new game with friends present',
-                        style: TextStyle(
-                          fontFamily: kFontMPL,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          height: 1.625,
-                          color: kColorBlue800,
-                        ),
-                      ),
-                      const Spacer(),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NewGameView(),
-                            ),
-                          );
-                        },
-                        child: Container(
+                        // Welcome box
+                        SizedBox(
                           width: 380,
-                          height: 124,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: kColorYellow200,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Text(
-                            '+ New Game',
-                            style: TextStyle(
-                              fontFamily: kFontMPL,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: kColorBlue900,
-                            ),
+                          height: 226,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Welcome',
+                                style: TextStyle(
+                                  fontFamily: 'Baloo2',
+                                  fontSize: 42,
+                                  fontWeight: FontWeight.w700,
+                                  height: 1.14,
+                                  color: kColorBlue900,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Create a new game with friends present',
+                                style: TextStyle(
+                                  fontFamily: kFontMPL,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.625,
+                                  color: kColorBlue800,
+                                ),
+                              ),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const NewGameView(),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  width: 380,
+                                  height: 124,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: kColorYellow200,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Text(
+                                    '+ New Game',
+                                    style: TextStyle(
+                                      fontFamily: kFontMPL,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: kColorBlue900,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+
+                        const SizedBox(height: 24),
+
+                        // In progress game
+                        GameBox(
+                          title: 'In progress game',
+                          gameTitle: 'Restaurant Night',
+                          players: kDemoPlayers
+                              .map(
+                                (player) => PlayerChip(
+                                  name: player.name,
+                                  imageUrl: player.imageUrl,
+                                ),
+                              )
+                              .toList(),
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Repeat game
+                        GameBox(
+                          title: 'Repeat game',
+                          gameTitle: 'Cafe Morning',
+                          players: kDemoPlayers
+                              .map(
+                                (player) => PlayerChip(
+                                  name: player.name,
+                                  imageUrl: player.imageUrl,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 24),
-
-                // In progress game
-                GameBox(
-                  title: 'In progress game',
-                  gameTitle: 'Restaurant Night',
-                  players: kDemoPlayers
-                      .map(
-                        (player) => PlayerChip(
-                          name: player.name,
-                          imageUrl: player.imageUrl,
-                        ),
-                      )
-                      .toList(),
-                ),
-
-                const SizedBox(height: 24),
-
-                // Repeat game
-                GameBox(
-                  title: 'Repeat game',
-                  gameTitle: 'Cafe Morning',
-                  players: kDemoPlayers
-                      .map(
-                        (player) => PlayerChip(
-                          name: player.name,
-                          imageUrl: player.imageUrl,
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
-            ),
-          ),
-        ),
+              )
+            : const SizedBox(key: ValueKey<String>('home-empty')),
       ),
 
       // Bottom Navigation

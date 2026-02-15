@@ -14,6 +14,17 @@ class ReadyToPlayView extends StatefulWidget {
 }
 
 class _ReadyToPlayViewState extends State<ReadyToPlayView> {
+  bool _showReadyContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _showReadyContent = true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,55 +53,67 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
           child: Column(
             children: [
               Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Game is ready',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 42,
-                        fontFamily: kFontMPL,
-                        fontWeight: FontWeight.w800,
-                        color: kColorBlue900,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text.rich(
-                        TextSpan(
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontFamily: kFontMPL,
-                            fontWeight: FontWeight.w400,
-                            color: kColorBlue800,
-                            height: 1.86,
-                          ),
-                          children: const [
-                            TextSpan(text: 'All set, Give the phone to '),
-                            TextSpan(
-                              text: '[Player 1]',
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  switchInCurve: Curves.easeIn,
+                  switchOutCurve: Curves.easeOut,
+                  transitionBuilder: (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+                  child: _showReadyContent
+                      ? Column(
+                          key: const ValueKey<String>('ready-content'),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text(
+                              'Game is ready',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                fontSize: 16,
+                                fontSize: 42,
                                 fontFamily: kFontMPL,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w800,
                                 color: kColorBlue900,
-                                height: 1.86,
+                                height: 1.0,
                               ),
                             ),
-                            TextSpan(
-                              text:
-                                  ' and Hit start\nwhen everyone is ready for '
-                                  'the polling',
+                            const SizedBox(height: 20),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text.rich(
+                                TextSpan(
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: kFontMPL,
+                                    fontWeight: FontWeight.w400,
+                                    color: kColorBlue800,
+                                    height: 1.86,
+                                  ),
+                                  children: const [
+                                    TextSpan(
+                                      text: 'All set, Give the phone to ',
+                                    ),
+                                    TextSpan(
+                                      text: '[Player 1]',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontFamily: kFontMPL,
+                                        fontWeight: FontWeight.w500,
+                                        color: kColorBlue900,
+                                        height: 1.86,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text:
+                                          ' and Hit start\nwhen everyone is '
+                                          'ready for the polling',
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           ],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+                        )
+                      : const SizedBox(key: ValueKey<String>('ready-empty')),
                 ),
               ),
               Container(

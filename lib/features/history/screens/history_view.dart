@@ -14,6 +14,17 @@ class HistoryView extends StatefulWidget {
 }
 
 class _HistoryViewState extends State<HistoryView> {
+  bool _showPageContent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _showPageContent = true);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final inProgressGame = _HistoryGame(
@@ -78,28 +89,38 @@ class _HistoryViewState extends State<HistoryView> {
           ),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
-                const _SectionTitle('In progress game'),
-                const SizedBox(height: 8),
-                _HistoryGameCard(game: inProgressGame),
-                const SizedBox(height: 24),
-                const _SectionTitle('Repeat game'),
-                const SizedBox(height: 8),
-                _HistoryGameCard(game: repeatCafeGame),
-                const SizedBox(height: 4),
-                _HistoryGameCard(game: repeatCampingGame),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeIn,
+        switchOutCurve: Curves.easeOut,
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: _showPageContent
+            ? SafeArea(
+                key: const ValueKey<String>('history-content'),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        const _SectionTitle('In progress game'),
+                        const SizedBox(height: 8),
+                        _HistoryGameCard(game: inProgressGame),
+                        const SizedBox(height: 24),
+                        const _SectionTitle('Repeat game'),
+                        const SizedBox(height: 8),
+                        _HistoryGameCard(game: repeatCafeGame),
+                        const SizedBox(height: 4),
+                        _HistoryGameCard(game: repeatCampingGame),
+                        const SizedBox(height: 8),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox(key: ValueKey<String>('history-empty')),
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),

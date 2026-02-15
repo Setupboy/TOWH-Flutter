@@ -22,11 +22,16 @@ class _GameViewState extends State<GameView> {
   final Random _random = Random();
   late final List<_ChoiceColor> _choiceColors;
   int? _selectedColorIndex;
+  bool _showPageContent = false;
 
   @override
   void initState() {
     super.initState();
     _choiceColors = _buildRandomChoices(widget.playersCount);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _showPageContent = true);
+    });
   }
 
   @override
@@ -74,128 +79,146 @@ class _GameViewState extends State<GameView> {
         ),
       ),
 
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeIn,
+        switchOutCurve: Curves.easeOut,
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: _showPageContent
+            ? SafeArea(
+                key: const ValueKey<String>('game-content'),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
                   child: Column(
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircleAvatar(
-                            radius: 28,
-                            backgroundImage: NetworkImage(
-                              _currentPlayer.imageUrl,
-                            ),
-                            backgroundColor: kColorWhite100,
+                    children: [
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 28,
+                                    backgroundImage: NetworkImage(
+                                      _currentPlayer.imageUrl,
+                                    ),
+                                    backgroundColor: kColorWhite100,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    _currentPlayer.name,
+                                    style: const TextStyle(
+                                      fontSize: 28,
+                                      fontFamily: kFontMPL,
+                                      fontWeight: FontWeight.w800,
+                                      color: kColorBlue900,
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              const Text(
+                                textAlign: TextAlign.center,
+                                'Your Turn to\nchoose',
+                                style: TextStyle(
+                                  fontSize: 42,
+                                  fontFamily: kFontBaloo2,
+                                  fontWeight: FontWeight.w700,
+                                  color: kColorBlue900,
+                                  height: 1.14,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final double itemWidth =
+                                      (constraints.maxWidth - 12) / 2;
+                                  return Wrap(
+                                    spacing: 12,
+                                    runSpacing: 12,
+                                    children: List.generate(
+                                      _choiceColors.length,
+                                      (index) {
+                                        final choice = _choiceColors[index];
+                                        final bool isSelected =
+                                            _selectedColorIndex == index;
+                                        return GestureDetector(
+                                          onTap: () {
+                                            setState(
+                                              () => _selectedColorIndex = index,
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            width: itemWidth,
+                                            child: _buildColorCard(
+                                              choice,
+                                              isSelected,
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Text(
-                            _currentPlayer.name,
-                            style: const TextStyle(
-                              fontSize: 28,
-                              fontFamily: kFontMPL,
-                              fontWeight: FontWeight.w800,
-                              color: kColorBlue900,
-                              height: 1.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        textAlign: TextAlign.center,
-                        'Your Turn to\nchoose',
-                        style: TextStyle(
-                          fontSize: 42,
-                          fontFamily: kFontBaloo2,
-                          fontWeight: FontWeight.w700,
-                          color: kColorBlue900,
-                          height: 1.14,
                         ),
                       ),
                       const SizedBox(height: 24),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final double itemWidth =
-                              (constraints.maxWidth - 12) / 2;
-                          return Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
-                            children: List.generate(_choiceColors.length, (
-                              index,
-                            ) {
-                              final choice = _choiceColors[index];
-                              final bool isSelected =
-                                  _selectedColorIndex == index;
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() => _selectedColorIndex = index);
-                                },
-                                child: SizedBox(
-                                  width: itemWidth,
-                                  child: _buildColorCard(choice, isSelected),
-                                ),
-                              );
-                            }),
-                          );
-                        },
+                      Text.rich(
+                        TextSpan(
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFamily: kFontMPL,
+                            fontWeight: FontWeight.w400,
+                            color: kColorRed600,
+                            height: 1.86,
+                          ),
+                          children: [
+                            const TextSpan(text: 'Choose a color '),
+                            TextSpan(
+                              text: _currentPlayer.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: _onContinuePressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kColorYellow200,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          child: const Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontFamily: kFontMPL,
+                              fontWeight: FontWeight.w500,
+                              color: kColorBlue900,
+                              height: 1.46,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Text.rich(
-                TextSpan(
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: kFontMPL,
-                    fontWeight: FontWeight.w400,
-                    color: kColorRed600,
-                    height: 1.86,
-                  ),
-                  children: [
-                    const TextSpan(text: 'Choose a color '),
-                    TextSpan(
-                      text: _currentPlayer.name,
-                      style: const TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: _onContinuePressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kColorYellow200,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: kFontMPL,
-                      fontWeight: FontWeight.w500,
-                      color: kColorBlue900,
-                      height: 1.46,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+              )
+            : const SizedBox(key: ValueKey<String>('game-empty')),
       ),
     );
   }

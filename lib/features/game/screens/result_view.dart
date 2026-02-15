@@ -26,11 +26,16 @@ class _ResultViewState extends State<ResultView> {
   ];
 
   late final String _selectedSticker;
+  bool _showPageContent = false;
 
   @override
   void initState() {
     super.initState();
     _selectedSticker = _stickers[Random().nextInt(_stickers.length)];
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() => _showPageContent = true);
+    });
   }
 
   @override
@@ -55,139 +60,154 @@ class _ResultViewState extends State<ResultView> {
           ),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeIn,
+        switchOutCurve: Curves.easeOut,
+        transitionBuilder: (child, animation) =>
+            FadeTransition(opacity: animation, child: child),
+        child: _showPageContent
+            ? SafeArea(
+                key: const ValueKey<String>('result-content'),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                        child: SizedBox(
-                          width: 175,
-                          height: 150,
-                          child: Image.asset(_selectedSticker),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Center(
-                        child: Text(
-                          'Alice Won the Vote',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 42,
-                            fontFamily: kFontBaloo2,
-                            fontWeight: FontWeight.w700,
-                            color: kColorBlue900,
-                            height: 1.14,
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(
+                                child: SizedBox(
+                                  width: 175,
+                                  height: 150,
+                                  child: Image.asset(_selectedSticker),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              const Center(
+                                child: Text(
+                                  'Alice Won the Vote',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 42,
+                                    fontFamily: kFontBaloo2,
+                                    fontWeight: FontWeight.w700,
+                                    color: kColorBlue900,
+                                    height: 1.14,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              const Text(
+                                'Results',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: kFontMPL,
+                                  fontWeight: FontWeight.w500,
+                                  color: kColorBlue800,
+                                  height: 1.62,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              ...List.generate(rowColors.length, (index) {
+                                const titles = ['Pizza', 'Steak', 'Felafel'];
+                                final score = (rowColors.length - 1 - index)
+                                    .toString();
+                                final player =
+                                    kDemoPlayers[index % kDemoPlayers.length];
+                                return Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom: index == rowColors.length - 1
+                                        ? 0
+                                        : 12,
+                                  ),
+                                  child: _ResultRow(
+                                    score: score,
+                                    scoreColor: rowColors[index],
+                                    title: titles[index % titles.length],
+                                    playerName: player.name,
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      const Text(
-                        'Results',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontFamily: kFontMPL,
-                          fontWeight: FontWeight.w500,
-                          color: kColorBlue800,
-                          height: 1.62,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...List.generate(rowColors.length, (index) {
-                        const titles = ['Pizza', 'Steak', 'Felafel'];
-                        final score = (rowColors.length - 1 - index).toString();
-                        final player =
-                            kDemoPlayers[index % kDemoPlayers.length];
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            bottom: index == rowColors.length - 1 ? 0 : 12,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
+                              width: 184,
+                              height: 45,
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const HomeView(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                },
+                                child: const Text(
+                                  'Finish',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontFamily: kFontMPL,
+                                    fontWeight: FontWeight.w500,
+                                    color: kColorBlue900,
+                                    height: 1.46,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                          child: _ResultRow(
-                            score: score,
-                            scoreColor: rowColors[index],
-                            title: titles[index % titles.length],
-                            playerName: player.name,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 1,
+                            child: SizedBox(
+                              height: 48,
+                              width: 184,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushAndRemoveUntil(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const NewGameView(),
+                                    ),
+                                    (route) => false,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 0,
+                                  backgroundColor: kColorYellow200,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Play Again',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: kFontMPL,
+                                    fontWeight: FontWeight.w500,
+                                    color: kColorBlue900,
+                                    height: 1.46,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
-                        );
-                      }),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      width: 184,
-                      height: 45,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (_) => const HomeView()),
-                            (route) => false,
-                          );
-                        },
-                        child: const Text(
-                          'Finish',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: kFontMPL,
-                            fontWeight: FontWeight.w500,
-                            color: kColorBlue900,
-                            height: 1.46,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 1,
-                    child: SizedBox(
-                      height: 48,
-                      width: 184,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const NewGameView(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: kColorYellow200,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: const Text(
-                          'Play Again',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: kFontMPL,
-                            fontWeight: FontWeight.w500,
-                            color: kColorBlue900,
-                            height: 1.46,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+              )
+            : const SizedBox(key: ValueKey<String>('result-empty')),
       ),
     );
   }
