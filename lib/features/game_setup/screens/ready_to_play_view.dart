@@ -14,14 +14,21 @@ class ReadyToPlayView extends StatefulWidget {
 }
 
 class _ReadyToPlayViewState extends State<ReadyToPlayView> {
+  static const Duration _bottomAnimationDuration = Duration(milliseconds: 320);
+
   bool _showReadyContent = false;
+  bool _showBottomActions = false;
+  bool _isBottomExitAnimating = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      setState(() => _showReadyContent = true);
+      setState(() {
+        _showReadyContent = true;
+        _showBottomActions = true;
+      });
     });
   }
 
@@ -116,80 +123,75 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
                       : const SizedBox(key: ValueKey<String>('ready-empty')),
                 ),
               ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: kColorGreen50,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: kColorGreen100),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          size: 16,
-                          color: kColorBlue800,
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          'Quick guide:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 12,
-                            fontFamily: kFontMPL,
-                            color: kColorBlue900,
-                            height: 1.0,
+              _buildAnimatedBottom(
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kColorGreen50,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(color: kColorGreen100),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 16,
+                            color: kColorBlue800,
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      'You will be given random colors to choose.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontFamily: kFontMPL,
-                        fontWeight: FontWeight.w400,
-                        color: kColorBlue800,
-                        height: 1.86,
+                          SizedBox(width: 8),
+                          Text(
+                            'Quick guide:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12,
+                              fontFamily: kFontMPL,
+                              color: kColorBlue900,
+                              height: 1.0,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 8),
+                      Text(
+                        'You will be given random colors to choose.',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontFamily: kFontMPL,
+                          fontWeight: FontWeight.w400,
+                          color: kColorBlue800,
+                          height: 1.86,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            GameView(playersCount: widget.playersCount),
+              _buildAnimatedBottom(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: _onStartGamePressed,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kColorYellow200,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      (route) => false,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kColorYellow200,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                  child: const Text(
-                    'Start Game',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: kFontMPL,
-                      fontWeight: FontWeight.w500,
-                      color: kColorBlue900,
-                      height: 1.46,
+                    child: const Text(
+                      'Start Game',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: kFontMPL,
+                        fontWeight: FontWeight.w500,
+                        color: kColorBlue900,
+                        height: 1.46,
+                      ),
                     ),
                   ),
                 ),
@@ -198,6 +200,37 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildAnimatedBottom({required Widget child}) {
+    return AnimatedSlide(
+      duration: _bottomAnimationDuration,
+      curve: Curves.easeInOut,
+      offset: _showBottomActions ? Offset.zero : const Offset(0, 0.28),
+      child: AnimatedOpacity(
+        duration: _bottomAnimationDuration,
+        curve: Curves.easeInOut,
+        opacity: _showBottomActions ? 1 : 0,
+        child: child,
+      ),
+    );
+  }
+
+  Future<void> _onStartGamePressed() async {
+    if (_isBottomExitAnimating) return;
+    setState(() {
+      _isBottomExitAnimating = true;
+      _showBottomActions = false;
+    });
+    await Future.delayed(_bottomAnimationDuration);
+    if (!mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GameView(playersCount: widget.playersCount),
+      ),
+      (route) => false,
     );
   }
 }
