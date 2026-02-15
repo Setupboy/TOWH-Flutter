@@ -1,5 +1,3 @@
-
-
 class OnboardingStep {
   final String image;
   final String title;

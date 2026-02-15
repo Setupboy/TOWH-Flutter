@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:towh/core/theme/color.dart';
-import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/theme/app_colors.dart';
+import 'package:towh/core/theme/app_fonts.dart';
 
 import '../models/onboarding_step.dart';
 
@@ -20,7 +20,7 @@ class OnboardingPage extends StatelessWidget {
           height: 412,
           width: double.infinity,
           decoration: const BoxDecoration(
-            color: kColorWithe50,
+            color: kColorWhite50,
             borderRadius: BorderRadius.only(bottomRight: Radius.circular(400)),
           ),
           child: Center(

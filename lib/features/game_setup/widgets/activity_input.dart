@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color.dart';
-import '../../../core/theme/font.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_fonts.dart';
 
 class ActivityInput extends StatelessWidget {
   final TextEditingController controller;
@@ -46,7 +46,7 @@ class ActivityInput extends StatelessWidget {
                 color: kColorBlue100,
               ),
               filled: true,
-              fillColor: kColorWithe50,
+              fillColor: kColorWhite50,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),

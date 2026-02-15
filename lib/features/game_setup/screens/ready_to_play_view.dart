@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color.dart';
-import '../../../core/theme/font.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_fonts.dart';
 import '../../game/screens/game_view.dart';
 
 class ReadyToPlayView extends StatefulWidget {
@@ -17,9 +17,9 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kColorWithe50,
+      backgroundColor: kColorWhite50,
       appBar: AppBar(
-        backgroundColor: kColorWithe50,
+        backgroundColor: kColorWhite50,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color.dart';
-import '../../../core/theme/font.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_fonts.dart';
 
 class PlayersCounter extends StatelessWidget {
   final int players;
@@ -20,7 +20,7 @@ class PlayersCounter extends StatelessWidget {
     return Container(
       height: 89,
       decoration: BoxDecoration(
-        color: kColorWithe50,
+        color: kColorWhite50,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: kColorYellow100, width: 1),
       ),

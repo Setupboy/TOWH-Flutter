@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color.dart';
-import '../../../core/theme/font.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/new_game_view.dart';
 import '../../home/screens/home_view.dart';
@@ -38,9 +38,9 @@ class _ResultViewState extends State<ResultView> {
     final rowColors = widget.resultColors;
 
     return Scaffold(
-      backgroundColor: kColorWithe50,
+      backgroundColor: kColorWhite50,
       appBar: AppBar(
-        backgroundColor: kColorWithe50,
+        backgroundColor: kColorWhite50,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         titleSpacing: 16,
@@ -130,7 +130,7 @@ class _ResultViewState extends State<ResultView> {
                         onPressed: () {
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (_) => const Homeview()),
+                            MaterialPageRoute(builder: (_) => const HomeView()),
                             (route) => false,
                           );
                         },
@@ -224,7 +224,7 @@ class _ResultRow extends StatelessWidget {
                 fontSize: 48,
                 fontFamily: kFontBaloo2,
                 fontWeight: FontWeight.w600,
-                color: kColorWithe100,
+                color: kColorWhite100,
                 height: 1.0,
               ),
             ),

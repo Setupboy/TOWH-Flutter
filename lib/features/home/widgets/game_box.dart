@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:towh/core/theme/color.dart';
-import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/theme/app_colors.dart';
+import 'package:towh/core/theme/app_fonts.dart';
 
 class GameBox extends StatelessWidget {
   final String title;
@@ -36,7 +36,7 @@ class GameBox extends StatelessWidget {
             width: 380,
             height: 194,
             child: Card(
-              color: kColorWithe100,
+              color: kColorWhite100,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),

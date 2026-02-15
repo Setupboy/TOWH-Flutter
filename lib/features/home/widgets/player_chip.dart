@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:towh/core/theme/color.dart';
-import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/theme/app_colors.dart';
+import 'package:towh/core/theme/app_fonts.dart';
 
 class PlayerChip extends StatelessWidget {
   final String name;

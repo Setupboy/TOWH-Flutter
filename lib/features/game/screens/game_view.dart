@@ -2,8 +2,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color.dart';
-import '../../../core/theme/font.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/ready_to_play_view.dart';
 import 'result_view.dart';
@@ -32,11 +32,11 @@ class _GameViewState extends State<GameView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kColorWithe50,
+      backgroundColor: kColorWhite50,
       appBar: AppBar(
         foregroundColor: kColorBlue900,
         surfaceTintColor: Colors.transparent,
-        backgroundColor: kColorWithe50,
+        backgroundColor: kColorWhite50,
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 16,
@@ -91,7 +91,7 @@ class _GameViewState extends State<GameView> {
                             backgroundImage: NetworkImage(
                               _currentPlayer.imageUrl,
                             ),
-                            backgroundColor: kColorWithe100,
+                            backgroundColor: kColorWhite100,
                           ),
                           const SizedBox(width: 12),
                           Text(
@@ -283,7 +283,7 @@ class _GameViewState extends State<GameView> {
                     width: 40,
                     height: 40,
                     decoration: const BoxDecoration(
-                      color: kColorWithe100,
+                      color: kColorWhite100,
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -297,7 +297,7 @@ class _GameViewState extends State<GameView> {
                         child: const Icon(
                           Icons.check_rounded,
                           size: 20,
-                          color: kColorWithe100,
+                          color: kColorWhite100,
                         ),
                       ),
                     ),
@@ -313,7 +313,7 @@ class _GameViewState extends State<GameView> {
             height: 22,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             decoration: BoxDecoration(
-              color: kColorWithe100,
+              color: kColorWhite100,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(8),
                 topRight: Radius.circular(8),

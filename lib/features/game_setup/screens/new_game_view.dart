@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/color.dart';
-import '../../../core/theme/font.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/player_data.dart';
 import '../../home/screens/home_view.dart';
 import '../widgets/activity_input.dart';
 import '../widgets/continue_button.dart';
 import '../widgets/players_counter.dart';
 import '../widgets/quick_guide.dart';
-import 'custom_app_bar.dart';
+import '../widgets/game_setup_app_bar.dart';
 import 'ready_to_play_view.dart';
 
 class NewGameView extends StatefulWidget {
@@ -47,15 +47,15 @@ class _NewGameViewState extends State<NewGameView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kColorWithe50,
-      appBar: customAppBar(
+      backgroundColor: kColorWhite50,
+      appBar: gameSetupAppBar(
         context,
         onBack: _stepIndex > 0
             ? _previousStep
             : () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => const Homeview()),
+                  MaterialPageRoute(builder: (_) => const HomeView()),
                 );
               },
       ),
@@ -132,7 +132,7 @@ class _NewGameViewState extends State<NewGameView> {
         return Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           decoration: BoxDecoration(
-            color: kColorWithe100,
+            color: kColorWhite100,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -239,7 +239,7 @@ class _NewGameViewState extends State<NewGameView> {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
           decoration: BoxDecoration(
-            color: kColorWithe100,
+            color: kColorWhite100,
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
@@ -300,7 +300,7 @@ class _NewGameViewState extends State<NewGameView> {
                     CircleAvatar(
                       radius: 28,
                       backgroundImage: NetworkImage(_currentPlayer.imageUrl),
-                      backgroundColor: kColorWithe100,
+                      backgroundColor: kColorWhite100,
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -334,7 +334,7 @@ class _NewGameViewState extends State<NewGameView> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             decoration: BoxDecoration(
-              color: kColorWithe100,
+              color: kColorWhite100,
               borderRadius: BorderRadius.circular(24),
             ),
             child: Column(
@@ -456,7 +456,7 @@ class _NewGameViewState extends State<NewGameView> {
                 color: kColorBlue100,
               ),
               filled: true,
-              fillColor: kColorWithe50,
+              fillColor: kColorWhite50,
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),

@@ -1,7 +1,7 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:towh/core/theme/color.dart';
-import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/theme/app_colors.dart';
+import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/home/screens/home_view.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
@@ -59,9 +59,9 @@ class _HistoryViewState extends State<HistoryView> {
     );
 
     return Scaffold(
-      backgroundColor: kColorWithe50,
+      backgroundColor: kColorWhite50,
       appBar: AppBar(
-        backgroundColor: kColorWithe50,
+        backgroundColor: kColorWhite50,
         elevation: 0,
         automaticallyImplyLeading: false,
         titleSpacing: 16,
@@ -106,7 +106,7 @@ class _HistoryViewState extends State<HistoryView> {
         height: 64,
         width: 380,
         decoration: BoxDecoration(
-          color: kColorWithe100,
+          color: kColorWhite100,
           borderRadius: BorderRadius.circular(16),
         ),
         child: ClipRRect(
@@ -121,7 +121,7 @@ class _HistoryViewState extends State<HistoryView> {
                   onTap: () {
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const Homeview()),
+                      MaterialPageRoute(builder: (_) => const HomeView()),
                     );
                   },
                 ),
@@ -204,7 +204,7 @@ class _HistoryGameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: kColorWithe100,
+      color: kColorWhite100,
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(

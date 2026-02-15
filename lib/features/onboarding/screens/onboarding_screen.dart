@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:towh/core/theme/color.dart';
-import 'package:towh/core/theme/font.dart';
-import 'package:towh/core/utils/image.dart';
+import 'package:towh/core/theme/app_colors.dart';
+import 'package:towh/core/theme/app_fonts.dart';
+import 'package:towh/core/utils/asset_paths.dart';
 import 'package:towh/features/home/screens/home_view.dart';
 
 import '../models/onboarding_step.dart';
@@ -71,7 +71,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _finishOnboarding() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => Homeview()),
+      MaterialPageRoute(builder: (context) => HomeView()),
     );
   }
 
@@ -80,7 +80,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       backgroundColor: kColorYellow200,
       appBar: AppBar(
-        backgroundColor: kColorWithe50,
+        backgroundColor: kColorWhite50,
         elevation: 0,
         leading: _currentIndex > 0
             ? IconButton(
@@ -126,7 +126,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     height: 412,
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      color: kColorWithe50,
+                      color: kColorWhite50,
                       borderRadius: BorderRadius.only(
                         bottomRight: Radius.circular(400),
                       ),
@@ -160,14 +160,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       dotWidth: 10,
                       dotHeight: 10,
                       spacing: 4,
-                      activeDotColor: kColorWithe50,
+                      activeDotColor: kColorWhite50,
                       dotColor: kColorYellow100,
                     ),
                   ),
                   ElevatedButton(
                     onPressed: _nextPage,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kColorWithe50,
+                      backgroundColor: kColorWhite50,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),

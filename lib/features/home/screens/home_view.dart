@@ -1,8 +1,8 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:towh/core/theme/color.dart';
-import 'package:towh/core/theme/font.dart';
+import 'package:towh/core/theme/app_colors.dart';
+import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/history/screens/history_view.dart';
 
@@ -11,24 +11,24 @@ import '../widgets/game_box.dart';
 import '../widgets/nav_bar_item.dart';
 import '../widgets/player_chip.dart';
 
-class Homeview extends StatefulWidget {
-  const Homeview({super.key});
+class HomeView extends StatefulWidget {
+  const HomeView({super.key});
 
   @override
-  State<Homeview> createState() => _HomeviewState();
+  State<HomeView> createState() => _HomeViewState();
 }
 
-class _HomeviewState extends State<Homeview> {
+class _HomeViewState extends State<HomeView> {
   int selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kColorWithe50,
+      backgroundColor: kColorWhite50,
 
       // AppBar
       appBar: AppBar(
-        backgroundColor: kColorWithe50,
+        backgroundColor: kColorWhite50,
         elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: false,
@@ -174,7 +174,7 @@ class _HomeviewState extends State<Homeview> {
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         height: 64,
         decoration: BoxDecoration(
-          color: kColorWithe100,
+          color: kColorWhite100,
           borderRadius: BorderRadius.circular(24),
         ),
         child: ClipRRect(
@@ -190,7 +190,7 @@ class _HomeviewState extends State<Homeview> {
                     setState(() => selectedIndex = 0);
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (_) => const Homeview()),
+                      MaterialPageRoute(builder: (_) => const HomeView()),
                     );
                   },
                 ),
