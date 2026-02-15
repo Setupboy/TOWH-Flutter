@@ -87,6 +87,15 @@ class _NewGameViewState extends State<NewGameView> {
                         switchOutCurve: Curves.easeOut,
                         transitionBuilder: (child, animation) =>
                             FadeTransition(opacity: animation, child: child),
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
                         child: KeyedSubtree(
                           key: ValueKey<int>(_stepIndex),
                           child: _buildStepContent(),
