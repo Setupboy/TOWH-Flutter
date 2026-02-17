@@ -25,6 +25,7 @@ class _GameViewState extends State<GameView> {
   final Random _random = Random();
   late final List<_ChoiceColor> _choiceColors;
   late final List<int?> _selectedColorByPlayer;
+  late final List<int> _choiceAssignmentByColorIndex;
   int? _selectedColorIndex;
   String? _selectionErrorText;
   bool _showPageContent = false;
@@ -34,6 +35,10 @@ class _GameViewState extends State<GameView> {
     super.initState();
     _choiceColors = _buildRandomChoices(widget.playersCount);
     _selectedColorByPlayer = List<int?>.filled(widget.playersCount, null);
+    _choiceAssignmentByColorIndex = List<int>.generate(
+      widget.playersCount,
+      (i) => i,
+    )..shuffle(_random);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => _showPageContent = true);
@@ -339,18 +344,22 @@ class _GameViewState extends State<GameView> {
 
     final results = List.generate(_choiceColors.length, (index) {
       final choice = _choiceColors[index];
+      final assignedChoiceIndex =
+          index < _choiceAssignmentByColorIndex.length
+              ? _choiceAssignmentByColorIndex[index]
+              : index;
       final choiceTitle =
           (sessionChoices != null &&
-                  index < sessionChoices.length &&
-                  sessionChoices[index].trim().isNotEmpty)
-              ? sessionChoices[index].trim()
+                  assignedChoiceIndex < sessionChoices.length &&
+                  sessionChoices[assignedChoiceIndex].trim().isNotEmpty)
+              ? sessionChoices[assignedChoiceIndex].trim()
               : 'Choice ${index + 1}';
       final playerName =
           (sessionPlayers != null &&
-                  index < sessionPlayers.length &&
-                  sessionPlayers[index].name.trim().isNotEmpty)
-              ? sessionPlayers[index].name
-              : 'Player ${index + 1}';
+                  assignedChoiceIndex < sessionPlayers.length &&
+                  sessionPlayers[assignedChoiceIndex].name.trim().isNotEmpty)
+              ? sessionPlayers[assignedChoiceIndex].name
+              : 'Player ${assignedChoiceIndex + 1}';
 
       return VoteResultItem(
         choiceTitle: choiceTitle,
