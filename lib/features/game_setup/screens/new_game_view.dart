@@ -634,6 +634,7 @@ class _NewGameViewState extends State<NewGameView> {
         }
       }
 
+      GameSession.inProgressPlayers = _buildSessionPlayers();
       setState(() => _stepIndex = 2);
       return;
     }
@@ -672,10 +673,30 @@ class _NewGameViewState extends State<NewGameView> {
   }
 
   PlayerData get _currentPlayer {
-    if (kDemoPlayers.isEmpty) {
-      return const PlayerData(name: 'Player', imageUrl: '');
+    final players = GameSession.inProgressPlayers;
+    if (players == null || players.isEmpty) {
+      if (kDemoPlayers.isEmpty) {
+        return const PlayerData(name: 'Player', imageUrl: '');
+      }
+      return kDemoPlayers[_currentPlayerIndex % kDemoPlayers.length];
     }
-    return kDemoPlayers[_currentPlayerIndex % kDemoPlayers.length];
+    return players[_currentPlayerIndex % players.length];
+  }
+
+  List<PlayerData> _buildSessionPlayers() {
+    final playersData = <PlayerData>[];
+    for (int i = 0; i < _playerControllers.length; i++) {
+      final rawName = _playerControllers[i].text.trim();
+      final name = rawName.isEmpty ? 'Player ${i + 1}' : rawName;
+      final image =
+          kDemoPlayers.isEmpty
+              ? ''
+              : kDemoPlayers[i % kDemoPlayers.length].imageUrl;
+      playersData.add(PlayerData(name: name, imageUrl: image));
+    }
+    return playersData.isEmpty
+        ? const [PlayerData(name: 'Player', imageUrl: '')]
+        : playersData;
   }
 
   void _syncPlayerControllers() {

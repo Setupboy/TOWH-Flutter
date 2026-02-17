@@ -34,6 +34,12 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final sessionPlayers = GameSession.inProgressPlayers;
+    final inProgressPlayers =
+        (sessionPlayers == null || sessionPlayers.isEmpty)
+            ? kDemoPlayers
+            : sessionPlayers;
+
     return Scaffold(
       backgroundColor: kColorWhite50,
 
@@ -159,7 +165,7 @@ class _HomeViewState extends State<HomeView> {
                           gameTitle:
                               GameSession.inProgressActivityName ??
                               'Restaurant Night',
-                          players: kDemoPlayers
+                          players: inProgressPlayers
                               .map(
                                 (player) => PlayerChip(
                                   name: player.name,

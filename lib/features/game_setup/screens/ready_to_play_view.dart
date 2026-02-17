@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../../../core/utils/game_session.dart';
+import '../../../core/utils/player_data.dart';
 import '../../game/screens/game_view.dart';
 
 class ReadyToPlayView extends StatefulWidget {
@@ -34,6 +36,12 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
 
   @override
   Widget build(BuildContext context) {
+    final sessionPlayers = GameSession.inProgressPlayers;
+    final firstPlayerName =
+        (sessionPlayers == null || sessionPlayers.isEmpty)
+            ? (kDemoPlayers.isEmpty ? 'Player 1' : kDemoPlayers.first.name)
+            : sessionPlayers.first.name;
+
     return Scaffold(
       backgroundColor: kColorWhite50,
       appBar: AppBar(
@@ -94,13 +102,13 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
                                     color: kColorBlue800,
                                     height: 1.86,
                                   ),
-                                  children: const [
-                                    TextSpan(
+                                  children: [
+                                    const TextSpan(
                                       text: 'All set, Give the phone to ',
                                     ),
                                     TextSpan(
-                                      text: '[Player 1]',
-                                      style: TextStyle(
+                                      text: '[$firstPlayerName]',
+                                      style: const TextStyle(
                                         fontSize: 16,
                                         fontFamily: kFontMPL,
                                         fontWeight: FontWeight.w500,
@@ -108,7 +116,7 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
                                         height: 1.86,
                                       ),
                                     ),
-                                    TextSpan(
+                                    const TextSpan(
                                       text:
                                           ' and Hit start\nwhen everyone is '
                                           'ready for the polling',

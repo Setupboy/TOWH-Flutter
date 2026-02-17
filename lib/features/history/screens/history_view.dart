@@ -28,9 +28,15 @@ class _HistoryViewState extends State<HistoryView> {
 
   @override
   Widget build(BuildContext context) {
+    final sessionPlayers = GameSession.inProgressPlayers;
+    final inProgressPlayers =
+        (sessionPlayers == null || sessionPlayers.isEmpty)
+            ? kDemoPlayers
+            : sessionPlayers;
+
     final inProgressGame = _HistoryGame(
       title: GameSession.inProgressActivityName ?? 'Restaurant Night',
-      players: kDemoPlayers,
+      players: inProgressPlayers,
       footerLeftLabel: 'Stage:',
       footerLeftValue: 'Voting',
     );

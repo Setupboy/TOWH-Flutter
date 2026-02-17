@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/ready_to_play_view.dart';
 import 'result_view.dart';
@@ -224,10 +225,15 @@ class _GameViewState extends State<GameView> {
   }
 
   PlayerData get _currentPlayer {
-    if (kDemoPlayers.isEmpty) {
+    final sessionPlayers = GameSession.inProgressPlayers;
+    final players =
+        (sessionPlayers == null || sessionPlayers.isEmpty)
+            ? kDemoPlayers
+            : sessionPlayers;
+    if (players.isEmpty) {
       return const PlayerData(name: 'Player', imageUrl: '');
     }
-    return kDemoPlayers[_currentPlayerIndex % kDemoPlayers.length];
+    return players[_currentPlayerIndex % players.length];
   }
 
   List<_ChoiceColor> _buildRandomChoices(int count) {

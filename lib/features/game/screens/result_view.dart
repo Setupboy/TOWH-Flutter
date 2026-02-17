@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/new_game_view.dart';
 import '../../home/screens/home_view.dart';
@@ -41,6 +42,11 @@ class _ResultViewState extends State<ResultView> {
   @override
   Widget build(BuildContext context) {
     final rowColors = widget.resultColors;
+    final sessionPlayers = GameSession.inProgressPlayers;
+    final resultPlayers =
+        (sessionPlayers == null || sessionPlayers.isEmpty)
+            ? kDemoPlayers
+            : sessionPlayers;
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -116,7 +122,7 @@ class _ResultViewState extends State<ResultView> {
                                 final score = (rowColors.length - 1 - index)
                                     .toString();
                                 final player =
-                                    kDemoPlayers[index % kDemoPlayers.length];
+                                    resultPlayers[index % resultPlayers.length];
                                 return Padding(
                                   padding: EdgeInsets.only(
                                     bottom: index == rowColors.length - 1
