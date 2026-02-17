@@ -4,24 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../models/vote_result_item.dart';
 import '../../game_setup/screens/new_game_view.dart';
 import '../../home/screens/home_view.dart';
-
-class VoteResultItem {
-  final String choiceTitle;
-  final String playerName;
-  final Color color;
-  final int voteCount;
-  final int order;
-
-  const VoteResultItem({
-    required this.choiceTitle,
-    required this.playerName,
-    required this.color,
-    required this.voteCount,
-    required this.order,
-  });
-}
+import 'tie_result_view.dart';
 
 class ResultView extends StatefulWidget {
   final List<VoteResultItem> voteResults;
@@ -49,8 +35,23 @@ class _ResultViewState extends State<ResultView> {
     _selectedSticker = _stickers[Random().nextInt(_stickers.length)];
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
+      if (_hasTie(widget.voteResults)) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => TieResultView(voteResults: widget.voteResults),
+          ),
+        );
+        return;
+      }
       setState(() => _showPageContent = true);
     });
+  }
+
+  bool _hasTie(List<VoteResultItem> results) {
+    if (results.length < 2) return false;
+    return results[0].voteCount > 0 &&
+        results[0].voteCount == results[1].voteCount;
   }
 
   @override

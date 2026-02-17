@@ -6,8 +6,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
+import '../models/vote_result_item.dart';
 import '../../game_setup/screens/ready_to_play_view.dart';
 import 'result_view.dart';
+import 'tie_result_view.dart';
 
 class GameView extends StatefulWidget {
   final int playersCount;
@@ -303,10 +305,13 @@ class _GameViewState extends State<GameView> {
 
     if (_currentPlayerIndex >= widget.playersCount - 1) {
       final voteResults = _buildVoteResults();
+      final isTie = _isTopTie(voteResults);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => ResultView(voteResults: voteResults),
+          builder: (_) => isTie
+              ? TieResultView(voteResults: voteResults)
+              : ResultView(voteResults: voteResults),
         ),
       );
       return;
@@ -363,6 +368,12 @@ class _GameViewState extends State<GameView> {
     });
 
     return results;
+  }
+
+  bool _isTopTie(List<VoteResultItem> results) {
+    if (results.length < 2) return false;
+    return results[0].voteCount > 0 &&
+        results[0].voteCount == results[1].voteCount;
   }
 
   Widget _buildColorCard(_ChoiceColor choice, bool isSelected) {
