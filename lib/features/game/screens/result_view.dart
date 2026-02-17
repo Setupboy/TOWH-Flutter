@@ -43,10 +43,15 @@ class _ResultViewState extends State<ResultView> {
   Widget build(BuildContext context) {
     final rowColors = widget.resultColors;
     final sessionPlayers = GameSession.inProgressPlayers;
+    final sessionChoices = GameSession.inProgressChoices;
     final resultPlayers =
         (sessionPlayers == null || sessionPlayers.isEmpty)
             ? kDemoPlayers
             : sessionPlayers;
+    final resultChoices =
+        (sessionChoices == null || sessionChoices.isEmpty)
+            ? const ['Pizza', 'Steak', 'Felafel']
+            : sessionChoices;
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -118,11 +123,12 @@ class _ResultViewState extends State<ResultView> {
                               ),
                               const SizedBox(height: 12),
                               ...List.generate(rowColors.length, (index) {
-                                const titles = ['Pizza', 'Steak', 'Felafel'];
                                 final score = (rowColors.length - 1 - index)
                                     .toString();
                                 final player =
                                     resultPlayers[index % resultPlayers.length];
+                                final choice =
+                                    resultChoices[index % resultChoices.length];
                                 return Padding(
                                   padding: EdgeInsets.only(
                                     bottom: index == rowColors.length - 1
@@ -132,7 +138,7 @@ class _ResultViewState extends State<ResultView> {
                                   child: _ResultRow(
                                     score: score,
                                     scoreColor: rowColors[index],
-                                    title: titles[index % titles.length],
+                                    title: choice,
                                     playerName: player.name,
                                   ),
                                 );

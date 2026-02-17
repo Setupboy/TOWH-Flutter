@@ -33,6 +33,7 @@ class _NewGameViewState extends State<NewGameView> {
   String? _activityErrorText;
   String? _noteErrorText;
   final List<String?> _playerNameErrors = [];
+  final List<String> _playerChoices = [];
 
   final TextEditingController _activityController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -642,6 +643,7 @@ class _NewGameViewState extends State<NewGameView> {
       }
 
       GameSession.inProgressPlayers = _buildSessionPlayers();
+      GameSession.inProgressChoices = List<String>.filled(players, '');
       setState(() => _stepIndex = 2);
       return;
     }
@@ -651,6 +653,7 @@ class _NewGameViewState extends State<NewGameView> {
       setState(() => _noteErrorText = 'Player choice is required');
       return;
     }
+    _playerChoices[_currentPlayerIndex] = note;
 
     if (_currentPlayerIndex < players - 1) {
       setState(() {
@@ -659,6 +662,7 @@ class _NewGameViewState extends State<NewGameView> {
         _noteErrorText = null;
       });
     } else {
+      GameSession.inProgressChoices = List<String>.from(_playerChoices);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -710,10 +714,12 @@ class _NewGameViewState extends State<NewGameView> {
     while (_playerControllers.length < players) {
       _playerControllers.add(TextEditingController());
       _playerNameErrors.add(null);
+      _playerChoices.add('');
     }
     while (_playerControllers.length > players) {
       _playerControllers.removeLast().dispose();
       _playerNameErrors.removeLast();
+      _playerChoices.removeLast();
     }
   }
 
