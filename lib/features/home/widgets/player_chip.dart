@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
+import 'package:towh/core/utils/player_data.dart';
 
 class PlayerChip extends StatelessWidget {
   final String name;
-  final String imageUrl;
+  final Color? backgroundColor;
 
-  const PlayerChip({required this.name, required this.imageUrl, super.key});
+  const PlayerChip({required this.name, this.backgroundColor, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,20 @@ class PlayerChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CircleAvatar(radius: 13, backgroundImage: NetworkImage(imageUrl)),
+          CircleAvatar(
+            radius: 13,
+            backgroundColor: backgroundColor ?? avatarColorFromName(name),
+            child: Text(
+              initialsFromName(name),
+              style: const TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                color: kColorWhite100,
+                fontFamily: kFontMPL,
+                height: 1.0,
+              ),
+            ),
+          ),
           const SizedBox(width: 6),
           Text(
             name,

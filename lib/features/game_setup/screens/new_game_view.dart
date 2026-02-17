@@ -357,8 +357,16 @@ class _NewGameViewState extends State<NewGameView> {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundImage: NetworkImage(_currentPlayer.imageUrl),
-                      backgroundColor: kColorWhite100,
+                      backgroundColor: avatarColorFromName(_currentPlayer.name),
+                      child: Text(
+                        initialsFromName(_currentPlayer.name),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: kColorWhite100,
+                          fontFamily: kFontMPL,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 12),
                     Text(
@@ -699,11 +707,7 @@ class _NewGameViewState extends State<NewGameView> {
     for (int i = 0; i < _playerControllers.length; i++) {
       final rawName = _playerControllers[i].text.trim();
       final name = rawName.isEmpty ? 'Player ${i + 1}' : rawName;
-      final image =
-          kDemoPlayers.isEmpty
-              ? ''
-              : kDemoPlayers[i % kDemoPlayers.length].imageUrl;
-      playersData.add(PlayerData(name: name, imageUrl: image));
+      playersData.add(PlayerData(name: name, imageUrl: ''));
     }
     return playersData.isEmpty
         ? const [PlayerData(name: 'Player', imageUrl: '')]

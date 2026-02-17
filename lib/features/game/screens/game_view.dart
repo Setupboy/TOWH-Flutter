@@ -105,10 +105,18 @@ class _GameViewState extends State<GameView> {
                                 children: [
                                   CircleAvatar(
                                     radius: 28,
-                                    backgroundImage: NetworkImage(
-                                      _currentPlayer.imageUrl,
+                                    backgroundColor: avatarColorFromName(
+                                      _currentPlayer.name,
                                     ),
-                                    backgroundColor: kColorWhite100,
+                                    child: Text(
+                                      initialsFromName(_currentPlayer.name),
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w700,
+                                        color: kColorWhite100,
+                                        fontFamily: kFontMPL,
+                                      ),
+                                    ),
                                   ),
                                   const SizedBox(width: 12),
                                   Text(

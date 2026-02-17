@@ -53,26 +53,11 @@ class _HistoryViewState extends State<HistoryView> {
     final repeatCampingGame = _HistoryGame(
       title: 'Camping',
       players: const [
-        PlayerData(
-          name: 'Alice',
-          imageUrl: 'https://randomuser.me/api/portraits/women/2.jpg',
-        ),
-        PlayerData(
-          name: 'Stephen',
-          imageUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
-        ),
-        PlayerData(
-          name: 'Samuel',
-          imageUrl: 'https://randomuser.me/api/portraits/men/3.jpg',
-        ),
-        PlayerData(
-          name: 'Tony',
-          imageUrl: 'https://randomuser.me/api/portraits/men/4.jpg',
-        ),
-        PlayerData(
-          name: 'Mendy',
-          imageUrl: 'https://randomuser.me/api/portraits/women/5.jpg',
-        ),
+        PlayerData(name: 'Alice', imageUrl: ''),
+        PlayerData(name: 'Stephen', imageUrl: ''),
+        PlayerData(name: 'Samuel', imageUrl: ''),
+        PlayerData(name: 'Tony', imageUrl: ''),
+        PlayerData(name: 'Mendy', imageUrl: ''),
       ],
     );
 
@@ -271,7 +256,7 @@ class _HistoryGameCard extends StatelessWidget {
                 final player = game.players[index];
                 return _HistoryPlayerChip(
                   name: player.name,
-                  imageUrl: player.imageUrl,
+                  backgroundColor: avatarColorForIndex(index),
                 );
               },
             ),
@@ -335,9 +320,12 @@ class _HistoryGameCard extends StatelessWidget {
 
 class _HistoryPlayerChip extends StatelessWidget {
   final String name;
-  final String imageUrl;
+  final Color backgroundColor;
 
-  const _HistoryPlayerChip({required this.name, required this.imageUrl});
+  const _HistoryPlayerChip({
+    required this.name,
+    required this.backgroundColor,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -350,7 +338,20 @@ class _HistoryPlayerChip extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(radius: 12, backgroundImage: NetworkImage(imageUrl)),
+          CircleAvatar(
+            radius: 12,
+            backgroundColor: backgroundColor,
+            child: Text(
+              initialsFromName(name),
+              style: const TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.w700,
+                color: kColorWhite100,
+                fontFamily: kFontMPL,
+                height: 1.0,
+              ),
+            ),
+          ),
           const SizedBox(width: 6),
           Expanded(
             child: Text(

@@ -165,14 +165,15 @@ class _HomeViewState extends State<HomeView> {
                           gameTitle:
                               GameSession.inProgressActivityName ??
                               'Restaurant Night',
-                          players: inProgressPlayers
-                              .map(
-                                (player) => PlayerChip(
-                                  name: player.name,
-                                  imageUrl: player.imageUrl,
-                                ),
-                              )
-                              .toList(),
+                          players: List.generate(inProgressPlayers.length, (
+                            index,
+                          ) {
+                            final player = inProgressPlayers[index];
+                            return PlayerChip(
+                              name: player.name,
+                              backgroundColor: avatarColorForIndex(index),
+                            );
+                          }),
                         ),
 
                         const SizedBox(height: 24),
@@ -181,14 +182,13 @@ class _HomeViewState extends State<HomeView> {
                         GameBox(
                           title: 'Repeat game',
                           gameTitle: 'Cafe Morning',
-                          players: kDemoPlayers
-                              .map(
-                                (player) => PlayerChip(
-                                  name: player.name,
-                                  imageUrl: player.imageUrl,
-                                ),
-                              )
-                              .toList(),
+                          players: List.generate(kDemoPlayers.length, (index) {
+                            final player = kDemoPlayers[index];
+                            return PlayerChip(
+                              name: player.name,
+                              backgroundColor: avatarColorForIndex(index),
+                            );
+                          }),
                         ),
                       ],
                     ),
