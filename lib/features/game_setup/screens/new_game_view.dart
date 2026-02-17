@@ -31,6 +31,7 @@ class _NewGameViewState extends State<NewGameView> {
   bool _showStepZeroBottom = false;
   bool _isStepZeroExitAnimating = false;
   String? _activityErrorText;
+  String? _noteErrorText;
   final List<String?> _playerNameErrors = [];
 
   final TextEditingController _activityController = TextEditingController();
@@ -419,6 +420,12 @@ class _NewGameViewState extends State<NewGameView> {
                   label: 'Your Choice',
                   hintText: 'Write Answer',
                   controller: _noteController,
+                  errorText: _noteErrorText,
+                  onChanged: (value) {
+                    if (_noteErrorText != null && value.trim().isNotEmpty) {
+                      setState(() => _noteErrorText = null);
+                    }
+                  },
                 ),
               ],
             ),
@@ -631,10 +638,17 @@ class _NewGameViewState extends State<NewGameView> {
       return;
     }
 
+    final note = _noteController.text.trim();
+    if (note.isEmpty) {
+      setState(() => _noteErrorText = 'Player choice is required');
+      return;
+    }
+
     if (_currentPlayerIndex < players - 1) {
       setState(() {
         _currentPlayerIndex++;
         _noteController.clear();
+        _noteErrorText = null;
       });
     } else {
       Navigator.pushReplacement(
