@@ -263,6 +263,13 @@ class _NewGameViewState extends State<NewGameView> {
                           for (int i = 0; i < _playerNameErrors.length; i++) {
                             _playerNameErrors[i] = null;
                           }
+                        } else {
+                          for (final controller in _playerControllers) {
+                            controller.clear();
+                          }
+                          for (int i = 0; i < _playerNameErrors.length; i++) {
+                            _playerNameErrors[i] = null;
+                          }
                         }
                       });
                       if (value) _autoAssignPlayers();
