@@ -7,9 +7,9 @@ import '../../../core/utils/player_data.dart';
 import '../../home/screens/home_view.dart';
 import '../widgets/activity_input.dart';
 import '../widgets/continue_button.dart';
+import '../widgets/game_setup_app_bar.dart';
 import '../widgets/players_counter.dart';
 import '../widgets/quick_guide.dart';
-import '../widgets/game_setup_app_bar.dart';
 import 'ready_to_play_view.dart';
 
 class NewGameView extends StatefulWidget {
@@ -31,6 +31,7 @@ class _NewGameViewState extends State<NewGameView> {
   bool _showStepZeroBottom = false;
   bool _isStepZeroExitAnimating = false;
   String? _activityErrorText;
+  final List<String?> _playerNameErrors = [];
 
   final TextEditingController _activityController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -257,6 +258,11 @@ class _NewGameViewState extends State<NewGameView> {
                     onChanged: (value) {
                       setState(() {
                         _autoAssignEnabled = value;
+                        if (value) {
+                          for (int i = 0; i < _playerNameErrors.length; i++) {
+                            _playerNameErrors[i] = null;
+                          }
+                        }
                       });
                       if (value) _autoAssignPlayers();
                     },
@@ -293,6 +299,13 @@ class _NewGameViewState extends State<NewGameView> {
                       label: 'Player ${index + 1}',
                       hintText: 'Player Name',
                       controller: _playerControllers[index],
+                      errorText: _playerNameErrors[index],
+                      onChanged: (value) {
+                        if (_playerNameErrors[index] != null &&
+                            value.trim().isNotEmpty) {
+                          setState(() => _playerNameErrors[index] = null);
+                        }
+                      },
                     ),
                   );
                 }),
@@ -454,7 +467,11 @@ class _NewGameViewState extends State<NewGameView> {
     required String hintText,
     required TextEditingController controller,
     TextInputType? keyboardType,
+    String? errorText,
+    ValueChanged<String>? onChanged,
   }) {
+    final hasError = errorText != null && errorText.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -473,9 +490,10 @@ class _NewGameViewState extends State<NewGameView> {
           height: 37,
           child: TextField(
             controller: controller,
+            onChanged: onChanged,
             enableSuggestions: false,
             keyboardType: keyboardType,
-            cursorColor: kColorBlue100,
+            showCursor: false,
             textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               fontFamily: kFontMPL,
@@ -497,15 +515,33 @@ class _NewGameViewState extends State<NewGameView> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray50, width: 1),
+                borderSide: BorderSide(
+                  color: hasError ? kColorRed600 : kColorGray50,
+                  width: 1,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray50, width: 1),
+                borderSide: BorderSide(
+                  color: hasError ? kColorRed600 : kColorGray50,
+                  width: 1,
+                ),
               ),
             ),
           ),
         ),
+        if (hasError) ...[
+          const SizedBox(height: 4),
+          Text(
+            errorText,
+            style: const TextStyle(
+              fontFamily: kFontMPL,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: kColorRed600,
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -576,6 +612,21 @@ class _NewGameViewState extends State<NewGameView> {
     }
 
     if (_stepIndex == 1) {
+      if (!_autoAssignEnabled) {
+        bool hasAnyError = false;
+        for (int i = 0; i < _playerControllers.length; i++) {
+          final isEmpty = _playerControllers[i].text.trim().isEmpty;
+          _playerNameErrors[i] = isEmpty
+              ? 'Write player name or active auto assign'
+              : null;
+          if (isEmpty) hasAnyError = true;
+        }
+        if (hasAnyError) {
+          setState(() {});
+          return;
+        }
+      }
+
       setState(() => _stepIndex = 2);
       return;
     }
@@ -616,9 +667,11 @@ class _NewGameViewState extends State<NewGameView> {
   void _syncPlayerControllers() {
     while (_playerControllers.length < players) {
       _playerControllers.add(TextEditingController());
+      _playerNameErrors.add(null);
     }
     while (_playerControllers.length > players) {
       _playerControllers.removeLast().dispose();
+      _playerNameErrors.removeLast();
     }
   }
 
