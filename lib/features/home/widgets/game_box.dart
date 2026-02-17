@@ -63,7 +63,7 @@ class GameBox extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Wrap(spacing: 8, runSpacing: 8, children: players),
-                    const SizedBox(height: 12),
+                    const Spacer(),
                     Row(
                       children: const [
                         Text(
