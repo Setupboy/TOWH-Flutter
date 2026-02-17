@@ -1,11 +1,12 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:towh/core/theme/app_colors.dart';
-import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/game_session.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/home/screens/home_view.dart';
+import 'package:towh/features/home/widgets/game_box.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
+import 'package:towh/features/home/widgets/player_chip.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
@@ -33,33 +34,13 @@ class _HistoryViewState extends State<HistoryView> {
         (sessionPlayers == null || sessionPlayers.isEmpty)
             ? kDemoPlayers
             : sessionPlayers;
-
-    final inProgressGame = _HistoryGame(
-      title: GameSession.inProgressActivityName ?? 'Restaurant Night',
-      players: inProgressPlayers,
-      footerLeftLabel: 'Stage:',
-      footerLeftValue: 'Voting',
-    );
-
-    final repeatCafeGame = _HistoryGame(
-      title: 'Cafe Morning',
-      players: kDemoPlayers,
-      footerLeftLabel: 'Winner:',
-      footerLeftValue: 'Steak',
-      footerRightLabel: 'By:',
-      footerRightValue: 'Alice',
-    );
-
-    final repeatCampingGame = _HistoryGame(
-      title: 'Camping',
-      players: const [
-        PlayerData(name: 'Alice', imageUrl: ''),
-        PlayerData(name: 'Stephen', imageUrl: ''),
-        PlayerData(name: 'Samuel', imageUrl: ''),
-        PlayerData(name: 'Tony', imageUrl: ''),
-        PlayerData(name: 'Mendy', imageUrl: ''),
-      ],
-    );
+    final repeatCampingPlayers = const [
+      PlayerData(name: 'Alice', imageUrl: ''),
+      PlayerData(name: 'Stephen', imageUrl: ''),
+      PlayerData(name: 'Samuel', imageUrl: ''),
+      PlayerData(name: 'Tony', imageUrl: ''),
+      PlayerData(name: 'Mendy', imageUrl: ''),
+    ];
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -97,15 +78,48 @@ class _HistoryViewState extends State<HistoryView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 24),
-                        const _SectionTitle('In progress game'),
-                        const SizedBox(height: 8),
-                        _HistoryGameCard(game: inProgressGame),
+                        GameBox(
+                          title: 'In progress game',
+                          gameTitle:
+                              GameSession.inProgressActivityName ??
+                              'Restaurant Night',
+                          players: List.generate(inProgressPlayers.length, (
+                            index,
+                          ) {
+                            final player = inProgressPlayers[index];
+                            return PlayerChip(
+                              name: player.name,
+                              backgroundColor: avatarColorForIndex(index),
+                            );
+                          }),
+                        ),
                         const SizedBox(height: 24),
-                        const _SectionTitle('Repeat game'),
+                        GameBox(
+                          title: 'Repeat game',
+                          gameTitle: 'Cafe Morning',
+                          players: List.generate(kDemoPlayers.length, (index) {
+                            final player = kDemoPlayers[index];
+                            return PlayerChip(
+                              name: player.name,
+                              backgroundColor: avatarColorForIndex(index),
+                            );
+                          }),
+                        ),
                         const SizedBox(height: 8),
-                        _HistoryGameCard(game: repeatCafeGame),
-                        const SizedBox(height: 4),
-                        _HistoryGameCard(game: repeatCampingGame),
+                        GameBox(
+                          title: 'Repeat game',
+                          gameTitle: 'Camping',
+                          players: List.generate(
+                            repeatCampingPlayers.length,
+                            (index) {
+                              final player = repeatCampingPlayers[index];
+                              return PlayerChip(
+                                name: player.name,
+                                backgroundColor: avatarColorForIndex(index),
+                              );
+                            },
+                          ),
+                        ),
                         const SizedBox(height: 8),
                       ],
                     ),
@@ -158,216 +172,6 @@ class _HistoryViewState extends State<HistoryView> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  final String value;
-
-  const _SectionTitle(this.value);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      value,
-      style: const TextStyle(
-        fontFamily: kFontMPL,
-        fontSize: 14,
-        fontWeight: FontWeight.w400,
-        color: kColorBlue800,
-        height: 1.86,
-      ),
-    );
-  }
-}
-
-class _HistoryGame {
-  final String title;
-  final List<PlayerData> players;
-  final String? footerLeftLabel;
-  final String? footerLeftValue;
-  final String? footerRightLabel;
-  final String? footerRightValue;
-
-  const _HistoryGame({
-    required this.title,
-    required this.players,
-    this.footerLeftLabel,
-    this.footerLeftValue,
-    this.footerRightLabel,
-    this.footerRightValue,
-  });
-
-  bool get hasFooterLeft =>
-      (footerLeftLabel?.isNotEmpty ?? false) &&
-      (footerLeftValue?.isNotEmpty ?? false);
-
-  bool get hasFooterRight =>
-      (footerRightLabel?.isNotEmpty ?? false) &&
-      (footerRightValue?.isNotEmpty ?? false);
-}
-
-class _HistoryGameCard extends StatelessWidget {
-  final _HistoryGame game;
-
-  const _HistoryGameCard({required this.game});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: kColorWhite100,
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  game.title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: kColorBlue900,
-                    fontFamily: kFontMPL,
-                    height: 1.0,
-                  ),
-                ),
-                const Icon(Icons.chevron_right, color: kColorBlue800, size: 24),
-              ],
-            ),
-            const SizedBox(height: 12),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: game.players.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                mainAxisExtent: 46,
-              ),
-              itemBuilder: (context, index) {
-                final player = game.players[index];
-                return _HistoryPlayerChip(
-                  name: player.name,
-                  backgroundColor: avatarColorForIndex(index),
-                );
-              },
-            ),
-            if (game.hasFooterLeft) const SizedBox(height: 12),
-            if (game.hasFooterLeft)
-              Row(
-                children: [
-                  Text(
-                    game.footerLeftLabel!,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      color: kColorBlue800,
-                      fontFamily: kFontMPL,
-                      height: 1.0,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    game.footerLeftValue!,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: kColorBlue900,
-                      fontFamily: kFontMPL,
-                      height: 1.0,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (game.hasFooterRight) ...[
-                    Text(
-                      game.footerRightLabel!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: kColorBlue800,
-                        fontFamily: kFontMPL,
-                        fontWeight: FontWeight.w400,
-                        height: 1.0,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      game.footerRightValue!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: kColorBlue900,
-                        fontFamily: kFontMPL,
-                        height: 1.0,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HistoryPlayerChip extends StatelessWidget {
-  final String name;
-  final Color backgroundColor;
-
-  const _HistoryPlayerChip({
-    required this.name,
-    required this.backgroundColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-      decoration: BoxDecoration(
-        border: Border.all(color: kColorYellow200),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 12,
-            backgroundColor: backgroundColor,
-            child: Text(
-              initialsFromName(name),
-              style: const TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w700,
-                color: kColorWhite100,
-                fontFamily: kFontMPL,
-                height: 1.0,
-              ),
-            ),
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-                color: kColorBlue900,
-                fontFamily: kFontMPL,
-                height: 1.2,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
