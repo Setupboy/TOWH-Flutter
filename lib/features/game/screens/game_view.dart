@@ -22,13 +22,16 @@ class _GameViewState extends State<GameView> {
   int _currentPlayerIndex = 0;
   final Random _random = Random();
   late final List<_ChoiceColor> _choiceColors;
+  late final List<int?> _selectedColorByPlayer;
   int? _selectedColorIndex;
+  String? _selectionErrorText;
   bool _showPageContent = false;
 
   @override
   void initState() {
     super.initState();
     _choiceColors = _buildRandomChoices(widget.playersCount);
+    _selectedColorByPlayer = List<int?>.filled(widget.playersCount, null);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => _showPageContent = true);
@@ -148,9 +151,10 @@ class _GameViewState extends State<GameView> {
                                             _selectedColorIndex == index;
                                         return GestureDetector(
                                           onTap: () {
-                                            setState(
-                                              () => _selectedColorIndex = index,
-                                            );
+                                            setState(() {
+                                              _selectedColorIndex = index;
+                                              _selectionErrorText = null;
+                                            });
                                           },
                                           child: SizedBox(
                                             width: itemWidth,
@@ -191,6 +195,20 @@ class _GameViewState extends State<GameView> {
                         ),
                         textAlign: TextAlign.center,
                       ),
+                      if (_selectionErrorText != null) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _selectionErrorText!,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontFamily: kFontMPL,
+                            fontWeight: FontWeight.w400,
+                            color: kColorRed600,
+                            height: 1.4,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                       const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
@@ -268,21 +286,75 @@ class _GameViewState extends State<GameView> {
   }
 
   void _onContinuePressed() {
+    if (_selectedColorIndex == null) {
+      setState(() => _selectionErrorText = 'Please select one color');
+      return;
+    }
+
+    _selectedColorByPlayer[_currentPlayerIndex] = _selectedColorIndex;
+
     if (_currentPlayerIndex >= widget.playersCount - 1) {
+      final voteResults = _buildVoteResults();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => ResultView(
-            resultColors: _choiceColors.map((choice) => choice.color).toList(),
-          ),
+          builder: (_) => ResultView(voteResults: voteResults),
         ),
       );
       return;
     }
     setState(() {
       _currentPlayerIndex++;
-      _selectedColorIndex = null;
+      _selectedColorIndex = _selectedColorByPlayer[_currentPlayerIndex];
+      _selectionErrorText = null;
     });
+  }
+
+  List<VoteResultItem> _buildVoteResults() {
+    final voteCountByColor = <int, int>{};
+    for (int i = 0; i < _choiceColors.length; i++) {
+      voteCountByColor[i] = 0;
+    }
+
+    for (final selectedIndex in _selectedColorByPlayer) {
+      if (selectedIndex == null) continue;
+      voteCountByColor[selectedIndex] = (voteCountByColor[selectedIndex] ?? 0) + 1;
+    }
+
+    final sessionPlayers = GameSession.inProgressPlayers;
+    final sessionChoices = GameSession.inProgressChoices;
+
+    final results = List.generate(_choiceColors.length, (index) {
+      final choice = _choiceColors[index];
+      final choiceTitle =
+          (sessionChoices != null &&
+                  index < sessionChoices.length &&
+                  sessionChoices[index].trim().isNotEmpty)
+              ? sessionChoices[index].trim()
+              : 'Choice ${index + 1}';
+      final playerName =
+          (sessionPlayers != null &&
+                  index < sessionPlayers.length &&
+                  sessionPlayers[index].name.trim().isNotEmpty)
+              ? sessionPlayers[index].name
+              : 'Player ${index + 1}';
+
+      return VoteResultItem(
+        choiceTitle: choiceTitle,
+        playerName: playerName,
+        color: choice.color,
+        voteCount: voteCountByColor[index] ?? 0,
+        order: index,
+      );
+    });
+
+    results.sort((a, b) {
+      final byVotes = b.voteCount.compareTo(a.voteCount);
+      if (byVotes != 0) return byVotes;
+      return a.order.compareTo(b.order);
+    });
+
+    return results;
   }
 
   Widget _buildColorCard(_ChoiceColor choice, bool isSelected) {

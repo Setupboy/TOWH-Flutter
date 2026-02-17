@@ -4,15 +4,29 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
-import '../../../core/utils/game_session.dart';
-import '../../../core/utils/player_data.dart';
 import '../../game_setup/screens/new_game_view.dart';
 import '../../home/screens/home_view.dart';
 
-class ResultView extends StatefulWidget {
-  final List<Color> resultColors;
+class VoteResultItem {
+  final String choiceTitle;
+  final String playerName;
+  final Color color;
+  final int voteCount;
+  final int order;
 
-  const ResultView({super.key, this.resultColors = const []});
+  const VoteResultItem({
+    required this.choiceTitle,
+    required this.playerName,
+    required this.color,
+    required this.voteCount,
+    required this.order,
+  });
+}
+
+class ResultView extends StatefulWidget {
+  final List<VoteResultItem> voteResults;
+
+  const ResultView({super.key, this.voteResults = const []});
 
   @override
   State<ResultView> createState() => _ResultViewState();
@@ -41,17 +55,10 @@ class _ResultViewState extends State<ResultView> {
 
   @override
   Widget build(BuildContext context) {
-    final rowColors = widget.resultColors;
-    final sessionPlayers = GameSession.inProgressPlayers;
-    final sessionChoices = GameSession.inProgressChoices;
-    final resultPlayers =
-        (sessionPlayers == null || sessionPlayers.isEmpty)
-            ? kDemoPlayers
-            : sessionPlayers;
-    final resultChoices =
-        (sessionChoices == null || sessionChoices.isEmpty)
-            ? const ['Pizza', 'Steak', 'Felafel']
-            : sessionChoices;
+    final sortedResults = widget.voteResults;
+    final winnerTitle = sortedResults.isEmpty
+        ? 'No votes yet'
+        : '${sortedResults.first.playerName} Won the Vote';
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -97,11 +104,11 @@ class _ResultViewState extends State<ResultView> {
                                 ),
                               ),
                               const SizedBox(height: 24),
-                              const Center(
+                              Center(
                                 child: Text(
-                                  'Alice Won the Vote',
+                                  winnerTitle,
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 42,
                                     fontFamily: kFontBaloo2,
                                     fontWeight: FontWeight.w700,
@@ -122,24 +129,19 @@ class _ResultViewState extends State<ResultView> {
                                 ),
                               ),
                               const SizedBox(height: 12),
-                              ...List.generate(rowColors.length, (index) {
-                                final score = (rowColors.length - 1 - index)
-                                    .toString();
-                                final player =
-                                    resultPlayers[index % resultPlayers.length];
-                                final choice =
-                                    resultChoices[index % resultChoices.length];
+                              ...List.generate(sortedResults.length, (index) {
+                                final result = sortedResults[index];
                                 return Padding(
                                   padding: EdgeInsets.only(
-                                    bottom: index == rowColors.length - 1
+                                    bottom: index == sortedResults.length - 1
                                         ? 0
                                         : 12,
                                   ),
                                   child: _ResultRow(
-                                    score: score,
-                                    scoreColor: rowColors[index],
-                                    title: choice,
-                                    playerName: player.name,
+                                    voteCount: result.voteCount,
+                                    scoreColor: result.color,
+                                    title: result.choiceTitle,
+                                    playerName: result.playerName,
                                   ),
                                 );
                               }),
@@ -226,13 +228,13 @@ class _ResultViewState extends State<ResultView> {
 }
 
 class _ResultRow extends StatelessWidget {
-  final String score;
+  final int voteCount;
   final Color scoreColor;
   final String title;
   final String playerName;
 
   const _ResultRow({
-    required this.score,
+    required this.voteCount,
     required this.scoreColor,
     required this.title,
     required this.playerName,
@@ -251,7 +253,7 @@ class _ResultRow extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              score,
+              voteCount.toString(),
               style: const TextStyle(
                 fontSize: 48,
                 fontFamily: kFontBaloo2,
