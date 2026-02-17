@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
 import '../../home/screens/home_view.dart';
 import '../widgets/activity_input.dart';
@@ -29,6 +30,7 @@ class _NewGameViewState extends State<NewGameView> {
   bool _autoAssignEnabled = false;
   bool _showStepZeroBottom = false;
   bool _isStepZeroExitAnimating = false;
+  String? _activityErrorText;
 
   final TextEditingController _activityController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -166,7 +168,15 @@ class _NewGameViewState extends State<NewGameView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ActivityInput(controller: _activityController),
+              ActivityInput(
+                controller: _activityController,
+                errorText: _activityErrorText,
+                onChanged: (value) {
+                  if (_activityErrorText != null && value.trim().isNotEmpty) {
+                    setState(() => _activityErrorText = null);
+                  }
+                },
+              ),
               const SizedBox(height: 24),
               const Text(
                 'Number of Players',
@@ -295,9 +305,7 @@ class _NewGameViewState extends State<NewGameView> {
   }
 
   Widget _buildFinalStep() {
-    final activityName = _activityController.text.trim().isEmpty
-        ? 'Restaurant Night'
-        : _activityController.text.trim();
+    final activityName = _activityController.text.trim();
 
     return SizedBox(
       width: 380,
@@ -461,6 +469,7 @@ class _NewGameViewState extends State<NewGameView> {
         ),
         const SizedBox(height: 12),
         SizedBox(
+          width: 348,
           height: 37,
           child: TextField(
             controller: controller,
@@ -545,9 +554,16 @@ class _NewGameViewState extends State<NewGameView> {
 
   Future<void> _nextStep() async {
     if (_stepIndex == 0) {
+      final activityName = _activityController.text.trim();
+      if (activityName.isEmpty) {
+        setState(() => _activityErrorText = 'Activity name is required');
+        return;
+      }
+      GameSession.inProgressActivityName = activityName;
       if (_isStepZeroExitAnimating) return;
       setState(() {
         _isStepZeroExitAnimating = true;
+        _activityErrorText = null;
         _showStepZeroBottom = false;
       });
       await Future.delayed(_stepZeroBottomAnimationDuration);

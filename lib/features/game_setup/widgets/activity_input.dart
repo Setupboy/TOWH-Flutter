@@ -5,11 +5,20 @@ import '../../../core/theme/app_fonts.dart';
 
 class ActivityInput extends StatelessWidget {
   final TextEditingController controller;
+  final String? errorText;
+  final ValueChanged<String>? onChanged;
 
-  const ActivityInput({super.key, required this.controller});
+  const ActivityInput({
+    super.key,
+    required this.controller,
+    this.errorText,
+    this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final hasError = errorText != null && errorText!.isNotEmpty;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -24,11 +33,13 @@ class ActivityInput extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         SizedBox(
+          width: 348,
           height: 37,
           child: TextField(
             controller: controller,
+            onChanged: onChanged,
             enableSuggestions: false,
-            cursorColor: kColorBlue100,
+            showCursor: false,
             textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               fontFamily: kFontMPL,
@@ -50,15 +61,33 @@ class ActivityInput extends StatelessWidget {
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray50, width: 1),
+                borderSide: BorderSide(
+                  color: hasError ? kColorRed600 : kColorGray50,
+                  width: 1,
+                ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(4),
-                borderSide: const BorderSide(color: kColorGray50, width: 1),
+                borderSide: BorderSide(
+                  color: hasError ? kColorRed600 : kColorGray50,
+                  width: 1,
+                ),
               ),
             ),
           ),
         ),
+        if (hasError) ...[
+          const SizedBox(height: 4),
+          Text(
+            errorText!,
+            style: const TextStyle(
+              fontFamily: kFontMPL,
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: kColorRed600,
+            ),
+          ),
+        ],
       ],
     );
   }

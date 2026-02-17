@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
+import 'package:towh/core/utils/game_session.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/history/screens/history_view.dart';
 
@@ -155,7 +156,9 @@ class _HomeViewState extends State<HomeView> {
                         // In progress game
                         GameBox(
                           title: 'In progress game',
-                          gameTitle: 'Restaurant Night',
+                          gameTitle:
+                              GameSession.inProgressActivityName ??
+                              'Restaurant Night',
                           players: kDemoPlayers
                               .map(
                                 (player) => PlayerChip(

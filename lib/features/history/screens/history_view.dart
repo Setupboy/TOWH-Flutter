@@ -2,6 +2,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
+import 'package:towh/core/utils/game_session.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/home/screens/home_view.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
@@ -28,7 +29,7 @@ class _HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
     final inProgressGame = _HistoryGame(
-      title: 'Restaurant Night',
+      title: GameSession.inProgressActivityName ?? 'Restaurant Night',
       players: kDemoPlayers,
       footerLeftLabel: 'Stage:',
       footerLeftValue: 'Voting',
