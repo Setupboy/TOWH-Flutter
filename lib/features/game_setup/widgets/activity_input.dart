@@ -39,13 +39,14 @@ class ActivityInput extends StatelessWidget {
             controller: controller,
             onChanged: onChanged,
             enableSuggestions: false,
+            keyboardType: TextInputType.text,
             cursorColor: kColorGray50,
             textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               fontFamily: kFontMPL,
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: kColorBlue800,
+              color: kColorBlue900,
             ),
             decoration: InputDecoration(
               hintText: 'Write an activity title',

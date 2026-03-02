@@ -489,7 +489,6 @@ class _NewGameViewState extends State<NewGameView> {
     required String label,
     required String hintText,
     required TextEditingController controller,
-    TextInputType? keyboardType,
     String? errorText,
     ValueChanged<String>? onChanged,
   }) {
@@ -515,14 +514,14 @@ class _NewGameViewState extends State<NewGameView> {
             controller: controller,
             onChanged: onChanged,
             enableSuggestions: false,
-            keyboardType: keyboardType,
+            keyboardType: TextInputType.text,
             cursorColor: kColorGray50,
             textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               fontFamily: kFontMPL,
               fontSize: 14,
               fontWeight: FontWeight.w400,
-              color: kColorBlue800,
+              color: kColorBlue900,
             ),
             decoration: InputDecoration(
               hintText: hintText,
