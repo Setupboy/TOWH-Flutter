@@ -35,10 +35,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   Widget build(BuildContext context) {
     final sessionPlayers = GameSession.inProgressPlayers;
-    final inProgressPlayers =
-        (sessionPlayers == null || sessionPlayers.isEmpty)
-            ? kDemoPlayers
-            : sessionPlayers;
+    final inProgressPlayers = (sessionPlayers == null || sessionPlayers.isEmpty)
+        ? kDemoPlayers
+        : sessionPlayers;
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -235,14 +234,6 @@ class _HomeViewState extends State<HomeView> {
                       MaterialPageRoute(builder: (_) => const HistoryView()),
                     );
                   },
-                ),
-              ),
-              Expanded(
-                child: NavBarItem(
-                  icon: FluentIcons.person_circle_24_regular,
-                  label: 'Profile',
-                  isSelected: selectedIndex == 3,
-                  onTap: () => setState(() => selectedIndex = 3),
                 ),
               ),
             ],

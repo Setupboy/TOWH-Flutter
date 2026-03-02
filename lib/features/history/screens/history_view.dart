@@ -30,10 +30,9 @@ class _HistoryViewState extends State<HistoryView> {
   @override
   Widget build(BuildContext context) {
     final sessionPlayers = GameSession.inProgressPlayers;
-    final inProgressPlayers =
-        (sessionPlayers == null || sessionPlayers.isEmpty)
-            ? kDemoPlayers
-            : sessionPlayers;
+    final inProgressPlayers = (sessionPlayers == null || sessionPlayers.isEmpty)
+        ? kDemoPlayers
+        : sessionPlayers;
     final repeatCampingPlayers = const [
       PlayerData(name: 'Alice', imageUrl: ''),
       PlayerData(name: 'Stephen', imageUrl: ''),
@@ -109,16 +108,15 @@ class _HistoryViewState extends State<HistoryView> {
                         GameBox(
                           title: 'Repeat game',
                           gameTitle: 'Camping',
-                          players: List.generate(
-                            repeatCampingPlayers.length,
-                            (index) {
-                              final player = repeatCampingPlayers[index];
-                              return PlayerChip(
-                                name: player.name,
-                                backgroundColor: avatarColorForIndex(index),
-                              );
-                            },
-                          ),
+                          players: List.generate(repeatCampingPlayers.length, (
+                            index,
+                          ) {
+                            final player = repeatCampingPlayers[index];
+                            return PlayerChip(
+                              name: player.name,
+                              backgroundColor: avatarColorForIndex(index),
+                            );
+                          }),
                         ),
                         const SizedBox(height: 8),
                       ],
@@ -158,14 +156,6 @@ class _HistoryViewState extends State<HistoryView> {
                   icon: FluentIcons.history_24_regular,
                   label: 'History',
                   isSelected: true,
-                  onTap: () {},
-                ),
-              ),
-              Expanded(
-                child: NavBarItem(
-                  icon: FluentIcons.person_circle_24_regular,
-                  label: 'Profile',
-                  isSelected: false,
                   onTap: () {},
                 ),
               ),
