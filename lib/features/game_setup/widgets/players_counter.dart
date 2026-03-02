@@ -29,23 +29,31 @@ class PlayersCounter extends StatelessWidget {
   }
 
   Widget _removeButton() {
-    return Container(
+    final bool isEnabled = players > 3;
+
+    return SizedBox(
       width: 72,
       height: double.infinity,
-      decoration: BoxDecoration(
-        color: players > 3 ? kColorYellow200 : kColorYellow100,
-        borderRadius: BorderRadius.only(
+      child: Material(
+        color: isEnabled ? kColorYellow200 : kColorYellow100,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           bottomLeft: Radius.circular(24),
         ),
-      ),
-      child: IconButton(
-        icon: Icon(
-          Icons.remove,
-          size: 25,
-          color: players > 3 ? kColorBlue800 : kColorBlue100,
+        child: InkWell(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(24),
+            bottomLeft: Radius.circular(24),
+          ),
+          onTap: isEnabled ? onRemove : null,
+          child: Center(
+            child: Icon(
+              Icons.remove,
+              size: 25,
+              color: isEnabled ? kColorBlue800 : kColorBlue100,
+            ),
+          ),
         ),
-        onPressed: onRemove,
       ),
     );
   }
@@ -81,19 +89,25 @@ class PlayersCounter extends StatelessWidget {
   }
 
   Widget _addButton() {
-    return Container(
+    return SizedBox(
       width: 72,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      child: Material(
         color: kColorYellow200,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topRight: Radius.circular(24),
           bottomRight: Radius.circular(24),
         ),
-      ),
-      child: IconButton(
-        icon: const Icon(Icons.add, size: 25, color: kColorBlue800),
-        onPressed: onAdd,
+        child: InkWell(
+          borderRadius: const BorderRadius.only(
+            topRight: Radius.circular(24),
+            bottomRight: Radius.circular(24),
+          ),
+          onTap: onAdd,
+          child: const Center(
+            child: Icon(Icons.add, size: 25, color: kColorBlue800),
+          ),
+        ),
       ),
     );
   }

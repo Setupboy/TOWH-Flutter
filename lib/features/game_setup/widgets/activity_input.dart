@@ -39,7 +39,7 @@ class ActivityInput extends StatelessWidget {
             controller: controller,
             onChanged: onChanged,
             enableSuggestions: false,
-            showCursor: false,
+            cursorColor: kColorGray50,
             textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               fontFamily: kFontMPL,

@@ -516,7 +516,7 @@ class _NewGameViewState extends State<NewGameView> {
             onChanged: onChanged,
             enableSuggestions: false,
             keyboardType: keyboardType,
-            showCursor: false,
+            cursorColor: kColorGray50,
             textAlignVertical: TextAlignVertical.center,
             style: const TextStyle(
               fontFamily: kFontMPL,
