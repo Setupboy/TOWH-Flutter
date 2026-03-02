@@ -277,7 +277,7 @@ class _NewGameViewState extends State<NewGameView> {
                     },
 
                     activeThumbColor: Colors.white,
-                    activeTrackColor: kColorGreen100,
+                    activeTrackColor: kColorGreen50,
                     inactiveThumbColor: Colors.white,
                     inactiveTrackColor: kColorGray100,
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
