@@ -36,12 +36,17 @@ class _NewGameViewState extends State<NewGameView> {
   final List<String> _playerChoices = [];
 
   final TextEditingController _activityController = TextEditingController();
+  final FocusNode _activityFocusNode = FocusNode();
   final TextEditingController _noteController = TextEditingController();
+  final FocusNode _noteFocusNode = FocusNode();
   final List<TextEditingController> _playerControllers = [];
+  final List<FocusNode> _playerFocusNodes = [];
 
   @override
   void initState() {
     super.initState();
+    _activityFocusNode.addListener(_onTextFieldFocusChanged);
+    _noteFocusNode.addListener(_onTextFieldFocusChanged);
     _syncPlayerControllers();
     _startStepZeroBottomEntrance();
   }
@@ -49,15 +54,28 @@ class _NewGameViewState extends State<NewGameView> {
   @override
   void dispose() {
     _activityController.dispose();
+    _activityFocusNode
+      ..removeListener(_onTextFieldFocusChanged)
+      ..dispose();
     _noteController.dispose();
+    _noteFocusNode
+      ..removeListener(_onTextFieldFocusChanged)
+      ..dispose();
     for (final controller in _playerControllers) {
       controller.dispose();
+    }
+    for (final focusNode in _playerFocusNodes) {
+      focusNode
+        ..removeListener(_onTextFieldFocusChanged)
+        ..dispose();
     }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final hideBottomWidgets = _isAnyTextFieldFocused;
+
     return Scaffold(
       backgroundColor: kColorWhite50,
       appBar: gameSetupAppBar(
@@ -110,15 +128,17 @@ class _NewGameViewState extends State<NewGameView> {
                   ),
                 ),
               ),
-              if (_stepIndex == 0) ...[
+              if (_stepIndex == 0 && !hideBottomWidgets) ...[
                 _buildStepZeroAnimatedBottom(child: const QuickGuide()),
               ],
-              if (_stepIndex == 2) ...[
+              if (_stepIndex == 2 && !hideBottomWidgets) ...[
                 const SizedBox(height: 12),
                 _buildSecretWarning(),
               ],
-              const SizedBox(height: 24),
-              _buildBottomActions(),
+              if (!hideBottomWidgets) ...[
+                const SizedBox(height: 24),
+                _buildBottomActions(),
+              ],
             ],
           ),
         ),
@@ -173,6 +193,7 @@ class _NewGameViewState extends State<NewGameView> {
             children: [
               ActivityInput(
                 controller: _activityController,
+                focusNode: _activityFocusNode,
                 errorText: _activityErrorText,
                 onChanged: (value) {
                   if (_activityErrorText != null && value.trim().isNotEmpty) {
@@ -308,6 +329,7 @@ class _NewGameViewState extends State<NewGameView> {
                       label: 'Player ${index + 1}',
                       hintText: 'Player Name',
                       controller: _playerControllers[index],
+                      focusNode: _playerFocusNodes[index],
                       errorText: _playerNameErrors[index],
                       onChanged: (value) {
                         if (_playerNameErrors[index] != null &&
@@ -436,6 +458,7 @@ class _NewGameViewState extends State<NewGameView> {
                   label: 'Your Choice',
                   hintText: 'Write Answer',
                   controller: _noteController,
+                  focusNode: _noteFocusNode,
                   errorText: _noteErrorText,
                   onChanged: (value) {
                     if (_noteErrorText != null && value.trim().isNotEmpty) {
@@ -489,6 +512,7 @@ class _NewGameViewState extends State<NewGameView> {
     required String label,
     required String hintText,
     required TextEditingController controller,
+    FocusNode? focusNode,
     String? errorText,
     ValueChanged<String>? onChanged,
   }) {
@@ -512,6 +536,7 @@ class _NewGameViewState extends State<NewGameView> {
           height: 37,
           child: TextField(
             controller: controller,
+            focusNode: focusNode,
             onChanged: onChanged,
             enableSuggestions: false,
             keyboardType: TextInputType.text,
@@ -608,6 +633,16 @@ class _NewGameViewState extends State<NewGameView> {
       if (!mounted || _stepIndex != 0) return;
       setState(() => _showStepZeroBottom = true);
     });
+  }
+
+  bool get _isAnyTextFieldFocused =>
+      _activityFocusNode.hasFocus ||
+      _noteFocusNode.hasFocus ||
+      _playerFocusNodes.any((focusNode) => focusNode.hasFocus);
+
+  void _onTextFieldFocusChanged() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   Future<void> _nextStep() async {
@@ -716,11 +751,17 @@ class _NewGameViewState extends State<NewGameView> {
   void _syncPlayerControllers() {
     while (_playerControllers.length < players) {
       _playerControllers.add(TextEditingController());
+      final focusNode = FocusNode()
+        ..addListener(_onTextFieldFocusChanged);
+      _playerFocusNodes.add(focusNode);
       _playerNameErrors.add(null);
       _playerChoices.add('');
     }
     while (_playerControllers.length > players) {
       _playerControllers.removeLast().dispose();
+      _playerFocusNodes.removeLast()
+        ..removeListener(_onTextFieldFocusChanged)
+        ..dispose();
       _playerNameErrors.removeLast();
       _playerChoices.removeLast();
     }

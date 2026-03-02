@@ -5,12 +5,14 @@ import '../../../core/theme/app_fonts.dart';
 
 class ActivityInput extends StatelessWidget {
   final TextEditingController controller;
+  final FocusNode? focusNode;
   final String? errorText;
   final ValueChanged<String>? onChanged;
 
   const ActivityInput({
     super.key,
     required this.controller,
+    this.focusNode,
     this.errorText,
     this.onChanged,
   });
@@ -37,6 +39,7 @@ class ActivityInput extends StatelessWidget {
           height: 37,
           child: TextField(
             controller: controller,
+            focusNode: focusNode,
             onChanged: onChanged,
             enableSuggestions: false,
             keyboardType: TextInputType.text,
