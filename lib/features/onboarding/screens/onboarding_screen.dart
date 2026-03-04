@@ -16,6 +16,8 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  static const double _swipeVelocityThreshold = 300;
+
   int _currentIndex = 0;
 
   late final List<OnboardingStep> _steps;
@@ -116,89 +118,103 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Container(
-                    height: 412,
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: kColorWhite50,
-                      borderRadius: BorderRadius.only(
-                        bottomRight: Radius.circular(400),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      height: 412,
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: kColorWhite50,
+                        borderRadius: BorderRadius.only(
+                          bottomRight: Radius.circular(400),
+                        ),
                       ),
                     ),
-                  ),
 
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    switchInCurve: Curves.easeIn,
-                    switchOutCurve: Curves.easeOut,
-                    transitionBuilder: (child, animation) =>
-                        FadeTransition(opacity: animation, child: child),
-                    child: OnboardingPage(
-                      key: ValueKey<int>(_currentIndex),
-                      step: _steps[_currentIndex],
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      switchInCurve: Curves.easeIn,
+                      switchOutCurve: Curves.easeOut,
+                      transitionBuilder: (child, animation) =>
+                          FadeTransition(opacity: animation, child: child),
+                      child: OnboardingPage(
+                        key: ValueKey<int>(_currentIndex),
+                        step: _steps[_currentIndex],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SmoothPageIndicator(
-                    controller: PageController(initialPage: _currentIndex),
-                    count: _steps.length,
-                    effect: ExpandingDotsEffect(
-                      dotWidth: 10,
-                      dotHeight: 10,
-                      spacing: 4,
-                      activeDotColor: kColorWhite50,
-                      dotColor: kColorYellow100,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: _nextPage,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kColorWhite50,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SmoothPageIndicator(
+                      controller: PageController(initialPage: _currentIndex),
+                      count: _steps.length,
+                      effect: ExpandingDotsEffect(
+                        dotWidth: 10,
+                        dotHeight: 10,
+                        spacing: 4,
+                        activeDotColor: kColorWhite50,
+                        dotColor: kColorYellow100,
                       ),
                     ),
-                    child: const Row(
-                      children: [
-                        Text(
-                          'Next',
-                          style: TextStyle(
-                            fontFamily: kFontMPL,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
+                    ElevatedButton(
+                      onPressed: _nextPage,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: kColorWhite50,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Text(
+                            'Next',
+                            style: TextStyle(
+                              fontFamily: kFontMPL,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: kColorBlue900,
+                            ),
+                          ),
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
                             color: kColorBlue900,
                           ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(
-                          Icons.arrow_forward_ios,
-                          size: 14,
-                          color: kColorBlue900,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity > _swipeVelocityThreshold) {
+      _previousPage();
+      return;
+    }
+    if (velocity < -_swipeVelocityThreshold) {
+      _nextPage();
+    }
   }
 }

@@ -23,6 +23,7 @@ class _NewGameViewState extends State<NewGameView> {
   static const Duration _stepZeroBottomAnimationDuration = Duration(
     milliseconds: 320,
   );
+  static const double _swipeVelocityThreshold = 300;
 
   int players = 3;
   int _stepIndex = 0;
@@ -82,22 +83,20 @@ class _NewGameViewState extends State<NewGameView> {
         context,
         onBack: _stepIndex > 0
             ? _previousStep
-            : () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HomeView()),
-                );
-              },
+            : _goBackToHome,
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
                       const SizedBox(height: 12),
                       if (_stepIndex != 2) ...[
                         _introText(),
@@ -124,22 +123,23 @@ class _NewGameViewState extends State<NewGameView> {
                           child: _buildStepContent(),
                         ),
                       ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (_stepIndex == 0 && !hideBottomWidgets) ...[
-                _buildStepZeroAnimatedBottom(child: const QuickGuide()),
+                if (_stepIndex == 0 && !hideBottomWidgets) ...[
+                  _buildStepZeroAnimatedBottom(child: const QuickGuide()),
+                ],
+                if (_stepIndex == 2 && !hideBottomWidgets) ...[
+                  const SizedBox(height: 12),
+                  _buildSecretWarning(),
+                ],
+                if (!hideBottomWidgets) ...[
+                  const SizedBox(height: 24),
+                  _buildBottomActions(),
+                ],
               ],
-              if (_stepIndex == 2 && !hideBottomWidgets) ...[
-                const SizedBox(height: 12),
-                _buildSecretWarning(),
-              ],
-              if (!hideBottomWidgets) ...[
-                const SizedBox(height: 24),
-                _buildBottomActions(),
-              ],
-            ],
+            ),
           ),
         ),
       ),
@@ -741,6 +741,42 @@ class _NewGameViewState extends State<NewGameView> {
     if (_stepIndex > 1) {
       setState(() => _stepIndex--);
     }
+  }
+
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity > _swipeVelocityThreshold) {
+      if (_stepIndex == 0) {
+        _goBackToHome();
+        return;
+      }
+      _previousStep();
+      return;
+    }
+    if (velocity < -_swipeVelocityThreshold) {
+      _nextStep();
+    }
+  }
+
+  void _goBackToHome() {
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const HomeView(),
+        transitionDuration: const Duration(milliseconds: 260),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final slide = Tween<Offset>(
+            begin: const Offset(-1, 0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
+          return SlideTransition(position: slide, child: child);
+        },
+      ),
+    );
   }
 
   PlayerData get _currentPlayer {

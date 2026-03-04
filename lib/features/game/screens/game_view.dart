@@ -21,6 +21,8 @@ class GameView extends StatefulWidget {
 }
 
 class _GameViewState extends State<GameView> {
+  static const double _swipeVelocityThreshold = 300;
+
   int _currentPlayerIndex = 0;
   final Random _random = Random();
   final ScrollController _scrollController = ScrollController();
@@ -88,24 +90,27 @@ class _GameViewState extends State<GameView> {
         ),
       ),
 
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
-        transitionBuilder: (child, animation) =>
-            FadeTransition(opacity: animation, child: child),
-        child: _showPageContent
-            ? SafeArea(
-                key: const ValueKey<String>('game-content'),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: SingleChildScrollView(
-                          controller: _scrollController,
-                          child: Column(
-                            children: <Widget>[
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragEnd: _onHorizontalDragEnd,
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          switchInCurve: Curves.easeIn,
+          switchOutCurve: Curves.easeOut,
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child: _showPageContent
+              ? SafeArea(
+                  key: const ValueKey<String>('game-content'),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: SingleChildScrollView(
+                            controller: _scrollController,
+                            child: Column(
+                              children: <Widget>[
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -183,75 +188,76 @@ class _GameViewState extends State<GameView> {
                                   );
                                 },
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      Text.rich(
-                        TextSpan(
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontFamily: kFontMPL,
-                            fontWeight: FontWeight.w400,
-                            color: kColorRed600,
-                            height: 1.86,
-                          ),
-                          children: [
-                            const TextSpan(text: 'Choose a color '),
-                            TextSpan(
-                              text: _currentPlayer.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      if (_selectionErrorText != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          _selectionErrorText!,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontFamily: kFontMPL,
-                            fontWeight: FontWeight.w400,
-                            color: kColorRed600,
-                            height: 1.4,
+                        const SizedBox(height: 24),
+                        Text.rich(
+                          TextSpan(
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: kFontMPL,
+                              fontWeight: FontWeight.w400,
+                              color: kColorRed600,
+                              height: 1.86,
+                            ),
+                            children: [
+                              const TextSpan(text: 'Choose a color '),
+                              TextSpan(
+                                text: _currentPlayer.name,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
                           ),
                           textAlign: TextAlign.center,
                         ),
-                      ],
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton(
-                          onPressed: _onContinuePressed,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kColorYellow200,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Text(
-                            'Continue',
-                            style: TextStyle(
-                              fontSize: 16,
+                        if (_selectionErrorText != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            _selectionErrorText!,
+                            style: const TextStyle(
+                              fontSize: 12,
                               fontFamily: kFontMPL,
-                              fontWeight: FontWeight.w500,
-                              color: kColorBlue900,
-                              height: 1.46,
+                              fontWeight: FontWeight.w400,
+                              color: kColorRed600,
+                              height: 1.4,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            onPressed: _onContinuePressed,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kColorYellow200,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            child: const Text(
+                              'Continue',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontFamily: kFontMPL,
+                                fontWeight: FontWeight.w500,
+                                color: kColorBlue900,
+                                height: 1.46,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              )
-            : const SizedBox(key: ValueKey<String>('game-empty')),
+                )
+              : const SizedBox(key: ValueKey<String>('game-empty')),
+        ),
       ),
     );
   }
@@ -347,6 +353,16 @@ class _GameViewState extends State<GameView> {
     });
   }
 
+  void _onHorizontalDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity.abs() < _swipeVelocityThreshold) return;
+    if (velocity > 0) {
+      _onBackPressed();
+    } else {
+      _onContinuePressed();
+    }
+  }
+
   void _onBackPressed() {
     if (_currentPlayerIndex > 0) {
       setState(() {
@@ -357,10 +373,22 @@ class _GameViewState extends State<GameView> {
       });
       return;
     }
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => ReadyToPlayView(playersCount: widget.playersCount),
+    _goBackToReadyPage();
+  }
+
+  void _goBackToReadyPage() {
+    Navigator.of(context).pushReplacement(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            ReadyToPlayView(playersCount: widget.playersCount),
+        transitionDuration: const Duration(milliseconds: 260),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final slide = Tween<Offset>(
+            begin: const Offset(-1, 0),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
+          return SlideTransition(position: slide, child: child);
+        },
       ),
     );
   }
