@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/utils/game_session.dart';
 import 'package:towh/core/utils/player_data.dart';
+import 'package:towh/features/game/screens/game_view.dart';
 import 'package:towh/features/home/screens/home_view.dart';
 import 'package:towh/features/home/widgets/game_box.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
@@ -82,6 +83,16 @@ class _HistoryViewState extends State<HistoryView> {
                           gameTitle:
                               GameSession.inProgressActivityName ??
                               'Restaurant Night',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => GameView(
+                                  playersCount: inProgressPlayers.length,
+                                ),
+                              ),
+                            );
+                          },
                           players: List.generate(inProgressPlayers.length, (
                             index,
                           ) {
@@ -96,6 +107,16 @@ class _HistoryViewState extends State<HistoryView> {
                         GameBox(
                           title: 'Repeat game',
                           gameTitle: 'Cafe Morning',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => GameView(
+                                  playersCount: kDemoPlayers.length,
+                                ),
+                              ),
+                            );
+                          },
                           players: List.generate(kDemoPlayers.length, (index) {
                             final player = kDemoPlayers[index];
                             return PlayerChip(
@@ -108,6 +129,16 @@ class _HistoryViewState extends State<HistoryView> {
                         GameBox(
                           title: 'Repeat game',
                           gameTitle: 'Camping',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => GameView(
+                                  playersCount: repeatCampingPlayers.length,
+                                ),
+                              ),
+                            );
+                          },
                           players: List.generate(repeatCampingPlayers.length, (
                             index,
                           ) {

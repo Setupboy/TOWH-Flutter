@@ -8,6 +8,7 @@ import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/history/screens/history_view.dart';
 
 import '../../game_setup/screens/new_game_view.dart';
+import '../../game/screens/game_view.dart';
 import '../widgets/game_box.dart';
 import '../widgets/nav_bar_item.dart';
 import '../widgets/player_chip.dart';
@@ -164,6 +165,16 @@ class _HomeViewState extends State<HomeView> {
                           gameTitle:
                               GameSession.inProgressActivityName ??
                               'Restaurant Night',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => GameView(
+                                  playersCount: inProgressPlayers.length,
+                                ),
+                              ),
+                            );
+                          },
                           players: List.generate(inProgressPlayers.length, (
                             index,
                           ) {
@@ -181,6 +192,16 @@ class _HomeViewState extends State<HomeView> {
                         GameBox(
                           title: 'Repeat game',
                           gameTitle: 'Cafe Morning',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => GameView(
+                                  playersCount: kDemoPlayers.length,
+                                ),
+                              ),
+                            );
+                          },
                           players: List.generate(kDemoPlayers.length, (index) {
                             final player = kDemoPlayers[index];
                             return PlayerChip(

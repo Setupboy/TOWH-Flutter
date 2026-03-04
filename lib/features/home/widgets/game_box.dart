@@ -6,11 +6,13 @@ class GameBox extends StatelessWidget {
   final String title;
   final String gameTitle;
   final List<Widget> players;
+  final VoidCallback? onTap;
 
   const GameBox({
     required this.title,
     required this.gameTitle,
     required this.players,
+    this.onTap,
     super.key,
   });
 
@@ -41,52 +43,56 @@ class GameBox extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          gameTitle,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: kColorBlue900,
-                            fontFamily: kFontMPL,
+              child: InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(24),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            gameTitle,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: kColorBlue900,
+                              fontFamily: kFontMPL,
+                            ),
                           ),
-                        ),
-                        const Icon(Icons.chevron_right, color: kColorBlue800),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(spacing: 8, runSpacing: 8, children: players),
-                    const Spacer(),
-                    Row(
-                      children: const [
-                        Text(
-                          'Stage:',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: kColorBlue800,
-                            fontFamily: kFontMPL,
+                          const Icon(Icons.chevron_right, color: kColorBlue800),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(spacing: 8, runSpacing: 8, children: players),
+                      const Spacer(),
+                      Row(
+                        children: const [
+                          Text(
+                            'Stage:',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: kColorBlue800,
+                              fontFamily: kFontMPL,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          'Voting',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: kColorBlue900,
-                            fontFamily: kFontMPL,
+                          SizedBox(width: 4),
+                          Text(
+                            'Voting',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: kColorBlue900,
+                              fontFamily: kFontMPL,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

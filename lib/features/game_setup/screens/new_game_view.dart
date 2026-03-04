@@ -751,8 +751,7 @@ class _NewGameViewState extends State<NewGameView> {
   void _syncPlayerControllers() {
     while (_playerControllers.length < players) {
       _playerControllers.add(TextEditingController());
-      final focusNode = FocusNode()
-        ..addListener(_onTextFieldFocusChanged);
+      final focusNode = FocusNode()..addListener(_onTextFieldFocusChanged);
       _playerFocusNodes.add(focusNode);
       _playerNameErrors.add(null);
       _playerChoices.add('');
