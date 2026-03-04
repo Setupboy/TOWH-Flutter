@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
 import '../models/vote_result_item.dart';
-import '../../game_setup/screens/new_game_view.dart';
 import '../../home/screens/home_view.dart';
+import 'game_view.dart';
 import 'tie_result_view.dart';
 
 class ResultView extends StatefulWidget {
@@ -191,7 +191,9 @@ class _ResultViewState extends State<ResultView> {
                                   Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) => const NewGameView(),
+                                      builder: (_) => GameView(
+                                        playersCount: widget.voteResults.length,
+                                      ),
                                     ),
                                     (route) => false,
                                   );
