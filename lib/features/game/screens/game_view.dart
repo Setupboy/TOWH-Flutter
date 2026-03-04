@@ -7,7 +7,6 @@ import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
 import '../models/vote_result_item.dart';
-import '../../game_setup/screens/ready_to_play_view.dart';
 import 'result_view.dart';
 import 'tie_result_view.dart';
 
@@ -59,16 +58,7 @@ class _GameViewState extends State<GameView> {
         title: Row(
           children: [
             GestureDetector(
-              onTap: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        ReadyToPlayView(playersCount: widget.playersCount),
-                  ),
-                  (route) => false,
-                );
-              },
+              onTap: _onBackPressed,
               child: const Icon(
                 Icons.arrow_back_ios_new,
                 size: 20,
@@ -326,6 +316,19 @@ class _GameViewState extends State<GameView> {
       _selectedColorIndex = _selectedColorByPlayer[_currentPlayerIndex];
       _selectionErrorText = null;
     });
+  }
+
+  void _onBackPressed() {
+    if (_currentPlayerIndex > 0) {
+      setState(() {
+        _currentPlayerIndex--;
+        _selectedColorByPlayer[_currentPlayerIndex] = null;
+        _selectedColorIndex = null;
+        _selectionErrorText = null;
+      });
+      return;
+    }
+    Navigator.maybePop(context);
   }
 
   List<VoteResultItem> _buildVoteResults() {
