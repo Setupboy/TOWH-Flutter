@@ -282,6 +282,7 @@ class _NewGameViewState extends State<NewGameView> {
                       setState(() {
                         _autoAssignEnabled = value;
                         if (value) {
+                          FocusScope.of(context).unfocus();
                           for (int i = 0; i < _playerNameErrors.length; i++) {
                             _playerNameErrors[i] = null;
                           }
@@ -330,6 +331,7 @@ class _NewGameViewState extends State<NewGameView> {
                       hintText: 'Player Name',
                       controller: _playerControllers[index],
                       focusNode: _playerFocusNodes[index],
+                      readOnly: _autoAssignEnabled,
                       errorText: _playerNameErrors[index],
                       onChanged: (value) {
                         if (_playerNameErrors[index] != null &&
@@ -513,6 +515,7 @@ class _NewGameViewState extends State<NewGameView> {
     required String hintText,
     required TextEditingController controller,
     FocusNode? focusNode,
+    bool readOnly = false,
     String? errorText,
     ValueChanged<String>? onChanged,
   }) {
@@ -537,6 +540,7 @@ class _NewGameViewState extends State<NewGameView> {
           child: TextField(
             controller: controller,
             focusNode: focusNode,
+            readOnly: readOnly,
             onChanged: onChanged,
             enableSuggestions: false,
             keyboardType: TextInputType.text,
