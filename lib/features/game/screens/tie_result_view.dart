@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/game_session.dart';
-import '../../game_setup/screens/ready_to_play_view.dart';
 import '../models/vote_result_item.dart';
+import 'game_view.dart';
 
 class TieResultView extends StatefulWidget {
   final List<VoteResultItem> voteResults;
@@ -121,8 +121,7 @@ class _TieResultViewState extends State<TieResultView> {
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (_) =>
-                            ReadyToPlayView(playersCount: playersCount),
+                        builder: (_) => GameView(playersCount: playersCount),
                       ),
                     );
                   },
