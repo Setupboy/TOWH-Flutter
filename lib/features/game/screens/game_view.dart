@@ -22,6 +22,7 @@ class GameView extends StatefulWidget {
 class _GameViewState extends State<GameView> {
   int _currentPlayerIndex = 0;
   final Random _random = Random();
+  final ScrollController _scrollController = ScrollController();
   late final List<_ChoiceColor> _choiceColors;
   late final List<int?> _selectedColorByPlayer;
   late final List<int> _choiceAssignmentByColorIndex;
@@ -42,6 +43,12 @@ class _GameViewState extends State<GameView> {
       if (!mounted) return;
       setState(() => _showPageContent = true);
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -95,6 +102,7 @@ class _GameViewState extends State<GameView> {
                     children: [
                       Expanded(
                         child: SingleChildScrollView(
+                          controller: _scrollController,
                           child: Column(
                             children: <Widget>[
                               Row(
@@ -327,6 +335,14 @@ class _GameViewState extends State<GameView> {
       _currentPlayerIndex++;
       _selectedColorIndex = _selectedColorByPlayer[_currentPlayerIndex];
       _selectionErrorText = null;
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_scrollController.hasClients) return;
+      _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
     });
   }
 
