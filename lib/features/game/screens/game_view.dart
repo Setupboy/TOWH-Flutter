@@ -249,10 +249,9 @@ class _GameViewState extends State<GameView> {
 
   PlayerData get _currentPlayer {
     final sessionPlayers = GameSession.inProgressPlayers;
-    final players =
-        (sessionPlayers == null || sessionPlayers.isEmpty)
-            ? kDemoPlayers
-            : sessionPlayers;
+    final players = (sessionPlayers == null || sessionPlayers.isEmpty)
+        ? kDemoPlayers
+        : sessionPlayers;
     if (players.isEmpty) {
       return const PlayerData(name: 'Player', imageUrl: '');
     }
@@ -260,7 +259,7 @@ class _GameViewState extends State<GameView> {
   }
 
   List<_ChoiceColor> _buildRandomChoices(int count) {
-    const seedColors = <_ChoiceColor>[
+    const palette = <_ChoiceColor>[
       _ChoiceColor(name: 'Green', color: Color(0xFF70B80C)),
       _ChoiceColor(name: 'Blue', color: Color(0xFF3277D1)),
       _ChoiceColor(name: 'Violet', color: Color(0xFF9500F2)),
@@ -268,10 +267,23 @@ class _GameViewState extends State<GameView> {
       _ChoiceColor(name: 'Red', color: Color(0xFFE54B4B)),
       _ChoiceColor(name: 'Pink', color: Color(0xFFE45FB4)),
       _ChoiceColor(name: 'Yellow', color: Color(0xFFF1B51C)),
+      _ChoiceColor(name: 'Teal', color: Color(0xFF009688)),
+      _ChoiceColor(name: 'Cyan', color: Color(0xFF00BCD4)),
+      _ChoiceColor(name: 'Indigo', color: Color(0xFF3F51B5)),
+      _ChoiceColor(name: 'Lime', color: Color(0xFFCDDC39)),
+      _ChoiceColor(name: 'Amber', color: Color(0xFFFFC107)),
+      _ChoiceColor(name: 'Deep Orange', color: Color(0xFFFF5722)),
+      _ChoiceColor(name: 'Light Blue', color: Color(0xFF03A9F4)),
+      _ChoiceColor(name: 'Purple', color: Color(0xFF9C27B0)),
+      _ChoiceColor(name: 'Magenta', color: Color(0xFFE91E63)),
+      _ChoiceColor(name: 'Mint', color: Color(0xFF2ECC71)),
+      _ChoiceColor(name: 'Sky', color: Color(0xFF5DADE2)),
+      _ChoiceColor(name: 'Coral', color: Color(0xFFFF7F50)),
+      _ChoiceColor(name: 'Turquoise', color: Color(0xFF1ABC9C)),
     ];
 
     final safeCount = count < 1 ? 1 : count;
-    final pool = [...seedColors]..shuffle(_random);
+    final pool = [...palette]..shuffle(_random);
 
     if (safeCount <= pool.length) {
       return pool.take(safeCount).toList();
@@ -339,7 +351,8 @@ class _GameViewState extends State<GameView> {
 
     for (final selectedIndex in _selectedColorByPlayer) {
       if (selectedIndex == null) continue;
-      voteCountByColor[selectedIndex] = (voteCountByColor[selectedIndex] ?? 0) + 1;
+      voteCountByColor[selectedIndex] =
+          (voteCountByColor[selectedIndex] ?? 0) + 1;
     }
 
     final sessionPlayers = GameSession.inProgressPlayers;
@@ -347,22 +360,21 @@ class _GameViewState extends State<GameView> {
 
     final results = List.generate(_choiceColors.length, (index) {
       final choice = _choiceColors[index];
-      final assignedChoiceIndex =
-          index < _choiceAssignmentByColorIndex.length
-              ? _choiceAssignmentByColorIndex[index]
-              : index;
+      final assignedChoiceIndex = index < _choiceAssignmentByColorIndex.length
+          ? _choiceAssignmentByColorIndex[index]
+          : index;
       final choiceTitle =
           (sessionChoices != null &&
-                  assignedChoiceIndex < sessionChoices.length &&
-                  sessionChoices[assignedChoiceIndex].trim().isNotEmpty)
-              ? sessionChoices[assignedChoiceIndex].trim()
-              : 'Choice ${index + 1}';
+              assignedChoiceIndex < sessionChoices.length &&
+              sessionChoices[assignedChoiceIndex].trim().isNotEmpty)
+          ? sessionChoices[assignedChoiceIndex].trim()
+          : 'Choice ${index + 1}';
       final playerName =
           (sessionPlayers != null &&
-                  assignedChoiceIndex < sessionPlayers.length &&
-                  sessionPlayers[assignedChoiceIndex].name.trim().isNotEmpty)
-              ? sessionPlayers[assignedChoiceIndex].name
-              : 'Player ${assignedChoiceIndex + 1}';
+              assignedChoiceIndex < sessionPlayers.length &&
+              sessionPlayers[assignedChoiceIndex].name.trim().isNotEmpty)
+          ? sessionPlayers[assignedChoiceIndex].name
+          : 'Player ${assignedChoiceIndex + 1}';
 
       return VoteResultItem(
         choiceTitle: choiceTitle,
