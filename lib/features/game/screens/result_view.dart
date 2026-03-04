@@ -281,7 +281,7 @@ class _ResultRow extends StatelessWidget {
                 height: 1.0,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 10),
             Text(
               playerName,
               style: const TextStyle(
