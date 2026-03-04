@@ -724,6 +724,15 @@ class _NewGameViewState extends State<NewGameView> {
       _startStepZeroBottomEntrance();
       return;
     }
+    if (_stepIndex == 2 && _currentPlayerIndex > 0) {
+      setState(() {
+        _currentPlayerIndex--;
+        _playerChoices[_currentPlayerIndex] = '';
+        _noteController.clear();
+        _noteErrorText = null;
+      });
+      return;
+    }
     if (_stepIndex > 1) {
       setState(() => _stepIndex--);
     }

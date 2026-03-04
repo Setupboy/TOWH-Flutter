@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
-import '../models/vote_result_item.dart';
 import '../../home/screens/home_view.dart';
+import '../models/vote_result_item.dart';
 import 'game_view.dart';
 import 'tie_result_view.dart';
 
