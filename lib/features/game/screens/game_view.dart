@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
+import '../../game_setup/screens/ready_to_play_view.dart';
 import '../models/vote_result_item.dart';
 import 'result_view.dart';
 import 'tie_result_view.dart';
@@ -356,7 +357,12 @@ class _GameViewState extends State<GameView> {
       });
       return;
     }
-    Navigator.maybePop(context);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ReadyToPlayView(playersCount: widget.playersCount),
+      ),
+    );
   }
 
   List<VoteResultItem> _buildVoteResults() {
