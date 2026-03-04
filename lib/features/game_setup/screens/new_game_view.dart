@@ -667,6 +667,11 @@ class _NewGameViewState extends State<NewGameView> {
       if (!mounted) return;
       setState(() {
         _isStepZeroExitAnimating = false;
+        if (_autoAssignEnabled) {
+          for (int i = 0; i < _playerControllers.length; i++) {
+            _playerControllers[i].text = 'Player ${i + 1}';
+          }
+        }
         _stepIndex = 1;
       });
       return;
@@ -763,7 +768,11 @@ class _NewGameViewState extends State<NewGameView> {
 
   void _syncPlayerControllers() {
     while (_playerControllers.length < players) {
-      _playerControllers.add(TextEditingController());
+      final controller = TextEditingController();
+      if (_autoAssignEnabled) {
+        controller.text = 'Player ${_playerControllers.length + 1}';
+      }
+      _playerControllers.add(controller);
       final focusNode = FocusNode()..addListener(_onTextFieldFocusChanged);
       _playerFocusNodes.add(focusNode);
       _playerNameErrors.add(null);
@@ -776,6 +785,11 @@ class _NewGameViewState extends State<NewGameView> {
         ..dispose();
       _playerNameErrors.removeLast();
       _playerChoices.removeLast();
+    }
+    if (_autoAssignEnabled) {
+      for (int i = 0; i < _playerControllers.length; i++) {
+        _playerControllers[i].text = 'Player ${i + 1}';
+      }
     }
   }
 
