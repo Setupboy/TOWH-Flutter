@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "512656786135",
+    "project_id": "towh-54bda",
+    "storage_bucket": "towh-54bda.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:512656786135:android:40179763287b4f21192692",
+        "android_client_info": {
+          "package_name": "com.elham.towh"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDT_71oQXG6_veO6dTt-8VythYYZ1epcIs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
