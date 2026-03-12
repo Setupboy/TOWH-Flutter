@@ -1,20 +1,18 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
+import '../../../core/models/game_document.dart';
+import '../../../core/repositories/game_repository.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
-import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
-import '../../game_setup/screens/ready_to_play_view.dart';
 import '../models/vote_result_item.dart';
 import 'result_view.dart';
 import 'tie_result_view.dart';
 
 class GameView extends StatefulWidget {
-  final int playersCount;
+  final String gameId;
 
-  const GameView({super.key, required this.playersCount});
+  const GameView({super.key, required this.gameId});
 
   @override
   State<GameView> createState() => _GameViewState();
@@ -23,12 +21,8 @@ class GameView extends StatefulWidget {
 class _GameViewState extends State<GameView> {
   static const double _swipeVelocityThreshold = 300;
 
-  int _currentPlayerIndex = 0;
-  final Random _random = Random();
+  final GameRepository _repository = GameRepository.instance;
   final ScrollController _scrollController = ScrollController();
-  late final List<_ChoiceColor> _choiceColors;
-  late final List<int?> _selectedColorByPlayer;
-  late final List<int> _choiceAssignmentByColorIndex;
   int? _selectedColorIndex;
   String? _selectionErrorText;
   bool _showPageContent = false;
@@ -36,12 +30,6 @@ class _GameViewState extends State<GameView> {
   @override
   void initState() {
     super.initState();
-    _choiceColors = _buildRandomChoices(widget.playersCount);
-    _selectedColorByPlayer = List<int?>.filled(widget.playersCount, null);
-    _choiceAssignmentByColorIndex = List<int>.generate(
-      widget.playersCount,
-      (i) => i,
-    )..shuffle(_random);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => _showPageContent = true);
@@ -56,291 +44,257 @@ class _GameViewState extends State<GameView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kColorWhite50,
-      appBar: AppBar(
-        foregroundColor: kColorBlue900,
-        surfaceTintColor: Colors.transparent,
-        backgroundColor: kColorWhite50,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-        titleSpacing: 16,
-        title: Row(
-          children: [
-            GestureDetector(
-              onTap: _onBackPressed,
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 20,
-                color: kColorBlue800,
-              ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
+    return StreamBuilder<GameDocument>(
+      stream: _repository.watchGame(widget.gameId),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(backgroundColor: kColorWhite50);
+        }
+
+        final game = snapshot.data!;
+        final choiceColors = _buildChoiceColors(game);
+        final currentPlayer = game.players[game.currentVotingTurnIndex];
+
+        return Scaffold(
+          backgroundColor: kColorWhite50,
+          appBar: AppBar(
+            foregroundColor: kColorBlue900,
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: kColorWhite50,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            titleSpacing: 16,
+            title: const Text(
               'Play',
               style: TextStyle(
                 fontSize: 24,
                 fontFamily: kFontBaloo2,
                 fontWeight: FontWeight.w600,
                 color: kColorBlue900,
-                height: 1.0,
+                height: 1,
               ),
             ),
-          ],
-        ),
-      ),
-
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onHorizontalDragEnd: _onHorizontalDragEnd,
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          switchInCurve: Curves.easeIn,
-          switchOutCurve: Curves.easeOut,
-          transitionBuilder: (child, animation) =>
-              FadeTransition(opacity: animation, child: child),
-          child: _showPageContent
-              ? SafeArea(
-                  key: const ValueKey<String>('game-content'),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: SingleChildScrollView(
-                            controller: _scrollController,
-                            child: Column(
-                              children: <Widget>[
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: avatarColorFromName(
-                                      _currentPlayer.name,
+          ),
+          body: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onHorizontalDragEnd: (details) =>
+                _onHorizontalDragEnd(details, game),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              child: _showPageContent
+                  ? SafeArea(
+                      key: const ValueKey<String>('game-content'),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                controller: _scrollController,
+                                child: Column(
+                                  children: <Widget>[
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 28,
+                                          backgroundColor: avatarColorFromName(
+                                            currentPlayer.name,
+                                          ),
+                                          child: Text(
+                                            initialsFromName(
+                                              currentPlayer.name,
+                                            ),
+                                            style: const TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w700,
+                                              color: kColorWhite100,
+                                              fontFamily: kFontMPL,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          currentPlayer.name,
+                                          style: const TextStyle(
+                                            fontSize: 28,
+                                            fontFamily: kFontMPL,
+                                            fontWeight: FontWeight.w800,
+                                            color: kColorBlue900,
+                                            height: 1,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    child: Text(
-                                      initialsFromName(_currentPlayer.name),
-                                      style: const TextStyle(
-                                        fontSize: 20,
+                                    const SizedBox(height: 24),
+                                    const Text(
+                                      textAlign: TextAlign.center,
+                                      'Your Turn to\nchoose',
+                                      style: TextStyle(
+                                        fontSize: 42,
+                                        fontFamily: kFontBaloo2,
                                         fontWeight: FontWeight.w700,
-                                        color: kColorWhite100,
-                                        fontFamily: kFontMPL,
+                                        color: kColorBlue900,
+                                        height: 1.14,
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    _currentPlayer.name,
-                                    style: const TextStyle(
-                                      fontSize: 28,
-                                      fontFamily: kFontMPL,
-                                      fontWeight: FontWeight.w800,
-                                      color: kColorBlue900,
-                                      height: 1.0,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 24),
-                              const Text(
-                                textAlign: TextAlign.center,
-                                'Your Turn to\nchoose',
-                                style: TextStyle(
-                                  fontSize: 42,
-                                  fontFamily: kFontBaloo2,
-                                  fontWeight: FontWeight.w700,
-                                  color: kColorBlue900,
-                                  height: 1.14,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final double itemWidth =
-                                      (constraints.maxWidth - 12) / 2;
-                                  return Wrap(
-                                    spacing: 12,
-                                    runSpacing: 12,
-                                    children: List.generate(
-                                      _choiceColors.length,
-                                      (index) {
-                                        final choice = _choiceColors[index];
-                                        final bool isSelected =
-                                            _selectedColorIndex == index;
-                                        return GestureDetector(
-                                          onTap: () {
-                                            setState(() {
-                                              _selectedColorIndex = index;
-                                              _selectionErrorText = null;
-                                            });
-                                          },
-                                          child: SizedBox(
-                                            width: itemWidth,
-                                            child: _buildColorCard(
-                                              choice,
-                                              isSelected,
-                                            ),
+                                    const SizedBox(height: 24),
+                                    LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        final double itemWidth =
+                                            (constraints.maxWidth - 12) / 2;
+                                        return Wrap(
+                                          spacing: 12,
+                                          runSpacing: 12,
+                                          children: List.generate(
+                                            choiceColors.length,
+                                            (index) {
+                                              final choice =
+                                                  choiceColors[index];
+                                              final bool isSelected =
+                                                  _selectedColorIndex == index;
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _selectedColorIndex = index;
+                                                    _selectionErrorText = null;
+                                                  });
+                                                },
+                                                child: SizedBox(
+                                                  width: itemWidth,
+                                                  child: _buildColorCard(
+                                                    choice,
+                                                    isSelected,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
                                         );
                                       },
                                     ),
-                                  );
-                                },
-                              ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text.rich(
-                          TextSpan(
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: kFontMPL,
-                              fontWeight: FontWeight.w400,
-                              color: kColorRed600,
-                              height: 1.86,
-                            ),
-                            children: [
-                              const TextSpan(text: 'Choose a color '),
-                              TextSpan(
-                                text: _currentPlayer.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
+                                  ],
                                 ),
                               ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text.rich(
+                              TextSpan(
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: kFontMPL,
+                                  fontWeight: FontWeight.w400,
+                                  color: kColorRed600,
+                                  height: 1.86,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'Choose a color '),
+                                  TextSpan(
+                                    text: currentPlayer.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            if (_selectionErrorText != null) ...[
+                              const SizedBox(height: 4),
+                              Text(
+                                _selectionErrorText!,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontFamily: kFontMPL,
+                                  fontWeight: FontWeight.w400,
+                                  color: kColorRed600,
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (_selectionErrorText != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            _selectionErrorText!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontFamily: kFontMPL,
-                              fontWeight: FontWeight.w400,
-                              color: kColorRed600,
-                              height: 1.4,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: _onContinuePressed,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: kColorYellow200,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: () => _onContinuePressed(game),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: kColorYellow200,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: kFontMPL,
+                                    fontWeight: FontWeight.w500,
+                                    color: kColorBlue900,
+                                    height: 1.46,
+                                  ),
+                                ),
                               ),
                             ),
-                            child: const Text(
-                              'Continue',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: kFontMPL,
-                                fontWeight: FontWeight.w500,
-                                color: kColorBlue900,
-                                height: 1.46,
-                              ),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                )
-              : const SizedBox(key: ValueKey<String>('game-empty')),
-        ),
-      ),
+                      ),
+                    )
+                  : const SizedBox(key: ValueKey<String>('game-empty')),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  PlayerData get _currentPlayer {
-    final sessionPlayers = GameSession.inProgressPlayers;
-    final players = (sessionPlayers == null || sessionPlayers.isEmpty)
-        ? kDemoPlayers
-        : sessionPlayers;
-    if (players.isEmpty) {
-      return const PlayerData(name: 'Player', imageUrl: '');
-    }
-    return players[_currentPlayerIndex % players.length];
+  List<_ChoiceColor> _buildChoiceColors(GameDocument game) {
+    return game.players.map((player) {
+      return _ChoiceColor(
+        name: _displayColorName(player.selectedColor),
+        storageName: player.selectedColor,
+        color: _colorForStorageName(player.selectedColor),
+      );
+    }).toList();
   }
 
-  List<_ChoiceColor> _buildRandomChoices(int count) {
-    const palette = <_ChoiceColor>[
-      _ChoiceColor(name: 'Green', color: Color(0xFF70B80C)),
-      _ChoiceColor(name: 'Blue', color: Color(0xFF3277D1)),
-      _ChoiceColor(name: 'Violet', color: Color(0xFF9500F2)),
-      _ChoiceColor(name: 'Orange', color: Color(0xFFF38B25)),
-      _ChoiceColor(name: 'Red', color: Color(0xFFE54B4B)),
-      _ChoiceColor(name: 'Pink', color: Color(0xFFE45FB4)),
-      _ChoiceColor(name: 'Yellow', color: Color(0xFFF1B51C)),
-      _ChoiceColor(name: 'Teal', color: Color(0xFF009688)),
-      _ChoiceColor(name: 'Cyan', color: Color(0xFF00BCD4)),
-      _ChoiceColor(name: 'Indigo', color: Color(0xFF3F51B5)),
-      _ChoiceColor(name: 'Lime', color: Color(0xFFCDDC39)),
-      _ChoiceColor(name: 'Amber', color: Color(0xFFFFC107)),
-      _ChoiceColor(name: 'Deep Orange', color: Color(0xFFFF5722)),
-      _ChoiceColor(name: 'Light Blue', color: Color(0xFF03A9F4)),
-      _ChoiceColor(name: 'Purple', color: Color(0xFF9C27B0)),
-      _ChoiceColor(name: 'Magenta', color: Color(0xFFE91E63)),
-      _ChoiceColor(name: 'Mint', color: Color(0xFF2ECC71)),
-      _ChoiceColor(name: 'Sky', color: Color(0xFF5DADE2)),
-      _ChoiceColor(name: 'Coral', color: Color(0xFFFF7F50)),
-      _ChoiceColor(name: 'Turquoise', color: Color(0xFF1ABC9C)),
-    ];
-
-    final safeCount = count < 1 ? 1 : count;
-    final pool = [...palette]..shuffle(_random);
-
-    if (safeCount <= pool.length) {
-      return pool.take(safeCount).toList();
-    }
-
-    final generated = <_ChoiceColor>[...pool];
-    for (int i = pool.length; i < safeCount; i++) {
-      final color = HSVColor.fromAHSV(
-        1,
-        _random.nextDouble() * 360,
-        0.75,
-        0.9,
-      ).toColor();
-      generated.add(_ChoiceColor(name: 'Color ${i + 1}', color: color));
-    }
-    return generated;
-  }
-
-  void _onContinuePressed() {
+  Future<void> _onContinuePressed(GameDocument game) async {
     if (_selectedColorIndex == null) {
       setState(() => _selectionErrorText = 'Please select one color');
       return;
     }
 
-    _selectedColorByPlayer[_currentPlayerIndex] = _selectedColorIndex;
+    final selectedColor = game.players[_selectedColorIndex!].selectedColor;
+    await _repository.saveVoteSelection(
+      gameId: widget.gameId,
+      colorName: selectedColor,
+    );
 
-    if (_currentPlayerIndex >= widget.playersCount - 1) {
-      final voteResults = _buildVoteResults();
-      final isTie = _isTopTie(voteResults);
+    if (!mounted) return;
+
+    if (game.currentVotingTurnIndex >= game.players.length - 1) {
+      final updatedGame = await _repository.continueGame(widget.gameId);
+      if (!mounted) return;
+      final voteResults = _buildVoteResults(updatedGame);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => isTie
-              ? TieResultView(voteResults: voteResults)
-              : ResultView(voteResults: voteResults),
+          builder: (_) => updatedGame.isTie
+              ? TieResultView(gameId: widget.gameId, voteResults: voteResults)
+              : ResultView(gameId: widget.gameId, voteResults: voteResults),
         ),
       );
       return;
     }
+
     setState(() {
-      _currentPlayerIndex++;
-      _selectedColorIndex = _selectedColorByPlayer[_currentPlayerIndex];
+      _selectedColorIndex = null;
       _selectionErrorText = null;
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -353,101 +307,36 @@ class _GameViewState extends State<GameView> {
     });
   }
 
-  void _onHorizontalDragEnd(DragEndDetails details) {
+  void _onHorizontalDragEnd(DragEndDetails details, GameDocument game) {
     final velocity = details.primaryVelocity ?? 0;
     if (velocity.abs() < _swipeVelocityThreshold) return;
-    if (velocity > 0) {
-      _onBackPressed();
-    } else {
-      _onContinuePressed();
-    }
-  }
-
-  void _onBackPressed() {
-    if (_currentPlayerIndex > 0) {
-      setState(() {
-        _currentPlayerIndex--;
-        _selectedColorByPlayer[_currentPlayerIndex] = null;
-        _selectedColorIndex = null;
-        _selectionErrorText = null;
-      });
+    if (velocity < 0) {
+      _onContinuePressed(game);
       return;
     }
-    _goBackToReadyPage();
+    Navigator.of(context).pop();
   }
 
-  void _goBackToReadyPage() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            ReadyToPlayView(playersCount: widget.playersCount),
-        transitionDuration: const Duration(milliseconds: 260),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final slide = Tween<Offset>(
-            begin: const Offset(-1, 0),
-            end: Offset.zero,
-          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOut));
-          return SlideTransition(position: slide, child: child);
-        },
-      ),
-    );
-  }
-
-  List<VoteResultItem> _buildVoteResults() {
-    final voteCountByColor = <int, int>{};
-    for (int i = 0; i < _choiceColors.length; i++) {
-      voteCountByColor[i] = 0;
-    }
-
-    for (final selectedIndex in _selectedColorByPlayer) {
-      if (selectedIndex == null) continue;
-      voteCountByColor[selectedIndex] =
-          (voteCountByColor[selectedIndex] ?? 0) + 1;
-    }
-
-    final sessionPlayers = GameSession.inProgressPlayers;
-    final sessionChoices = GameSession.inProgressChoices;
-
-    final results = List.generate(_choiceColors.length, (index) {
-      final choice = _choiceColors[index];
-      final assignedChoiceIndex = index < _choiceAssignmentByColorIndex.length
-          ? _choiceAssignmentByColorIndex[index]
-          : index;
-      final choiceTitle =
-          (sessionChoices != null &&
-              assignedChoiceIndex < sessionChoices.length &&
-              sessionChoices[assignedChoiceIndex].trim().isNotEmpty)
-          ? sessionChoices[assignedChoiceIndex].trim()
-          : 'Choice ${index + 1}';
-      final playerName =
-          (sessionPlayers != null &&
-              assignedChoiceIndex < sessionPlayers.length &&
-              sessionPlayers[assignedChoiceIndex].name.trim().isNotEmpty)
-          ? sessionPlayers[assignedChoiceIndex].name
-          : 'Player ${assignedChoiceIndex + 1}';
-
-      return VoteResultItem(
-        choiceTitle: choiceTitle,
-        playerName: playerName,
-        color: choice.color,
-        voteCount: voteCountByColor[index] ?? 0,
-        order: index,
+  List<VoteResultItem> _buildVoteResults(GameDocument game) {
+    final results = <VoteResultItem>[];
+    for (int i = 0; i < game.players.length; i++) {
+      final player = game.players[i];
+      results.add(
+        VoteResultItem(
+          choiceTitle: player.answer,
+          playerName: player.name,
+          color: _colorForStorageName(player.selectedColor),
+          voteCount: game.results[player.answer] ?? 0,
+          order: i,
+        ),
       );
-    });
-
+    }
     results.sort((a, b) {
       final byVotes = b.voteCount.compareTo(a.voteCount);
       if (byVotes != 0) return byVotes;
       return a.order.compareTo(b.order);
     });
-
     return results;
-  }
-
-  bool _isTopTie(List<VoteResultItem> results) {
-    if (results.length < 2) return false;
-    return results[0].voteCount > 0 &&
-        results[0].voteCount == results[1].voteCount;
   }
 
   Widget _buildColorCard(_ChoiceColor choice, bool isSelected) {
@@ -506,7 +395,7 @@ class _GameViewState extends State<GameView> {
             width: 134,
             height: 22,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: kColorWhite100,
               borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(8),
@@ -521,7 +410,7 @@ class _GameViewState extends State<GameView> {
                   fontFamily: kFontMPL,
                   fontWeight: FontWeight.w500,
                   color: kColorBlue900,
-                  height: 1.0,
+                  height: 1,
                 ),
               ),
             ),
@@ -530,11 +419,51 @@ class _GameViewState extends State<GameView> {
       ],
     );
   }
+
+  String _displayColorName(String value) {
+    if (value.isEmpty) return 'Color';
+    return value
+        .split('_')
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
+  }
+
+  Color _colorForStorageName(String name) {
+    switch (name) {
+      case 'green':
+        return const Color(0xFF70B80C);
+      case 'blue':
+        return const Color(0xFF3277D1);
+      case 'purple':
+        return const Color(0xFF9500F2);
+      case 'orange':
+        return const Color(0xFFF38B25);
+      case 'red':
+        return const Color(0xFFE54B4B);
+      case 'pink':
+        return const Color(0xFFE45FB4);
+      case 'yellow':
+        return const Color(0xFFF1B51C);
+      case 'teal':
+        return const Color(0xFF009688);
+      case 'cyan':
+        return const Color(0xFF00BCD4);
+      case 'indigo':
+        return const Color(0xFF3F51B5);
+      default:
+        return const Color(0xFF9C27B0);
+    }
+  }
 }
 
 class _ChoiceColor {
   final String name;
+  final String storageName;
   final Color color;
 
-  const _ChoiceColor({required this.name, required this.color});
+  const _ChoiceColor({
+    required this.name,
+    required this.storageName,
+    required this.color,
+  });
 }

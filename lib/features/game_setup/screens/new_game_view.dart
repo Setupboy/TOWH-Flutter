@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/models/game_document.dart';
+import '../../../core/repositories/game_repository.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
-import '../../../core/utils/game_session.dart';
 import '../../../core/utils/player_data.dart';
 import '../../home/screens/home_view.dart';
 import '../widgets/activity_input.dart';
@@ -13,7 +14,16 @@ import '../widgets/quick_guide.dart';
 import 'ready_to_play_view.dart';
 
 class NewGameView extends StatefulWidget {
-  const NewGameView({super.key});
+  const NewGameView({
+    super.key,
+    this.gameId,
+    this.initialStep,
+    this.initialGame,
+  });
+
+  final String? gameId;
+  final int? initialStep;
+  final GameDocument? initialGame;
 
   @override
   State<NewGameView> createState() => _NewGameViewState();
@@ -25,14 +35,18 @@ class _NewGameViewState extends State<NewGameView> {
   );
   static const double _swipeVelocityThreshold = 300;
 
+  final GameRepository _repository = GameRepository.instance;
+
   int players = 3;
   int _stepIndex = 0;
   int _currentPlayerIndex = 0;
   bool _autoAssignEnabled = false;
   bool _showStepZeroBottom = false;
   bool _isStepZeroExitAnimating = false;
+  bool _isLoading = false;
   String? _activityErrorText;
   String? _noteErrorText;
+  String? _gameId;
   final List<String?> _playerNameErrors = [];
   final List<String> _playerChoices = [];
 
@@ -49,7 +63,17 @@ class _NewGameViewState extends State<NewGameView> {
     _activityFocusNode.addListener(_onTextFieldFocusChanged);
     _noteFocusNode.addListener(_onTextFieldFocusChanged);
     _syncPlayerControllers();
-    _startStepZeroBottomEntrance();
+    _stepIndex = widget.initialStep ?? 0;
+    if (_stepIndex == 0) {
+      _startStepZeroBottomEntrance();
+    } else {
+      _showStepZeroBottom = false;
+    }
+    if (widget.initialGame != null) {
+      _applyGameState(widget.initialGame!);
+    } else {
+      _loadExistingGame();
+    }
   }
 
   @override
@@ -81,9 +105,7 @@ class _NewGameViewState extends State<NewGameView> {
       backgroundColor: kColorWhite50,
       appBar: gameSetupAppBar(
         context,
-        onBack: _stepIndex > 0
-            ? _previousStep
-            : _goBackToHome,
+        onBack: _stepIndex > 0 ? _previousStep : _goBackToHome,
       ),
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -97,32 +119,32 @@ class _NewGameViewState extends State<NewGameView> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                      const SizedBox(height: 12),
-                      if (_stepIndex != 2) ...[
-                        _introText(),
                         const SizedBox(height: 12),
-                        const SizedBox(height: 24),
-                      ],
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 300),
-                        switchInCurve: Curves.easeIn,
-                        switchOutCurve: Curves.easeOut,
-                        transitionBuilder: (child, animation) =>
-                            FadeTransition(opacity: animation, child: child),
-                        layoutBuilder: (currentChild, previousChildren) {
-                          return Stack(
-                            alignment: Alignment.topCenter,
-                            children: <Widget>[
-                              ...previousChildren,
-                              if (currentChild != null) currentChild,
-                            ],
-                          );
-                        },
-                        child: KeyedSubtree(
-                          key: ValueKey<int>(_stepIndex),
-                          child: _buildStepContent(),
+                        if (_stepIndex != 2) ...[
+                          _introText(),
+                          const SizedBox(height: 12),
+                          const SizedBox(height: 24),
+                        ],
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 300),
+                          switchInCurve: Curves.easeIn,
+                          switchOutCurve: Curves.easeOut,
+                          transitionBuilder: (child, animation) =>
+                              FadeTransition(opacity: animation, child: child),
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.topCenter,
+                              children: <Widget>[
+                                ...previousChildren,
+                                if (currentChild != null) currentChild,
+                              ],
+                            );
+                          },
+                          child: KeyedSubtree(
+                            key: ValueKey<int>(_stepIndex),
+                            child: _buildStepContent(),
+                          ),
                         ),
-                      ),
                       ],
                     ),
                   ),
@@ -255,7 +277,7 @@ class _NewGameViewState extends State<NewGameView> {
                     fontSize: 24,
                     fontFamily: kFontBaloo2,
                     color: kColorBlue900,
-                    height: 1.0,
+                    height: 1,
                   ),
                 ),
               ),
@@ -297,7 +319,6 @@ class _NewGameViewState extends State<NewGameView> {
                       });
                       if (value) _autoAssignPlayers();
                     },
-
                     activeThumbColor: Colors.white,
                     activeTrackColor: kColorGreen50,
                     inactiveThumbColor: Colors.white,
@@ -309,7 +330,6 @@ class _NewGameViewState extends State<NewGameView> {
             ],
           ),
         ),
-
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -318,32 +338,25 @@ class _NewGameViewState extends State<NewGameView> {
             borderRadius: BorderRadius.circular(24),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: List.generate(players, (index) {
-                  return Padding(
-                    padding: EdgeInsets.only(
-                      bottom: index == players - 1 ? 0 : 16,
-                    ),
-                    child: _labeledInput(
-                      label: 'Player ${index + 1}',
-                      hintText: 'Player Name',
-                      controller: _playerControllers[index],
-                      focusNode: _playerFocusNodes[index],
-                      readOnly: _autoAssignEnabled,
-                      errorText: _playerNameErrors[index],
-                      onChanged: (value) {
-                        if (_playerNameErrors[index] != null &&
-                            value.trim().isNotEmpty) {
-                          setState(() => _playerNameErrors[index] = null);
-                        }
-                      },
-                    ),
-                  );
-                }),
-              ),
-            ],
+            children: List.generate(players, (index) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: index == players - 1 ? 0 : 16),
+                child: _labeledInput(
+                  label: 'Player ${index + 1}',
+                  hintText: 'Player Name',
+                  controller: _playerControllers[index],
+                  focusNode: _playerFocusNodes[index],
+                  readOnly: _autoAssignEnabled,
+                  errorText: _playerNameErrors[index],
+                  onChanged: (value) {
+                    if (_playerNameErrors[index] != null &&
+                        value.trim().isNotEmpty) {
+                      setState(() => _playerNameErrors[index] = null);
+                    }
+                  },
+                ),
+              );
+            }),
           ),
         ),
       ],
@@ -352,7 +365,6 @@ class _NewGameViewState extends State<NewGameView> {
 
   Widget _buildFinalStep() {
     final activityName = _activityController.text.trim();
-
     return SizedBox(
       width: 380,
       height: 370,
@@ -363,7 +375,6 @@ class _NewGameViewState extends State<NewGameView> {
             width: 380,
             height: 118,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
                   'Its time for choose:',
@@ -381,9 +392,9 @@ class _NewGameViewState extends State<NewGameView> {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor: avatarColorFromName(_currentPlayer.name),
+                      backgroundColor: avatarColorFromName(_currentPlayerName),
                       child: Text(
-                        initialsFromName(_currentPlayer.name),
+                        initialsFromName(_currentPlayerName),
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
@@ -394,13 +405,13 @@ class _NewGameViewState extends State<NewGameView> {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      _currentPlayer.name,
+                      _currentPlayerName,
                       style: const TextStyle(
                         fontSize: 42,
                         fontFamily: kFontMPL,
                         fontWeight: FontWeight.w800,
                         color: kColorBlue900,
-                        height: 1.0,
+                        height: 1,
                       ),
                     ),
                   ],
@@ -484,9 +495,9 @@ class _NewGameViewState extends State<NewGameView> {
         color: kColorPink50,
         borderRadius: BorderRadius.circular(24),
       ),
-      child: Row(
+      child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
+        children: [
           Text.rich(
             TextSpan(
               children: [
@@ -520,7 +531,6 @@ class _NewGameViewState extends State<NewGameView> {
     ValueChanged<String>? onChanged,
   }) {
     final hasError = errorText != null && errorText.isNotEmpty;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -608,7 +618,10 @@ class _NewGameViewState extends State<NewGameView> {
         labelName = 'Continue';
     }
 
-    final button = ContinueButton(label: labelName, onPressed: _nextStep);
+    final button = ContinueButton(
+      label: labelName,
+      onPressed: _isLoading ? () {} : () => _nextStep(),
+    );
 
     if (_stepIndex == 0) {
       return _buildStepZeroAnimatedBottom(child: button);
@@ -644,6 +657,14 @@ class _NewGameViewState extends State<NewGameView> {
       _noteFocusNode.hasFocus ||
       _playerFocusNodes.any((focusNode) => focusNode.hasFocus);
 
+  String get _currentPlayerName {
+    if (_currentPlayerIndex < _playerControllers.length) {
+      final name = _playerControllers[_currentPlayerIndex].text.trim();
+      if (name.isNotEmpty) return name;
+    }
+    return 'Player ${_currentPlayerIndex + 1}';
+  }
+
   void _onTextFieldFocusChanged() {
     if (!mounted) return;
     setState(() {});
@@ -656,16 +677,21 @@ class _NewGameViewState extends State<NewGameView> {
         setState(() => _activityErrorText = 'Activity name is required');
         return;
       }
-      GameSession.inProgressActivityName = activityName;
       if (_isStepZeroExitAnimating) return;
       setState(() {
+        _isLoading = true;
         _isStepZeroExitAnimating = true;
         _activityErrorText = null;
         _showStepZeroBottom = false;
       });
+      _gameId ??= await _repository.createGame(
+        activityName: activityName,
+        playersCount: players,
+      );
       await Future.delayed(_stepZeroBottomAnimationDuration);
       if (!mounted) return;
       setState(() {
+        _isLoading = false;
         _isStepZeroExitAnimating = false;
         if (_autoAssignEnabled) {
           for (int i = 0; i < _playerControllers.length; i++) {
@@ -693,9 +719,20 @@ class _NewGameViewState extends State<NewGameView> {
         }
       }
 
-      GameSession.inProgressPlayers = _buildSessionPlayers();
-      GameSession.inProgressChoices = List<String>.filled(players, '');
-      setState(() => _stepIndex = 2);
+      setState(() => _isLoading = true);
+      await _repository.savePlayerNames(
+        _gameId!,
+        _playerControllers.map((controller) {
+          final name = controller.text.trim();
+          return name.isEmpty ? 'Player' : name;
+        }).toList(),
+      );
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _currentPlayerIndex = 0;
+        _stepIndex = 2;
+      });
       return;
     }
 
@@ -704,21 +741,28 @@ class _NewGameViewState extends State<NewGameView> {
       setState(() => _noteErrorText = 'Player choice is required');
       return;
     }
+
     _playerChoices[_currentPlayerIndex] = note;
+    setState(() => _isLoading = true);
+    await _repository.savePlayerAnswer(
+      gameId: _gameId!,
+      playerIndex: _currentPlayerIndex,
+      answer: note,
+    );
+
+    if (!mounted) return;
 
     if (_currentPlayerIndex < players - 1) {
       setState(() {
+        _isLoading = false;
         _currentPlayerIndex++;
         _noteController.clear();
         _noteErrorText = null;
       });
     } else {
-      GameSession.inProgressChoices = List<String>.from(_playerChoices);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => ReadyToPlayView(playersCount: players),
-        ),
+        MaterialPageRoute(builder: (_) => ReadyToPlayView(gameId: _gameId!)),
       );
     }
   }
@@ -732,7 +776,6 @@ class _NewGameViewState extends State<NewGameView> {
     if (_stepIndex == 2 && _currentPlayerIndex > 0) {
       setState(() {
         _currentPlayerIndex--;
-        _playerChoices[_currentPlayerIndex] = '';
         _noteController.clear();
         _noteErrorText = null;
       });
@@ -779,29 +822,6 @@ class _NewGameViewState extends State<NewGameView> {
     );
   }
 
-  PlayerData get _currentPlayer {
-    final players = GameSession.inProgressPlayers;
-    if (players == null || players.isEmpty) {
-      if (kDemoPlayers.isEmpty) {
-        return const PlayerData(name: 'Player', imageUrl: '');
-      }
-      return kDemoPlayers[_currentPlayerIndex % kDemoPlayers.length];
-    }
-    return players[_currentPlayerIndex % players.length];
-  }
-
-  List<PlayerData> _buildSessionPlayers() {
-    final playersData = <PlayerData>[];
-    for (int i = 0; i < _playerControllers.length; i++) {
-      final rawName = _playerControllers[i].text.trim();
-      final name = rawName.isEmpty ? 'Player ${i + 1}' : rawName;
-      playersData.add(PlayerData(name: name, imageUrl: ''));
-    }
-    return playersData.isEmpty
-        ? const [PlayerData(name: 'Player', imageUrl: '')]
-        : playersData;
-  }
-
   void _syncPlayerControllers() {
     while (_playerControllers.length < players) {
       final controller = TextEditingController();
@@ -835,5 +855,47 @@ class _NewGameViewState extends State<NewGameView> {
         _playerControllers[i].text = 'Player ${i + 1}';
       }
     });
+  }
+
+  Future<void> _loadExistingGame() async {
+    if (widget.gameId == null) return;
+    final game = await _repository.continueGame(widget.gameId!);
+    if (!mounted) return;
+    setState(() {
+      _applyGameState(game);
+    });
+  }
+
+  void _applyGameState(GameDocument game) {
+    _gameId = game.id;
+    _activityController.text = game.activityName;
+    players = game.playersCount;
+    _syncPlayerControllers();
+
+    for (
+      int i = 0;
+      i < game.players.length && i < _playerControllers.length;
+      i++
+    ) {
+      _playerControllers[i].text = game.players[i].name;
+      _playerChoices[i] = game.players[i].answer;
+    }
+
+    _currentPlayerIndex = game.currentPlayerIndex;
+    _noteController.text = (_currentPlayerIndex < _playerChoices.length)
+        ? _playerChoices[_currentPlayerIndex]
+        : '';
+    _stepIndex = widget.initialStep ?? _stepIndexFromStage(game.stage);
+  }
+
+  int _stepIndexFromStage(String stage) {
+    switch (stage) {
+      case 'players_names':
+        return 1;
+      case 'players_answers':
+        return 2;
+      default:
+        return 0;
+    }
   }
 }

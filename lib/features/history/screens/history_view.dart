@@ -1,7 +1,10 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:towh/core/models/game_document.dart';
+import 'package:towh/core/navigation/game_flow.dart';
+import 'package:towh/core/repositories/game_repository.dart';
 import 'package:towh/core/theme/app_colors.dart';
-import 'package:towh/core/utils/game_session.dart';
+import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/features/game/screens/game_view.dart';
 import 'package:towh/features/home/screens/home_view.dart';
@@ -9,38 +12,12 @@ import 'package:towh/features/home/widgets/game_box.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
 import 'package:towh/features/home/widgets/player_chip.dart';
 
-class HistoryView extends StatefulWidget {
+class HistoryView extends StatelessWidget {
   const HistoryView({super.key});
 
   @override
-  State<HistoryView> createState() => _HistoryViewState();
-}
-
-class _HistoryViewState extends State<HistoryView> {
-  bool _showPageContent = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      setState(() => _showPageContent = true);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final sessionPlayers = GameSession.inProgressPlayers;
-    final inProgressPlayers = (sessionPlayers == null || sessionPlayers.isEmpty)
-        ? kDemoPlayers
-        : sessionPlayers;
-    final repeatCampingPlayers = const [
-      PlayerData(name: 'Alice', imageUrl: ''),
-      PlayerData(name: 'Stephen', imageUrl: ''),
-      PlayerData(name: 'Samuel', imageUrl: ''),
-      PlayerData(name: 'Tony', imageUrl: ''),
-      PlayerData(name: 'Mendy', imageUrl: ''),
-    ];
+    final repository = GameRepository.instance;
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -58,109 +35,103 @@ class _HistoryViewState extends State<HistoryView> {
             fontSize: 26,
             fontWeight: FontWeight.w600,
             color: kColorBlue900,
-            height: 1.0,
+            height: 1,
           ),
         ),
       ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
-        switchInCurve: Curves.easeIn,
-        switchOutCurve: Curves.easeOut,
-        transitionBuilder: (child, animation) =>
-            FadeTransition(opacity: animation, child: child),
-        child: _showPageContent
-            ? SafeArea(
-                key: const ValueKey<String>('history-content'),
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 24),
+                StreamBuilder<List<GameDocument>>(
+                  stream: repository.getInProgressGames(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      return const Text('Failed to load in-progress games.');
+                    }
+                    if (!snapshot.hasData) {
+                      return const Text(
+                        'Loading games...',
+                        style: TextStyle(
+                          fontFamily: kFontMPL,
+                          color: kColorBlue800,
+                        ),
+                      );
+                    }
+
+                    final games = snapshot.data!;
+                    if (games.isEmpty) {
+                      return _buildCompletedSection(
+                        context,
+                        repository,
+                        addTopSpacing: false,
+                      );
+                    }
+
+                    return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 24),
-                        GameBox(
+                        _buildSectionGroup(
                           title: 'In progress game',
-                          gameTitle:
-                              GameSession.inProgressActivityName ??
-                              'Restaurant Night',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => GameView(
-                                  playersCount: inProgressPlayers.length,
+                          cards: games.map((game) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: GameBox(
+                                gameTitle: game.activityName,
+                                detailLabel: 'Stage:',
+                                detailValue: _stageLabel(game.stage),
+                                players: List<Widget>.generate(
+                                  game.players.length,
+                                  (i) {
+                                    final player = game.players[i];
+                                    return PlayerChip(
+                                      name: player.name,
+                                      backgroundColor: avatarColorForIndex(i),
+                                    );
+                                  },
                                 ),
+                                onTap: () async {
+                                  final gameToOpen =
+                                      game.stage == 'players_answers'
+                                      ? await repository.restartPlayerAnswers(
+                                          game.id,
+                                        )
+                                      : game;
+                                  if (!context.mounted) return;
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          buildGameStageView(gameToOpen),
+                                    ),
+                                  );
+                                },
                               ),
                             );
-                          },
-                          players: List.generate(inProgressPlayers.length, (
-                            index,
-                          ) {
-                            final player = inProgressPlayers[index];
-                            return PlayerChip(
-                              name: player.name,
-                              backgroundColor: avatarColorForIndex(index),
-                            );
-                          }),
+                          }).toList(),
                         ),
-                        const SizedBox(height: 24),
-                        GameBox(
-                          title: 'Repeat game',
-                          gameTitle: 'Cafe Morning',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => GameView(
-                                  playersCount: kDemoPlayers.length,
-                                ),
-                              ),
-                            );
-                          },
-                          players: List.generate(kDemoPlayers.length, (index) {
-                            final player = kDemoPlayers[index];
-                            return PlayerChip(
-                              name: player.name,
-                              backgroundColor: avatarColorForIndex(index),
-                            );
-                          }),
+                        _buildCompletedSection(
+                          context,
+                          repository,
+                          addTopSpacing: true,
                         ),
-                        const SizedBox(height: 8),
-                        GameBox(
-                          title: 'Repeat game',
-                          gameTitle: 'Camping',
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => GameView(
-                                  playersCount: repeatCampingPlayers.length,
-                                ),
-                              ),
-                            );
-                          },
-                          players: List.generate(repeatCampingPlayers.length, (
-                            index,
-                          ) {
-                            final player = repeatCampingPlayers[index];
-                            return PlayerChip(
-                              name: player.name,
-                              backgroundColor: avatarColorForIndex(index),
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 8),
                       ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              )
-            : const SizedBox(key: ValueKey<String>('history-empty')),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ),
       ),
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
         height: 64,
-        width: 380,
         decoration: BoxDecoration(
           color: kColorWhite100,
           borderRadius: BorderRadius.circular(16),
@@ -194,6 +165,111 @@ class _HistoryViewState extends State<HistoryView> {
           ),
         ),
       ),
+    );
+  }
+
+  String _stageLabel(String stage) {
+    switch (stage) {
+      case 'players_names':
+        return 'Player Names';
+      case 'players_answers':
+        return 'Player Answers';
+      case 'ready_to_play':
+        return 'Ready To Play';
+      case 'voting':
+        return 'Voting';
+      case 'completed':
+        return 'Completed';
+      default:
+        return stage;
+    }
+  }
+
+  Widget _buildSectionGroup({
+    required String title,
+    required List<Widget> cards,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontFamily: kFontMPL,
+            fontSize: 14,
+            fontWeight: FontWeight.w400,
+            color: kColorBlue800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...cards,
+      ],
+    );
+  }
+
+  Widget _buildCompletedSection(
+    BuildContext context,
+    GameRepository repository, {
+    required bool addTopSpacing,
+  }) {
+    return StreamBuilder<List<GameDocument>>(
+      stream: repository.getCompletedGames(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(child: Text('Failed to load history.'));
+        }
+        if (!snapshot.hasData) {
+          return const Center(
+            child: Text(
+              'Loading games...',
+              style: TextStyle(fontFamily: kFontMPL, color: kColorBlue800),
+            ),
+          );
+        }
+
+        final games = snapshot.data!;
+        if (games.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(top: addTopSpacing ? 24 : 0),
+          child: _buildSectionGroup(
+            title: 'Repeat game',
+            cards: games.map((game) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 2),
+                child: GameBox(
+                  gameTitle: game.activityName,
+                  detailLabel: game.isTie ? '' : 'Winner:',
+                  detailValue: game.isTie ? "It's a tie" : game.winnerAnswer,
+                  secondaryDetailLabel: game.isTie ? null : 'By:',
+                  secondaryDetailValue: game.isTie
+                      ? null
+                      : game.winnerPlayerName,
+                  players: List<Widget>.generate(game.players.length, (i) {
+                    final player = game.players[i];
+                    return PlayerChip(
+                      name: player.name,
+                      backgroundColor: avatarColorForIndex(i),
+                    );
+                  }),
+                  onTap: () async {
+                    final repeatedGameId = await repository.repeatGame(game);
+                    if (!context.mounted) return;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => GameView(gameId: repeatedGameId),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }

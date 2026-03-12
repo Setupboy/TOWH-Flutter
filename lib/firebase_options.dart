@@ -65,5 +65,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'towh-54bda.firebasestorage.app',
     iosBundleId: 'com.elham.towh',
   );
-
 }

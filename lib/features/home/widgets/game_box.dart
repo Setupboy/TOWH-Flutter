@@ -3,14 +3,22 @@ import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
 
 class GameBox extends StatefulWidget {
-  final String title;
+  final String? title;
   final String gameTitle;
+  final String detailLabel;
+  final String detailValue;
+  final String? secondaryDetailLabel;
+  final String? secondaryDetailValue;
   final List<Widget> players;
   final VoidCallback? onTap;
 
   const GameBox({
-    required this.title,
+    this.title,
     required this.gameTitle,
+    required this.detailLabel,
+    required this.detailValue,
+    this.secondaryDetailLabel,
+    this.secondaryDetailValue,
     required this.players,
     this.onTap,
     super.key,
@@ -20,34 +28,37 @@ class GameBox extends StatefulWidget {
   static const double _gridSpacing = 8;
   static const double _chipHeight = 40;
 
+  static const int _maxVisiblePlayersCollapsed = 6;
+
   @override
   State<GameBox> createState() => _GameBoxState();
 }
 
 class _GameBoxState extends State<GameBox> {
-  static const int _maxVisiblePlayersCollapsed = 6;
-
   bool _isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
-    final hasMorePlayers = widget.players.length > _maxVisiblePlayersCollapsed;
+    final hasMorePlayers =
+        widget.players.length > GameBox._maxVisiblePlayersCollapsed;
 
     return SizedBox(
       width: 380,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.title,
-            style: const TextStyle(
-              fontFamily: kFontMPL,
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              color: kColorBlue800,
+          if (widget.title != null) ...[
+            Text(
+              widget.title!,
+              style: const TextStyle(
+                fontFamily: kFontMPL,
+                fontSize: 14,
+                fontWeight: FontWeight.w400,
+                color: kColorBlue800,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
+          ],
           SizedBox(
             width: 380,
             child: Card(
@@ -106,28 +117,27 @@ class _GameBoxState extends State<GameBox> {
                         ),
                       ],
                       const SizedBox(height: 12),
-                      Row(
-                        children: const [
-                          Text(
-                            'Stage:',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: kColorBlue800,
-                              fontFamily: kFontMPL,
+                      (widget.secondaryDetailLabel?.isNotEmpty ?? false) &&
+                              (widget.secondaryDetailValue?.isNotEmpty ?? false)
+                          ? Row(
+                              children: [
+                                Expanded(
+                                  child: _DetailText(
+                                    label: widget.detailLabel,
+                                    value: widget.detailValue,
+                                  ),
+                                ),
+                                _DetailText(
+                                  label: widget.secondaryDetailLabel!,
+                                  value: widget.secondaryDetailValue!,
+                                  textAlign: TextAlign.right,
+                                ),
+                              ],
+                            )
+                          : _DetailText(
+                              label: widget.detailLabel,
+                              value: widget.detailValue,
                             ),
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Voting',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: kColorBlue900,
-                              fontFamily: kFontMPL,
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -138,12 +148,57 @@ class _GameBoxState extends State<GameBox> {
       ),
     );
   }
+}
 
+class _DetailText extends StatelessWidget {
+  const _DetailText({
+    required this.label,
+    required this.value,
+    this.textAlign = TextAlign.left,
+  });
+
+  final String label;
+  final String value;
+  final TextAlign textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: kColorBlue800,
+              fontFamily: kFontMPL,
+            ),
+          ),
+          const TextSpan(text: ' '),
+          TextSpan(
+            text: value,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: kColorBlue900,
+              fontFamily: kFontMPL,
+            ),
+          ),
+        ],
+      ),
+      textAlign: textAlign,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+extension on _GameBoxState {
   Widget _buildPlayersGrid() {
     final visiblePlayers =
-        _isExpanded || widget.players.length <= _maxVisiblePlayersCollapsed
+        _isExpanded ||
+            widget.players.length <= GameBox._maxVisiblePlayersCollapsed
         ? widget.players
-        : widget.players.take(_maxVisiblePlayersCollapsed).toList();
+        : widget.players.take(GameBox._maxVisiblePlayersCollapsed).toList();
 
     final playersCount = visiblePlayers.length;
     final rows = (playersCount / GameBox._columns).ceil();
