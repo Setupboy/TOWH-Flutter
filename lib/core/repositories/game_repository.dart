@@ -1,50 +1,68 @@
+import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:isar/isar.dart';
 
 import '../models/game_document.dart';
 import '../models/game_player.dart';
+import '../storage/isar_game.dart';
+import '../storage/local_database.dart';
 
 class GameRepository {
   GameRepository._();
 
   static final GameRepository instance = GameRepository._();
 
-  static const String gamesCollection = 'games';
+  static const List<String> _colors = <String>[
+    'blue',
+    'green',
+    'purple',
+    'orange',
+    'pink',
+    'cyan',
+    'yellow',
+    'red',
+    'teal',
+    'indigo',
+  ];
 
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final Random _random = Random();
 
-  CollectionReference<Map<String, dynamic>> get _games =>
-      _firestore.collection(gamesCollection);
+  Isar get _isar => LocalDatabase.instance.isar;
 
   Future<String> createGame({
     required String activityName,
     required int playersCount,
     String? createdBy,
   }) async {
-    final now = Timestamp.now();
-    final doc = await _games.add(<String, dynamic>{
-      'activityName': activityName,
-      'playersCount': playersCount,
-      'createdBy': createdBy ?? '',
-      'status': 'in_progress',
-      'stage': 'players_names',
-      'currentStep': 1,
-      'currentPlayerIndex': 0,
-      'currentVotingTurnIndex': 0,
-      'winnerAnswer': '',
-      'isTie': false,
-      'results': <String, int>{},
-      'players': <Map<String, dynamic>>[],
-      'createdAt': now,
-      'updatedAt': now,
-      'finishedAt': null,
+    final now = DateTime.now();
+    final isarGame = IsarGame()
+      ..gameId = _newGameId()
+      ..activityName = activityName
+      ..playersCount = playersCount
+      ..createdBy = createdBy ?? ''
+      ..status = 'in_progress'
+      ..stage = 'players_names'
+      ..currentStep = 1
+      ..currentPlayerIndex = 0
+      ..currentVotingTurnIndex = 0
+      ..winnerAnswer = ''
+      ..isTie = false
+      ..resultsJson = '{}'
+      ..playersJson = '[]'
+      ..createdAt = now
+      ..updatedAt = now
+      ..finishedAt = null;
+
+    await _isar.writeTxn(() async {
+      await _isar.isarGames.put(isarGame);
     });
-    return doc.id;
+    return isarGame.gameId;
   }
 
   Future<void> savePlayerNames(String gameId, List<String> playerNames) async {
+    final game = await continueGame(gameId);
     final players = List<GamePlayer>.generate(
       playerNames.length,
       (int index) => GamePlayer(
@@ -56,13 +74,15 @@ class GameRepository {
       ),
     );
 
-    await _games.doc(gameId).update(<String, dynamic>{
-      'players': players.map((player) => player.toMap()).toList(),
-      'stage': 'players_answers',
-      'currentStep': 2,
-      'currentPlayerIndex': 0,
-      'updatedAt': Timestamp.now(),
-    });
+    await _saveGame(
+      game.copyWith(
+        players: players,
+        stage: 'players_answers',
+        currentStep: 2,
+        currentPlayerIndex: 0,
+        updatedAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> savePlayerAnswer({
@@ -75,34 +95,40 @@ class GameRepository {
     players[playerIndex] = players[playerIndex].copyWith(answer: answer);
     final isLastPlayer = playerIndex >= players.length - 1;
 
-    await _games.doc(gameId).update(<String, dynamic>{
-      'players': players.map((player) => player.toMap()).toList(),
-      'stage': isLastPlayer ? 'ready_to_play' : 'players_answers',
-      'currentStep': isLastPlayer ? 3 : 2,
-      'currentPlayerIndex': isLastPlayer ? 0 : playerIndex + 1,
-      'updatedAt': Timestamp.now(),
-    });
+    await _saveGame(
+      game.copyWith(
+        players: players,
+        stage: isLastPlayer ? 'ready_to_play' : 'players_answers',
+        currentStep: isLastPlayer ? 3 : 2,
+        currentPlayerIndex: isLastPlayer ? 0 : playerIndex + 1,
+        updatedAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> goToReadyStage(String gameId) async {
-    await _games.doc(gameId).update(<String, dynamic>{
-      'stage': 'ready_to_play',
-      'currentStep': 3,
-      'currentPlayerIndex': 0,
-      'updatedAt': Timestamp.now(),
-    });
+    final game = await continueGame(gameId);
+    await _saveGame(
+      game.copyWith(
+        stage: 'ready_to_play',
+        currentStep: 3,
+        currentPlayerIndex: 0,
+        updatedAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> startVoting(String gameId) async {
     final game = await continueGame(gameId);
-    final players = _assignColors(game.players);
-    await _games.doc(gameId).update(<String, dynamic>{
-      'players': players.map((player) => player.toMap()).toList(),
-      'stage': 'voting',
-      'currentStep': 4,
-      'currentVotingTurnIndex': 0,
-      'updatedAt': Timestamp.now(),
-    });
+    await _saveGame(
+      game.copyWith(
+        players: _assignColors(game.players),
+        stage: 'voting',
+        currentStep: 4,
+        currentVotingTurnIndex: 0,
+        updatedAt: DateTime.now(),
+      ),
+    );
   }
 
   Future<void> saveVoteSelection({
@@ -115,23 +141,21 @@ class GameRepository {
     final selectedPlayer = players.firstWhere(
       (GamePlayer player) => player.selectedColor == colorName,
     );
-
     players[currentIndex] = players[currentIndex].copyWith(
       voteAnswer: selectedPlayer.answer,
     );
 
     final isLastTurn = currentIndex >= players.length - 1;
-    await _games.doc(gameId).update(<String, dynamic>{
-      'players': players.map((player) => player.toMap()).toList(),
-      'stage': isLastTurn ? 'completed' : 'voting',
-      'currentVotingTurnIndex': isLastTurn ? currentIndex : currentIndex + 1,
-      'updatedAt': Timestamp.now(),
-    });
+    final updatedGame = game.copyWith(
+      players: players,
+      stage: isLastTurn ? 'completed' : 'voting',
+      currentVotingTurnIndex: isLastTurn ? currentIndex : currentIndex + 1,
+      updatedAt: DateTime.now(),
+    );
+    await _saveGame(updatedGame);
 
     if (isLastTurn) {
-      final gameWithVotes = game.copyWith(players: players);
-      final results = calculateResults(gameWithVotes);
-      await finishGame(gameId, results);
+      await finishGame(gameId, calculateResults(updatedGame));
     }
   }
 
@@ -149,7 +173,8 @@ class GameRepository {
   }
 
   Future<void> finishGame(String gameId, Map<String, int> results) async {
-    final now = Timestamp.now();
+    final game = await continueGame(gameId);
+    final now = DateTime.now();
     final maxVotes = results.values.isEmpty
         ? 0
         : results.values.reduce((int a, int b) => a > b ? a : b);
@@ -159,137 +184,190 @@ class GameRepository {
         .toList();
     final isTie = winners.length > 1;
 
-    await _games.doc(gameId).update(<String, dynamic>{
-      'results': results,
-      'winnerAnswer': isTie || winners.isEmpty ? '' : winners.first,
-      'isTie': isTie,
-      'status': 'completed',
-      'stage': 'completed',
-      'currentStep': 5,
-      'finishedAt': now,
-      'updatedAt': now,
-    });
+    await _saveGame(
+      game.copyWith(
+        results: results,
+        winnerAnswer: isTie || winners.isEmpty ? '' : winners.first,
+        isTie: isTie,
+        status: 'completed',
+        stage: 'completed',
+        currentStep: 5,
+        finishedAt: now,
+        updatedAt: now,
+      ),
+    );
   }
 
   Stream<List<GameDocument>> getInProgressGames() {
-    return _games.snapshots().map((snapshot) {
-      final games = _mapQuerySnapshot(
-        snapshot,
-      ).where((game) => game.status == 'in_progress').toList();
-      games.sort((a, b) {
+    return _watchAllGames().map((games) {
+      final filtered = games.where((game) => game.status == 'in_progress').toList();
+      filtered.sort((a, b) {
         final aTime = a.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         final bTime = b.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         return bTime.compareTo(aTime);
       });
-      return games;
+      return filtered;
     });
   }
 
   Stream<List<GameDocument>> getCompletedGames() {
-    return _games.snapshots().map((snapshot) {
-      final games = _mapQuerySnapshot(
-        snapshot,
-      ).where((game) => game.status == 'completed').toList();
-      games.sort((a, b) {
+    return _watchAllGames().map((games) {
+      final filtered = games.where((game) => game.status == 'completed').toList();
+      filtered.sort((a, b) {
         final aTime = a.finishedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         final bTime = b.finishedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         return bTime.compareTo(aTime);
       });
-      return games;
+      return filtered;
     });
   }
 
   Future<GameDocument> continueGame(String gameId) async {
-    final doc = await _games.doc(gameId).get();
-    return GameDocument.fromSnapshot(doc);
+    final isarGame = await _isar.isarGames.filter().gameIdEqualTo(gameId).findFirst();
+    if (isarGame == null) {
+      throw StateError('Game not found: $gameId');
+    }
+    return _toGameDocument(isarGame);
   }
 
   Future<GameDocument> restartPlayerAnswers(String gameId) async {
     final game = await continueGame(gameId);
     final resetPlayers = game.players
         .map(
-          (player) =>
-              player.copyWith(answer: '', selectedColor: '', voteAnswer: ''),
+          (player) => player.copyWith(
+            answer: '',
+            selectedColor: '',
+            voteAnswer: '',
+          ),
         )
         .toList();
 
-    await _games.doc(gameId).update(<String, dynamic>{
-      'players': resetPlayers.map((player) => player.toMap()).toList(),
-      'stage': 'players_answers',
-      'currentStep': 2,
-      'currentPlayerIndex': 0,
-      'updatedAt': Timestamp.now(),
-    });
-
-    return game.copyWith(
+    final updatedGame = game.copyWith(
       players: resetPlayers,
       stage: 'players_answers',
       currentStep: 2,
       currentPlayerIndex: 0,
+      updatedAt: DateTime.now(),
     );
+    await _saveGame(updatedGame);
+    return updatedGame;
   }
 
   Future<String> repeatGame(GameDocument sourceGame) async {
-    final now = Timestamp.now();
-    final players = _assignColors(
-      sourceGame.players
-          .map((player) => player.copyWith(voteAnswer: '', selectedColor: ''))
-          .toList(),
+    final now = DateTime.now();
+    final repeatedGame = sourceGame.copyWith(
+      id: _newGameId(),
+      status: 'in_progress',
+      stage: 'voting',
+      currentStep: 4,
+      currentPlayerIndex: 0,
+      currentVotingTurnIndex: 0,
+      winnerAnswer: '',
+      isTie: false,
+      results: <String, int>{},
+      players: _assignColors(
+        sourceGame.players
+            .map(
+              (player) => player.copyWith(
+                voteAnswer: '',
+                selectedColor: '',
+              ),
+            )
+            .toList(),
+      ),
+      createdAt: now,
+      updatedAt: now,
+      finishedAt: null,
     );
-
-    final doc = await _games.add(<String, dynamic>{
-      'activityName': sourceGame.activityName,
-      'playersCount': sourceGame.playersCount,
-      'createdBy': sourceGame.createdBy,
-      'status': 'in_progress',
-      'stage': 'voting',
-      'currentStep': 4,
-      'currentPlayerIndex': 0,
-      'currentVotingTurnIndex': 0,
-      'winnerAnswer': '',
-      'isTie': false,
-      'results': <String, int>{},
-      'players': players.map((player) => player.toMap()).toList(),
-      'createdAt': now,
-      'updatedAt': now,
-      'finishedAt': null,
-    });
-
-    return doc.id;
+    await _saveGame(repeatedGame);
+    return repeatedGame.id;
   }
 
   Stream<GameDocument> watchGame(String gameId) {
-    return _games.doc(gameId).snapshots().map(GameDocument.fromSnapshot);
+    return _watchAllGames().map(
+      (games) => games.firstWhere((game) => game.id == gameId),
+    );
   }
 
-  List<GameDocument> _mapQuerySnapshot(
-    QuerySnapshot<Map<String, dynamic>> snapshot,
-  ) {
-    return snapshot.docs.map(GameDocument.fromSnapshot).toList();
+  Stream<List<GameDocument>> _watchAllGames() async* {
+    yield await _getAllGames();
+    await for (final _ in _isar.isarGames.watchLazy()) {
+      yield await _getAllGames();
+    }
+  }
+
+  Future<List<GameDocument>> _getAllGames() async {
+    final games = await _isar.isarGames.where().findAll();
+    return games.map(_toGameDocument).toList();
+  }
+
+  Future<void> _saveGame(GameDocument game) async {
+    final existing = await _isar.isarGames.filter().gameIdEqualTo(game.id).findFirst();
+    final isarGame = existing ?? IsarGame()..gameId = game.id;
+    isarGame
+      ..activityName = game.activityName
+      ..playersCount = game.playersCount
+      ..createdBy = game.createdBy
+      ..status = game.status
+      ..stage = game.stage
+      ..currentStep = game.currentStep
+      ..currentPlayerIndex = game.currentPlayerIndex
+      ..currentVotingTurnIndex = game.currentVotingTurnIndex
+      ..winnerAnswer = game.winnerAnswer
+      ..isTie = game.isTie
+      ..resultsJson = jsonEncode(game.results)
+      ..playersJson = jsonEncode(game.players.map((player) => player.toMap()).toList())
+      ..createdAt = game.createdAt ?? DateTime.now()
+      ..updatedAt = game.updatedAt ?? DateTime.now()
+      ..finishedAt = game.finishedAt;
+
+    await _isar.writeTxn(() async {
+      await _isar.isarGames.put(isarGame);
+    });
+  }
+
+  GameDocument _toGameDocument(IsarGame game) {
+    final playersData = (jsonDecode(game.playersJson) as List<dynamic>)
+        .cast<Map<String, dynamic>>()
+        .map(GamePlayer.fromMap)
+        .toList();
+    final resultsData =
+        Map<String, dynamic>.from(jsonDecode(game.resultsJson) as Map<String, dynamic>);
+
+    return GameDocument(
+      id: game.gameId,
+      activityName: game.activityName,
+      playersCount: game.playersCount,
+      createdBy: game.createdBy,
+      status: game.status,
+      stage: game.stage,
+      currentStep: game.currentStep,
+      currentPlayerIndex: game.currentPlayerIndex,
+      currentVotingTurnIndex: game.currentVotingTurnIndex,
+      winnerAnswer: game.winnerAnswer,
+      isTie: game.isTie,
+      results: resultsData.map(
+        (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
+      ),
+      players: playersData,
+      createdAt: game.createdAt,
+      updatedAt: game.updatedAt,
+      finishedAt: game.finishedAt,
+    );
   }
 
   List<GamePlayer> _assignColors(List<GamePlayer> source) {
-    final existingColors = source
-        .where((player) => player.selectedColor.isNotEmpty)
-        .toList();
-    if (existingColors.length == source.length) {
+    final alreadyAssigned = source.every((player) => player.selectedColor.isNotEmpty);
+    if (alreadyAssigned) {
       return source;
     }
-
-    final availableColors = <String>[
-      'blue',
-      'green',
-      'purple',
-      'orange',
-      'pink',
-      'cyan',
-      'yellow',
-      'red',
-      'teal',
-      'indigo',
-    ]..shuffle(_random);
+    final availableColors = List<String>.from(_colors)..shuffle(_random);
     return List<GamePlayer>.generate(source.length, (int index) {
       return source[index].copyWith(selectedColor: availableColors[index]);
     });
+  }
+
+  String _newGameId() {
+    return DateTime.now().microsecondsSinceEpoch.toString();
   }
 }

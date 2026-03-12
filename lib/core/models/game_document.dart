@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'game_player.dart';
 
 class GameDocument {
@@ -90,44 +88,5 @@ class GameDocument {
       updatedAt: updatedAt ?? this.updatedAt,
       finishedAt: finishedAt ?? this.finishedAt,
     );
-  }
-
-  static GameDocument fromSnapshot(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final data = doc.data() ?? <String, dynamic>{};
-    final playersData = (data['players'] as List<dynamic>? ?? <dynamic>[])
-        .whereType<Map<String, dynamic>>()
-        .map(GamePlayer.fromMap)
-        .toList();
-    final resultsData = Map<String, dynamic>.from(
-      data['results'] as Map<String, dynamic>? ?? <String, dynamic>{},
-    );
-
-    return GameDocument(
-      id: doc.id,
-      activityName: data['activityName'] as String? ?? '',
-      playersCount: data['playersCount'] as int? ?? 0,
-      createdBy: data['createdBy'] as String? ?? '',
-      status: data['status'] as String? ?? 'in_progress',
-      stage: data['stage'] as String? ?? 'players_names',
-      currentStep: data['currentStep'] as int? ?? 1,
-      currentPlayerIndex: data['currentPlayerIndex'] as int? ?? 0,
-      currentVotingTurnIndex: data['currentVotingTurnIndex'] as int? ?? 0,
-      winnerAnswer: data['winnerAnswer'] as String? ?? '',
-      isTie: data['isTie'] as bool? ?? false,
-      results: resultsData.map(
-        (key, value) => MapEntry(key, (value as num?)?.toInt() ?? 0),
-      ),
-      players: playersData,
-      createdAt: _timestampToDateTime(data['createdAt']),
-      updatedAt: _timestampToDateTime(data['updatedAt']),
-      finishedAt: _timestampToDateTime(data['finishedAt']),
-    );
-  }
-
-  static DateTime? _timestampToDateTime(dynamic value) {
-    if (value is Timestamp) {
-      return value.toDate();
-    }
-    return null;
   }
 }

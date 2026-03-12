@@ -77,7 +77,6 @@ class _HomeViewState extends State<HomeView> {
               const SizedBox(height: 24),
               _buildCompletedSection(
                 title: 'Repeat game',
-                emptyText: 'Completed games will show here.',
               ),
               const SizedBox(height: 24),
             ],
@@ -207,10 +206,7 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildCompletedSection({
-    required String title,
-    required String emptyText,
-  }) {
+  Widget _buildCompletedSection({required String title}) {
     return StreamBuilder<List<GameDocument>>(
       stream: _repository.getCompletedGames(),
       builder: (context, snapshot) {
@@ -218,12 +214,12 @@ class _HomeViewState extends State<HomeView> {
           return _buildSectionError('Failed to load completed games.');
         }
         if (!snapshot.hasData) {
-          return _buildSectionEmpty(title: title, text: 'Loading games...');
+          return const SizedBox.shrink();
         }
 
         final games = snapshot.data!;
         if (games.isEmpty) {
-          return _buildSectionEmpty(title: title, text: emptyText);
+          return const SizedBox.shrink();
         }
 
         return _buildSectionGroup(
@@ -306,40 +302,6 @@ class _HomeViewState extends State<HomeView> {
         ),
         const SizedBox(height: 8),
         ...cards,
-      ],
-    );
-  }
-
-  Widget _buildSectionEmpty({required String title, required String text}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontFamily: kFontMPL,
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: kColorBlue800,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: kColorWhite100,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontFamily: kFontMPL,
-              fontSize: 14,
-              color: kColorBlue800,
-            ),
-          ),
-        ),
       ],
     );
   }

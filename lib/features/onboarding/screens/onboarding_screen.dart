@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:towh/core/storage/app_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
@@ -70,10 +71,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _finishOnboarding() {
-    Navigator.push(
+  Future<void> _finishOnboarding() async {
+    await AppPreferences.instance.setHasSeenOnboarding(true);
+    if (!mounted) return;
+    Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeView()),
+      MaterialPageRoute(builder: (context) => const HomeView()),
     );
   }
 
