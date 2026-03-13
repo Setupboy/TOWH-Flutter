@@ -1,3 +1,4 @@
+import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
 
 allprojects {
@@ -25,7 +26,11 @@ subprojects {
 subprojects {
     if (name == "isar_flutter_libs") {
         plugins.withId("com.android.library") {
+            extensions.configure<BaseExtension>("android") {
+                compileSdkVersion(36)
+            }
             extensions.configure<LibraryExtension>("android") {
+                compileSdk = 36
                 namespace = "dev.isar.isar_flutter_libs"
             }
         }

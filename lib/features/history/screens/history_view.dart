@@ -40,92 +40,83 @@ class HistoryView extends StatelessWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
-                StreamBuilder<List<GameDocument>>(
-                  stream: repository.getInProgressGames(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return const Text('Failed to load in-progress games.');
-                    }
-                    if (!snapshot.hasData) {
-                      return const Text(
-                        'Loading games...',
-                        style: TextStyle(
-                          fontFamily: kFontMPL,
-                          color: kColorBlue800,
-                        ),
-                      );
-                    }
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: StreamBuilder<List<GameDocument>>(
+            stream: repository.getInProgressGames(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text('Failed to load in-progress games.');
+              }
+              if (!snapshot.hasData) {
+                return const Text(
+                  'Loading games...',
+                  style: TextStyle(fontFamily: kFontMPL, color: kColorBlue800),
+                );
+              }
 
-                    final games = snapshot.data!;
-                    if (games.isEmpty) {
-                      return _buildCompletedSection(
-                        context,
-                        repository,
-                        addTopSpacing: false,
-                      );
-                    }
+              final games = snapshot.data!;
+              if (games.isEmpty) {
+                return _buildCompletedSection(
+                  context,
+                  repository,
+                  addTopSpacing: false,
+                );
+              }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSectionGroup(
-                          title: 'In progress game',
-                          cards: games.map((game) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 2),
-                              child: GameBox(
-                                gameTitle: game.activityName,
-                                detailLabel: 'Stage:',
-                                detailValue: _stageLabel(game.stage),
-                                players: List<Widget>.generate(
-                                  game.players.length,
-                                  (i) {
-                                    final player = game.players[i];
-                                    return PlayerChip(
-                                      name: player.name,
-                                      backgroundColor: avatarColorForIndex(i),
-                                    );
-                                  },
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildSectionGroup(
+                      title: 'In progress game',
+                      cards: games.map((game) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: GameBox(
+                            gameTitle: game.activityName,
+                            detailLabel: 'Stage:',
+                            detailValue: _stageLabel(game.stage),
+                            players: List<Widget>.generate(
+                              game.players.length,
+                              (i) {
+                                final player = game.players[i];
+                                return PlayerChip(
+                                  name: player.name,
+                                  backgroundColor: avatarColorForIndex(i),
+                                );
+                              },
+                            ),
+                            onTap: () async {
+                              final gameToOpen = game.stage == 'players_answers'
+                                  ? await repository.restartPlayerAnswers(
+                                      game.id,
+                                    )
+                                  : game;
+                              if (!context.mounted) return;
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      buildGameStageView(gameToOpen),
                                 ),
-                                onTap: () async {
-                                  final gameToOpen =
-                                      game.stage == 'players_answers'
-                                      ? await repository.restartPlayerAnswers(
-                                          game.id,
-                                        )
-                                      : game;
-                                  if (!context.mounted) return;
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          buildGameStageView(gameToOpen),
-                                    ),
-                                  );
-                                },
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                        _buildCompletedSection(
-                          context,
-                          repository,
-                          addTopSpacing: true,
-                        ),
-                      ],
-                    );
-                  },
+                              );
+                            },
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    _buildCompletedSection(
+                      context,
+                      repository,
+                      addTopSpacing: true,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
                 ),
-                const SizedBox(height: 8),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
@@ -229,6 +220,22 @@ class HistoryView extends StatelessWidget {
 
         final games = snapshot.data!;
         if (games.isEmpty) {
+          if (!addTopSpacing) {
+            return const Center(
+              child: Text(
+                "You haven't play any games yet!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: kFontMPL,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  height: 1.625,
+                  color: kColorBlue800,
+                ),
+              ),
+            );
+          }
+
           return const SizedBox.shrink();
         }
 
