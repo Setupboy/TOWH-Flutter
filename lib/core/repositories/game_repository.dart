@@ -200,7 +200,9 @@ class GameRepository {
 
   Stream<List<GameDocument>> getInProgressGames() {
     return _watchAllGames().map((games) {
-      final filtered = games.where((game) => game.status == 'in_progress').toList();
+      final filtered = games
+          .where((game) => game.status == 'in_progress')
+          .toList();
       filtered.sort((a, b) {
         final aTime = a.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         final bTime = b.updatedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -212,7 +214,9 @@ class GameRepository {
 
   Stream<List<GameDocument>> getCompletedGames() {
     return _watchAllGames().map((games) {
-      final filtered = games.where((game) => game.status == 'completed').toList();
+      final filtered = games
+          .where((game) => game.status == 'completed')
+          .toList();
       filtered.sort((a, b) {
         final aTime = a.finishedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
         final bTime = b.finishedAt ?? DateTime.fromMillisecondsSinceEpoch(0);
@@ -223,7 +227,10 @@ class GameRepository {
   }
 
   Future<GameDocument> continueGame(String gameId) async {
-    final isarGame = await _isar.isarGames.filter().gameIdEqualTo(gameId).findFirst();
+    final isarGame = await _isar.isarGames
+        .filter()
+        .gameIdEqualTo(gameId)
+        .findFirst();
     if (isarGame == null) {
       throw StateError('Game not found: $gameId');
     }
@@ -234,11 +241,8 @@ class GameRepository {
     final game = await continueGame(gameId);
     final resetPlayers = game.players
         .map(
-          (player) => player.copyWith(
-            answer: '',
-            selectedColor: '',
-            voteAnswer: '',
-          ),
+          (player) =>
+              player.copyWith(answer: '', selectedColor: '', voteAnswer: ''),
         )
         .toList();
 
@@ -267,12 +271,7 @@ class GameRepository {
       results: <String, int>{},
       players: _assignColors(
         sourceGame.players
-            .map(
-              (player) => player.copyWith(
-                voteAnswer: '',
-                selectedColor: '',
-              ),
-            )
+            .map((player) => player.copyWith(voteAnswer: '', selectedColor: ''))
             .toList(),
       ),
       createdAt: now,
@@ -281,6 +280,12 @@ class GameRepository {
     );
     await _saveGame(repeatedGame);
     return repeatedGame.id;
+  }
+
+  Future<void> deleteGame(String gameId) async {
+    await _isar.writeTxn(() async {
+      await _isar.isarGames.deleteByGameId(gameId);
+    });
   }
 
   Stream<GameDocument> watchGame(String gameId) {
@@ -302,8 +307,12 @@ class GameRepository {
   }
 
   Future<void> _saveGame(GameDocument game) async {
-    final existing = await _isar.isarGames.filter().gameIdEqualTo(game.id).findFirst();
-    final isarGame = existing ?? IsarGame()..gameId = game.id;
+    final existing = await _isar.isarGames
+        .filter()
+        .gameIdEqualTo(game.id)
+        .findFirst();
+    final isarGame = existing ?? IsarGame()
+      ..gameId = game.id;
     isarGame
       ..activityName = game.activityName
       ..playersCount = game.playersCount
@@ -316,7 +325,9 @@ class GameRepository {
       ..winnerAnswer = game.winnerAnswer
       ..isTie = game.isTie
       ..resultsJson = jsonEncode(game.results)
-      ..playersJson = jsonEncode(game.players.map((player) => player.toMap()).toList())
+      ..playersJson = jsonEncode(
+        game.players.map((player) => player.toMap()).toList(),
+      )
       ..createdAt = game.createdAt ?? DateTime.now()
       ..updatedAt = game.updatedAt ?? DateTime.now()
       ..finishedAt = game.finishedAt;
@@ -331,8 +342,9 @@ class GameRepository {
         .cast<Map<String, dynamic>>()
         .map(GamePlayer.fromMap)
         .toList();
-    final resultsData =
-        Map<String, dynamic>.from(jsonDecode(game.resultsJson) as Map<String, dynamic>);
+    final resultsData = Map<String, dynamic>.from(
+      jsonDecode(game.resultsJson) as Map<String, dynamic>,
+    );
 
     return GameDocument(
       id: game.gameId,
@@ -357,7 +369,9 @@ class GameRepository {
   }
 
   List<GamePlayer> _assignColors(List<GamePlayer> source) {
-    final alreadyAssigned = source.every((player) => player.selectedColor.isNotEmpty);
+    final alreadyAssigned = source.every(
+      (player) => player.selectedColor.isNotEmpty,
+    );
     if (alreadyAssigned) {
       return source;
     }
