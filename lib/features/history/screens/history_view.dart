@@ -256,7 +256,7 @@ class HistoryView extends StatelessWidget {
         return Padding(
           padding: EdgeInsets.only(top: addTopSpacing ? 24 : 0),
           child: _buildSectionGroup(
-            title: 'Repeat game',
+            title: 'Game History',
             cards: games.map((game) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 2),
@@ -275,7 +275,16 @@ class HistoryView extends StatelessWidget {
                       backgroundColor: avatarColorForIndex(i),
                     );
                   }),
-                  onTap: () async {
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => buildGameStageView(game),
+                      ),
+                    );
+                  },
+                  primaryActionLabel: 'Repeat Game',
+                  onPrimaryAction: () async {
                     final repeatedGameId = await repository.repeatGame(game);
                     if (!context.mounted) return;
                     Navigator.push(
@@ -368,122 +377,121 @@ class HistoryView extends StatelessWidget {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) {
-        return SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(30, 12, 30, 28),
-              decoration: const BoxDecoration(
-                color: kColorWhite50,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(
+            32,
+            12,
+            32,
+            MediaQuery.of(context).padding.bottom + 12,
+          ),
+          decoration: const BoxDecoration(
+            color: kColorWhite50,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 67,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: kColorBlue100,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 67,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        color: kColorBlue100,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  const Text(
-                    'Delete Game',
+              const SizedBox(height: 32),
+              const Text(
+                'Delete Game',
+                style: TextStyle(
+                  fontFamily: 'Baloo2',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: kColorBlue900,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Are you sure you want to cancel the game?',
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
                     style: TextStyle(
-                      fontFamily: 'Baloo2',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: kColorBlue900,
-                      height: 1,
+                      fontFamily: kFontMPL,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: kColorBlue800,
+                      height: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  const SizedBox(
-                    width: double.infinity,
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Are you sure you want to cancel the game?',
-                        textAlign: TextAlign.left,
-                        maxLines: 1,
-                        style: TextStyle(
-                          fontFamily: kFontMPL,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: kColorBlue800,
-                          height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 34,
+                      width: 176,
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: kColorBlue900,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 34,
-                          width: 176,
-                          child: TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            style: TextButton.styleFrom(
-                              foregroundColor: kColorBlue900,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontFamily: kFontMPL,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: kColorBlue900,
-                              ),
-                            ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontFamily: kFontMPL,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: kColorBlue900,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: SizedBox(
-                          height: 34,
-                          width: 176,
-                          child: ElevatedButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              backgroundColor: kColorYellow200,
-                              foregroundColor: kColorBlue900,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Delete',
-                              style: TextStyle(
-                                fontFamily: kFontMPL,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                                color: kColorBlue900,
-                                height: 1.46,
-                              ),
-                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: SizedBox(
+                      height: 34,
+                      width: 176,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: kColorYellow200,
+                          foregroundColor: kColorBlue900,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(
+                            fontFamily: kFontMPL,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: kColorBlue900,
+                            height: 1.46,
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-            ),
+            ],
           ),
         );
       },

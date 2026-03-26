@@ -49,11 +49,13 @@ class _GameBoxState extends State<GameBox> {
   Widget build(BuildContext context) {
     final hasMorePlayers =
         widget.players.length > GameBox._maxVisiblePlayersCollapsed;
-    final hasActions =
-        widget.primaryActionLabel != null &&
-        widget.onPrimaryAction != null &&
+    final hasPrimaryAction =
+        widget.primaryActionLabel != null && widget.onPrimaryAction != null;
+    final hasSecondaryAction =
         widget.secondaryActionLabel != null &&
         widget.onSecondaryAction != null;
+    final hasDualActions = hasPrimaryAction && hasSecondaryAction;
+    final hasSinglePrimaryAction = hasPrimaryAction && !hasSecondaryAction;
 
     return SizedBox(
       width: double.infinity,
@@ -157,13 +159,19 @@ class _GameBoxState extends State<GameBox> {
                                 label: widget.detailLabel,
                                 value: widget.detailValue,
                               ),
-                        if (hasActions) ...[
+                        if (hasDualActions) ...[
                           const SizedBox(height: 16),
                           _ActionButtonsRow(
                             primaryActionLabel: widget.primaryActionLabel!,
                             onPrimaryAction: widget.onPrimaryAction!,
                             secondaryActionLabel: widget.secondaryActionLabel!,
                             onSecondaryAction: widget.onSecondaryAction!,
+                          ),
+                        ] else if (hasSinglePrimaryAction) ...[
+                          const SizedBox(height: 16),
+                          _SingleActionButton(
+                            label: widget.primaryActionLabel!,
+                            onPressed: widget.onPrimaryAction!,
                           ),
                         ],
                       ],
@@ -174,6 +182,46 @@ class _GameBoxState extends State<GameBox> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _SingleActionButton extends StatelessWidget {
+  const _SingleActionButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 34,
+      child: TextButton(
+        onPressed: onPressed,
+        style: TextButton.styleFrom(
+          backgroundColor: kColorWhite50,
+          foregroundColor: kColorBlue900,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+          minimumSize: Size.zero,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontFamily: kFontMPL,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: kColorBlue900,
+            ),
+          ),
+        ),
       ),
     );
   }
