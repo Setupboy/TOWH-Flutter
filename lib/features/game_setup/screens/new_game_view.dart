@@ -157,7 +157,7 @@ class _NewGameViewState extends State<NewGameView> {
                   _buildSecretWarning(),
                 ],
                 if (!hideBottomWidgets) ...[
-                  const SizedBox(height: 24),
+                  SizedBox(height: _stepIndex == 0 ? 8 : 24),
                   _buildBottomActions(),
                 ],
               ],
