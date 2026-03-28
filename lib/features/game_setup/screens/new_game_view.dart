@@ -99,7 +99,7 @@ class _NewGameViewState extends State<NewGameView> {
 
   @override
   Widget build(BuildContext context) {
-    final hideBottomWidgets = _isAnyTextFieldFocused;
+    final hideBottomWidgets = _isKeyboardVisible(context);
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -652,10 +652,9 @@ class _NewGameViewState extends State<NewGameView> {
     });
   }
 
-  bool get _isAnyTextFieldFocused =>
-      _activityFocusNode.hasFocus ||
-      _noteFocusNode.hasFocus ||
-      _playerFocusNodes.any((focusNode) => focusNode.hasFocus);
+  bool _isKeyboardVisible(BuildContext context) {
+    return MediaQuery.of(context).viewInsets.bottom > 0;
+  }
 
   String get _currentPlayerName {
     if (_currentPlayerIndex < _playerControllers.length) {
