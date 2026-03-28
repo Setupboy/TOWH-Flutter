@@ -32,6 +32,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.4.13
   isar_generator: ^3.1.0+1
+  flutter_launcher_icons: ^0.14.3
 
 
 
@@ -57,3 +58,16 @@ flutter:
     - family: Baloo2
       fonts:
         - asset: assets/fonts/Baloo2-Bold.ttf
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icons/generated/ios_light.png
+  image_path_android: assets/icons/generated/android_legacy.png
+  image_path_ios: assets/icons/generated/ios_light.png
+  image_path_ios_dark_transparent: assets/icons/generated/ios_dark.png
+  remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"
+  adaptive_icon_background: assets/icons/generated/android_background_white.png
+  adaptive_icon_foreground: assets/icons/generated/android_foreground_only.png
+  adaptive_icon_foreground_inset: 0

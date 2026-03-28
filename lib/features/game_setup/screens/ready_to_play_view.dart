@@ -143,7 +143,7 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
                   _buildAnimatedBottom(
                     child: SizedBox(
                       width: double.infinity,
-                      height: 162,
+                      height: 84,
                       child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -176,20 +176,15 @@ class _ReadyToPlayViewState extends State<ReadyToPlayView> {
                               ],
                             ),
                             SizedBox(height: 7),
-                            _ReadyGuideItem(
-                              number: '1.',
-                              text:
-                                  'Choose an activity you want to do with your friends,',
-                            ),
-                            SizedBox(height: 0),
-                            _ReadyGuideItem(
-                              number: '2.',
-                              text: 'Each choose their likings',
-                            ),
-                            SizedBox(height: 0),
-                            _ReadyGuideItem(
-                              number: '3.',
-                              text: 'Vote to a caller and name the winner',
+                            Text(
+                              'You will be given random colors to choose.',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
+                                fontFamily: kFontMPL,
+                                color: kColorBlue800,
+                                height: 1,
+                              ),
                             ),
                           ],
                         ),
