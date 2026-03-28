@@ -1,7 +1,6 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:towh/core/models/game_document.dart';
 import 'package:towh/core/navigation/game_flow.dart';
 import 'package:towh/core/repositories/game_repository.dart';
@@ -50,7 +49,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             const SizedBox(width: 8),
             const Text(
-              'To W?',
+              'ToWh',
               style: TextStyle(
                 fontFamily: 'Baloo2',
                 fontSize: 24,
@@ -75,9 +74,7 @@ class _HomeViewState extends State<HomeView> {
               const SizedBox(height: 24),
               _buildInProgressSection(),
               const SizedBox(height: 24),
-              _buildCompletedSection(
-                title: 'Repeat game',
-              ),
+              _buildCompletedSection(title: 'Repeat game'),
               const SizedBox(height: 24),
             ],
           ),
