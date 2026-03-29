@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/models/game_document.dart';
@@ -100,7 +101,13 @@ class _NewGameViewState extends State<NewGameView> {
 
   @override
   Widget build(BuildContext context) {
-    final hideBottomWidgets = _isKeyboardVisible(context);
+    final mediaQuery = MediaQuery.of(context);
+    final isKeyboardVisible = _isKeyboardVisible(mediaQuery);
+    final keepBottomActionsVisible = _shouldKeepBottomActionsVisibleOnKeyboard;
+    final hideBottomWidgets = isKeyboardVisible && !keepBottomActionsVisible;
+    final bottomActionPadding = keepBottomActionsVisible && isKeyboardVisible
+        ? mediaQuery.viewInsets.bottom + 12
+        : 0.0;
 
     return GameFullscreenScope(
       child: Scaffold(
@@ -163,7 +170,12 @@ class _NewGameViewState extends State<NewGameView> {
                   ],
                   if (!hideBottomWidgets) ...[
                     SizedBox(height: _stepIndex == 0 ? 8 : 24),
-                    _buildBottomActions(),
+                    AnimatedPadding(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeOut,
+                      padding: EdgeInsets.only(bottom: bottomActionPadding),
+                      child: _buildBottomActions(),
+                    ),
                   ],
                 ],
               ),
@@ -658,9 +670,11 @@ class _NewGameViewState extends State<NewGameView> {
     });
   }
 
-  bool _isKeyboardVisible(BuildContext context) {
-    return MediaQuery.of(context).viewInsets.bottom > 0;
-  }
+  bool _isKeyboardVisible(MediaQueryData mediaQuery) =>
+      mediaQuery.viewInsets.bottom > 0;
+
+  bool get _shouldKeepBottomActionsVisibleOnKeyboard =>
+      defaultTargetPlatform == TargetPlatform.iOS;
 
   String get _currentPlayerName {
     if (_currentPlayerIndex < _playerControllers.length) {
