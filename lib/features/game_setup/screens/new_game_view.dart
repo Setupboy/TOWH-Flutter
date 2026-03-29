@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../../core/models/game_document.dart';
@@ -103,11 +102,8 @@ class _NewGameViewState extends State<NewGameView> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final isKeyboardVisible = _isKeyboardVisible(mediaQuery);
-    final keepBottomActionsVisible = _shouldKeepBottomActionsVisibleOnKeyboard;
-    final hideBottomWidgets = isKeyboardVisible && !keepBottomActionsVisible;
-    final bottomActionPadding = keepBottomActionsVisible && isKeyboardVisible
-        ? mediaQuery.viewInsets.bottom + 12
-        : 0.0;
+    final showBottomSupportWidgets = !isKeyboardVisible;
+    final showBottomActions = true;
 
     return GameFullscreenScope(
       child: Scaffold(
@@ -161,21 +157,16 @@ class _NewGameViewState extends State<NewGameView> {
                       ),
                     ),
                   ),
-                  if (_stepIndex == 0 && !hideBottomWidgets) ...[
+                  if (_stepIndex == 0 && showBottomSupportWidgets) ...[
                     _buildStepZeroAnimatedBottom(child: const QuickGuide()),
                   ],
-                  if (_stepIndex == 2 && !hideBottomWidgets) ...[
+                  if (_stepIndex == 2 && showBottomSupportWidgets) ...[
                     const SizedBox(height: 12),
                     _buildSecretWarning(),
                   ],
-                  if (!hideBottomWidgets) ...[
+                  if (showBottomActions) ...[
                     SizedBox(height: _stepIndex == 0 ? 8 : 24),
-                    AnimatedPadding(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeOut,
-                      padding: EdgeInsets.only(bottom: bottomActionPadding),
-                      child: _buildBottomActions(),
-                    ),
+                    _buildBottomActions(),
                   ],
                 ],
               ),
@@ -672,9 +663,6 @@ class _NewGameViewState extends State<NewGameView> {
 
   bool _isKeyboardVisible(MediaQueryData mediaQuery) =>
       mediaQuery.viewInsets.bottom > 0;
-
-  bool get _shouldKeepBottomActionsVisibleOnKeyboard =>
-      defaultTargetPlatform == TargetPlatform.iOS;
 
   String get _currentPlayerName {
     if (_currentPlayerIndex < _playerControllers.length) {
