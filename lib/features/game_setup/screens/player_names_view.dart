@@ -4,6 +4,7 @@ import 'package:towh/core/models/game_document.dart';
 import 'package:towh/core/repositories/game_repository.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
+import 'package:towh/core/widgets/game_fullscreen_scope.dart';
 
 import 'player_answer_view.dart';
 
@@ -44,89 +45,93 @@ class _PlayerNamesViewState extends State<PlayerNamesView> {
         final game = snapshot.data!;
         _syncControllers(game);
 
-        return Scaffold(
-          backgroundColor: kColorWhite50,
-          appBar: AppBar(
+        return GameFullscreenScope(
+          child: Scaffold(
             backgroundColor: kColorWhite50,
-            elevation: 0,
-            foregroundColor: kColorBlue900,
-            surfaceTintColor: Colors.transparent,
-            title: const Text(
-              'Player Names',
-              style: TextStyle(
-                fontSize: 24,
-                fontFamily: kFontBaloo2,
-                fontWeight: FontWeight.w600,
-                color: kColorBlue900,
+            appBar: AppBar(
+              backgroundColor: kColorWhite50,
+              elevation: 0,
+              foregroundColor: kColorBlue900,
+              surfaceTintColor: Colors.transparent,
+              title: const Text(
+                'Player Names',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: kFontBaloo2,
+                  fontWeight: FontWeight.w600,
+                  color: kColorBlue900,
+                ),
               ),
             ),
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Enter all player names before answers begin.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontFamily: kFontMPL,
-                      color: kColorBlue800,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child: ListView.separated(
-                      itemCount: game.playersCount,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        return TextField(
-                          controller: _controllers[index],
-                          decoration: InputDecoration(
-                            labelText: 'Player ${index + 1}',
-                            filled: true,
-                            fillColor: kColorWhite100,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: _isSaving ? null : () => _onConfirm(game),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kColorYellow200,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Enter all player names before answers begin.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontFamily: kFontMPL,
+                        color: kColorBlue800,
                       ),
-                      child: _isSaving
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text(
-                              'Confirm Players',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontFamily: kFontMPL,
-                                fontWeight: FontWeight.w500,
-                                color: kColorBlue900,
+                    ),
+                    const SizedBox(height: 24),
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: game.playersCount,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          return TextField(
+                            controller: _controllers[index],
+                            decoration: InputDecoration(
+                              labelText: 'Player ${index + 1}',
+                              filled: true,
+                              fillColor: kColorWhite100,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
                               ),
                             ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: _isSaving ? null : () => _onConfirm(game),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kColorYellow200,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isSaving
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Text(
+                                'Confirm Players',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: kFontMPL,
+                                  fontWeight: FontWeight.w500,
+                                  color: kColorBlue900,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

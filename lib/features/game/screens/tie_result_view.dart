@@ -6,6 +6,7 @@ import '../../../core/models/game_document.dart';
 import '../../../core/repositories/game_repository.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
+import '../../../core/widgets/game_fullscreen_scope.dart';
 import '../../home/screens/home_view.dart';
 import 'game_view.dart';
 import '../models/vote_result_item.dart';
@@ -47,160 +48,164 @@ class _TieResultViewState extends State<TieResultView> {
 
         final game = snapshot.data!;
 
-        return Scaffold(
-          backgroundColor: kColorWhite50,
-          appBar: AppBar(
+        return GameFullscreenScope(
+          child: Scaffold(
             backgroundColor: kColorWhite50,
-            elevation: 0,
-            automaticallyImplyLeading: false,
-            surfaceTintColor: Colors.transparent,
-            titleSpacing: 16,
-            title: const Text(
-              'Match Result',
-              style: TextStyle(
-                fontSize: 24,
-                fontFamily: kFontBaloo2,
-                fontWeight: FontWeight.w600,
-                color: kColorBlue900,
-                height: 1,
+            appBar: AppBar(
+              backgroundColor: kColorWhite50,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              surfaceTintColor: Colors.transparent,
+              titleSpacing: 16,
+              title: const Text(
+                'Match Result',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: kFontBaloo2,
+                  fontWeight: FontWeight.w600,
+                  color: kColorBlue900,
+                  height: 1,
+                ),
               ),
             ),
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: SizedBox(
-                              width: 175,
-                              height: 150,
-                              child: Image.asset(_selectedSticker),
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          const Center(
-                            child: Text(
-                              "It's A Tie!\nRepeat The Game",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 42,
-                                fontFamily: kFontBaloo2,
-                                fontWeight: FontWeight.w700,
-                                color: kColorBlue900,
-                                height: 1.14,
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: SizedBox(
+                                width: 175,
+                                height: 150,
+                                child: Image.asset(_selectedSticker),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          const Text(
-                            'Results',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: kFontMPL,
-                              fontWeight: FontWeight.w500,
-                              color: kColorBlue800,
-                              height: 1.62,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          ...List.generate(widget.voteResults.length, (index) {
-                            final result = widget.voteResults[index];
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: index == widget.voteResults.length - 1
-                                    ? 0
-                                    : 12,
-                              ),
-                              child: _ResultRow(
-                                voteCount: result.voteCount,
-                                scoreColor: result.color,
-                                title: result.choiceTitle,
-                                playerName: result.playerName,
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          width: 184,
-                          height: 45,
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const HomeView(),
+                            const SizedBox(height: 24),
+                            const Center(
+                              child: Text(
+                                "It's A Tie!\nRepeat The Game",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 42,
+                                  fontFamily: kFontBaloo2,
+                                  fontWeight: FontWeight.w700,
+                                  color: kColorBlue900,
+                                  height: 1.14,
                                 ),
-                                (route) => false,
-                              );
-                            },
-                            child: const Text(
-                              'Finish',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontFamily: kFontMPL,
-                                fontWeight: FontWeight.w500,
-                                color: kColorBlue900,
-                                height: 1.46,
                               ),
                             ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: SizedBox(
-                          width: 184,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              final repeatedGameId = await _repository
-                                  .repeatGame(game);
-                              if (!context.mounted) return;
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      GameView(gameId: repeatedGameId),
-                                ),
-                                (route) => false,
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              elevation: 0,
-                              backgroundColor: kColorYellow200,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: const Text(
-                              'Try Again',
+                            const SizedBox(height: 20),
+                            const Text(
+                              'Results',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontFamily: kFontMPL,
                                 fontWeight: FontWeight.w500,
-                                color: kColorBlue900,
-                                height: 1.46,
+                                color: kColorBlue800,
+                                height: 1.62,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            ...List.generate(widget.voteResults.length, (
+                              index,
+                            ) {
+                              final result = widget.voteResults[index];
+                              return Padding(
+                                padding: EdgeInsets.only(
+                                  bottom: index == widget.voteResults.length - 1
+                                      ? 0
+                                      : 12,
+                                ),
+                                child: _ResultRow(
+                                  voteCount: result.voteCount,
+                                  scoreColor: result.color,
+                                  title: result.choiceTitle,
+                                  playerName: result.playerName,
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            width: 184,
+                            height: 45,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const HomeView(),
+                                  ),
+                                  (route) => false,
+                                );
+                              },
+                              child: const Text(
+                                'Finish',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: kFontMPL,
+                                  fontWeight: FontWeight.w500,
+                                  color: kColorBlue900,
+                                  height: 1.46,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: SizedBox(
+                            width: 184,
+                            height: 48,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                final repeatedGameId = await _repository
+                                    .repeatGame(game);
+                                if (!context.mounted) return;
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        GameView(gameId: repeatedGameId),
+                                  ),
+                                  (route) => false,
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0,
+                                backgroundColor: kColorYellow200,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: const Text(
+                                'Try Again',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: kFontMPL,
+                                  fontWeight: FontWeight.w500,
+                                  color: kColorBlue900,
+                                  height: 1.46,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

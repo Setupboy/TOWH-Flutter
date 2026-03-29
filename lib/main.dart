@@ -8,9 +8,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalDatabase.instance.init();
   await AppPreferences.instance.init();
-  runApp(
-    MyApp(hasSeenOnboarding: AppPreferences.instance.hasSeenOnboarding),
-  );
+  runApp(MyApp(hasSeenOnboarding: AppPreferences.instance.hasSeenOnboarding));
 }
 
 class MyApp extends StatelessWidget {
@@ -22,7 +20,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(appBarTheme: AppBarTheme(centerTitle: false)),
+      theme: ThemeData(appBarTheme: const AppBarTheme(centerTitle: false)),
       home: hasSeenOnboarding ? const HomeView() : const OnboardingScreen(),
     );
   }

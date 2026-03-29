@@ -5,6 +5,7 @@ import '../../../core/repositories/game_repository.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
 import '../../../core/utils/player_data.dart';
+import '../../../core/widgets/game_fullscreen_scope.dart';
 import '../../home/screens/home_view.dart';
 import '../widgets/activity_input.dart';
 import '../widgets/continue_button.dart';
@@ -101,66 +102,71 @@ class _NewGameViewState extends State<NewGameView> {
   Widget build(BuildContext context) {
     final hideBottomWidgets = _isKeyboardVisible(context);
 
-    return Scaffold(
-      backgroundColor: kColorWhite50,
-      appBar: gameSetupAppBar(
-        context,
-        onBack: _stepIndex > 0 ? _previousStep : _goBackToHome,
-      ),
-      body: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onHorizontalDragEnd: _onHorizontalDragEnd,
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 12),
-                        if (_stepIndex != 2) ...[
-                          _introText(),
+    return GameFullscreenScope(
+      child: Scaffold(
+        backgroundColor: kColorWhite50,
+        appBar: gameSetupAppBar(
+          context,
+          onBack: _stepIndex > 0 ? _previousStep : _goBackToHome,
+        ),
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragEnd: _onHorizontalDragEnd,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
                           const SizedBox(height: 12),
-                          const SizedBox(height: 24),
-                        ],
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          switchInCurve: Curves.easeIn,
-                          switchOutCurve: Curves.easeOut,
-                          transitionBuilder: (child, animation) =>
-                              FadeTransition(opacity: animation, child: child),
-                          layoutBuilder: (currentChild, previousChildren) {
-                            return Stack(
-                              alignment: Alignment.topCenter,
-                              children: <Widget>[
-                                ...previousChildren,
-                                if (currentChild != null) currentChild,
-                              ],
-                            );
-                          },
-                          child: KeyedSubtree(
-                            key: ValueKey<int>(_stepIndex),
-                            child: _buildStepContent(),
+                          if (_stepIndex != 2) ...[
+                            _introText(),
+                            const SizedBox(height: 12),
+                            const SizedBox(height: 24),
+                          ],
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 300),
+                            switchInCurve: Curves.easeIn,
+                            switchOutCurve: Curves.easeOut,
+                            transitionBuilder: (child, animation) =>
+                                FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                ),
+                            layoutBuilder: (currentChild, previousChildren) {
+                              return Stack(
+                                alignment: Alignment.topCenter,
+                                children: <Widget>[
+                                  ...previousChildren,
+                                  if (currentChild != null) currentChild,
+                                ],
+                              );
+                            },
+                            child: KeyedSubtree(
+                              key: ValueKey<int>(_stepIndex),
+                              child: _buildStepContent(),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                if (_stepIndex == 0 && !hideBottomWidgets) ...[
-                  _buildStepZeroAnimatedBottom(child: const QuickGuide()),
+                  if (_stepIndex == 0 && !hideBottomWidgets) ...[
+                    _buildStepZeroAnimatedBottom(child: const QuickGuide()),
+                  ],
+                  if (_stepIndex == 2 && !hideBottomWidgets) ...[
+                    const SizedBox(height: 12),
+                    _buildSecretWarning(),
+                  ],
+                  if (!hideBottomWidgets) ...[
+                    SizedBox(height: _stepIndex == 0 ? 8 : 24),
+                    _buildBottomActions(),
+                  ],
                 ],
-                if (_stepIndex == 2 && !hideBottomWidgets) ...[
-                  const SizedBox(height: 12),
-                  _buildSecretWarning(),
-                ],
-                if (!hideBottomWidgets) ...[
-                  SizedBox(height: _stepIndex == 0 ? 8 : 24),
-                  _buildBottomActions(),
-                ],
-              ],
+              ),
             ),
           ),
         ),
