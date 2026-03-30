@@ -4,9 +4,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:towh/core/models/game_document.dart';
 import 'package:towh/core/navigation/game_flow.dart';
 import 'package:towh/core/repositories/game_repository.dart';
+import 'package:towh/core/storage/app_preferences.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/player_data.dart';
+import 'package:towh/core/widgets/cookie_consent_dialog.dart';
 import 'package:towh/features/game/screens/game_view.dart';
 import 'package:towh/features/history/screens/history_view.dart';
 import 'package:towh/features/home/widgets/game_box.dart';
@@ -24,6 +26,17 @@ class HomeView extends StatefulWidget {
 
 class _HomeViewState extends State<HomeView> {
   final GameRepository _repository = GameRepository.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || !AppPreferences.instance.hasSeenOnboarding) {
+        return;
+      }
+      await showCookieConsentDialogIfNeeded(context);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:towh/core/storage/app_preferences.dart';
+import 'package:towh/core/widgets/cookie_consent_dialog.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
@@ -73,6 +74,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _finishOnboarding() async {
     await AppPreferences.instance.setHasSeenOnboarding(true);
+    if (!mounted) return;
+    await showCookieConsentDialogIfNeeded(context);
     if (!mounted) return;
     Navigator.pushReplacement(
       context,
