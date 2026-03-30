@@ -36,6 +36,8 @@ class _HomeViewState extends State<HomeView> {
         return;
       }
       await showCookieConsentDialogIfNeeded(context);
+      if (!mounted) return;
+      setState(() {});
     });
   }
 
@@ -94,52 +96,62 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
       ),
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(bottom: 4),
-            child: Center(child: ConsentAwareBannerAd()),
-          ),
-          Container(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            height: 64,
-            decoration: BoxDecoration(
-              color: kColorWhite100,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: NavBarItem(
-                      icon: FluentIcons.xbox_controller_24_regular,
-                      label: 'Play',
-                      isSelected: true,
-                      onTap: () {},
-                    ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.only(bottom: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: Center(
+                child: ConsentAwareBannerAd(
+                  key: ValueKey<bool>(
+                    AppPreferences.instance.hasAcceptedCookieConsent,
                   ),
-                  Expanded(
-                    child: NavBarItem(
-                      icon: FluentIcons.history_24_regular,
-                      label: 'History',
-                      isSelected: false,
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const HistoryView(),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              height: 64,
+              decoration: BoxDecoration(
+                color: kColorWhite100,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: NavBarItem(
+                        icon: FluentIcons.xbox_controller_24_regular,
+                        label: 'Play',
+                        isSelected: true,
+                        onTap: () {},
+                      ),
+                    ),
+                    Expanded(
+                      child: NavBarItem(
+                        icon: FluentIcons.history_24_regular,
+                        label: 'History',
+                        isSelected: false,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const HistoryView(),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
