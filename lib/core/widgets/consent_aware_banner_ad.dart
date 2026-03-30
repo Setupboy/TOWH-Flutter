@@ -13,25 +13,49 @@ class ConsentAwareBannerAd extends StatefulWidget {
 class _ConsentAwareBannerAdState extends State<ConsentAwareBannerAd> {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadBanner();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadBanner();
+    });
   }
 
   Future<void> _loadBanner() async {
-    if (!AdService.instance.canRequestAds) {
+    if (_isLoading || !AdService.instance.canRequestAds) {
       return;
     }
 
+    _isLoading = true;
     await AdService.instance.initializeIfAllowed();
-    if (!mounted) return;
+    if (!mounted) {
+      _isLoading = false;
+      return;
+    }
+
+    final screenWidth = MediaQuery.sizeOf(context).width.truncate();
+    final adSize =
+        await AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+          screenWidth,
+        );
+
+    if (!mounted) {
+      _isLoading = false;
+      return;
+    }
+    if (adSize == null) {
+      debugPrint('Banner ad size could not be calculated.');
+      _isLoading = false;
+      return;
+    }
 
     final banner = BannerAd(
       adUnitId: AdUnitIds.banner,
       request: const AdRequest(),
-      size: AdSize.banner,
+      size: adSize,
       listener: BannerAdListener(
         onAdLoaded: (ad) {
           if (!mounted) {
@@ -43,9 +67,12 @@ class _ConsentAwareBannerAdState extends State<ConsentAwareBannerAd> {
             _bannerAd = ad as BannerAd;
             _isLoaded = true;
           });
+          _isLoading = false;
         },
         onAdFailedToLoad: (ad, error) {
+          debugPrint('Banner ad failed to load: $error');
           ad.dispose();
+          _isLoading = false;
         },
       ),
     );
