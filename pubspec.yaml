@@ -48,7 +48,7 @@ flutter:
   assets:
     - assets/images/onboardings/
     - assets/images/result_page/
-    - assets/icons/
+    - assets/icons/tow.svg
 
   fonts:
     - family: MPLUSR1
