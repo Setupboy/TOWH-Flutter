@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:towh/core/ads/ad_service.dart';
 import 'package:towh/core/storage/app_preferences.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
@@ -94,4 +95,5 @@ Future<void> showCookieConsentDialogIfNeeded(BuildContext context) async {
   );
 
   await AppPreferences.instance.setCookieConsent(accepted: accepted ?? false);
+  await AdService.instance.updateConsentAndInitializeIfNeeded();
 }

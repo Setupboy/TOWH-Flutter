@@ -24,6 +24,7 @@ dependencies:
     path: third_party/isar_flutter_libs
   path_provider: ^2.1.5
   url_launcher: ^6.3.2
+  google_mobile_ads: ^6.0.0
 
 dev_dependencies:
   flutter_test:

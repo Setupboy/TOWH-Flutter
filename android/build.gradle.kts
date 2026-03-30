@@ -1,5 +1,7 @@
 import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 allprojects {
     repositories {
@@ -34,6 +36,19 @@ subprojects {
                 namespace = "dev.isar.isar_flutter_libs"
             }
         }
+    }
+}
+
+subprojects {
+    tasks.withType<JavaCompile>().configureEach {
+        sourceCompatibility = "17"
+        targetCompatibility = "17"
+    }
+
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions.jvmTarget.set(
+            org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17,
+        )
     }
 }
 

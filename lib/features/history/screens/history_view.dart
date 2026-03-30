@@ -24,6 +24,11 @@ class HistoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repository = GameRepository.instance;
+    final bottomInset = MediaQuery.of(context).padding.bottom;
+    const bottomNavHeight = 64.0;
+    const bottomNavVerticalMargin = 16.0;
+    final scrollBottomPadding =
+        bottomInset + bottomNavHeight + bottomNavVerticalMargin + 16;
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -70,14 +75,21 @@ class HistoryView extends StatelessWidget {
 
               final games = snapshot.data!;
               if (games.isEmpty) {
-                return _buildCompletedSection(
-                  context,
-                  repository,
-                  addTopSpacing: false,
+                return SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                    top: 24,
+                    bottom: scrollBottomPadding,
+                  ),
+                  child: _buildCompletedSection(
+                    context,
+                    repository,
+                    addTopSpacing: false,
+                  ),
                 );
               }
 
               return SingleChildScrollView(
+                padding: EdgeInsets.only(bottom: scrollBottomPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

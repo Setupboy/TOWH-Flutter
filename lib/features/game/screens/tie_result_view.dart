@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:towh/core/ads/ad_service.dart';
 
 import '../../../core/models/game_document.dart';
 import '../../../core/repositories/game_repository.dart';
@@ -36,6 +37,12 @@ class _TieResultViewState extends State<TieResultView> {
   late final String _selectedSticker =
       _stickers[Random().nextInt(_stickers.length)];
   final GameRepository _repository = GameRepository.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    AdService.instance.preloadInterstitial();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,12 +149,17 @@ class _TieResultViewState extends State<TieResultView> {
                             height: 45,
                             child: TextButton(
                               onPressed: () {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const HomeView(),
-                                  ),
-                                  (route) => false,
+                                AdService.instance.showInterstitialThen(
+                                  onComplete: () {
+                                    if (!context.mounted) return;
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => const HomeView(),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  },
                                 );
                               },
                               child: const Text(
@@ -173,13 +185,18 @@ class _TieResultViewState extends State<TieResultView> {
                                 final repeatedGameId = await _repository
                                     .repeatGame(game);
                                 if (!context.mounted) return;
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>
-                                        GameView(gameId: repeatedGameId),
-                                  ),
-                                  (route) => false,
+                                AdService.instance.showInterstitialThen(
+                                  onComplete: () {
+                                    if (!context.mounted) return;
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            GameView(gameId: repeatedGameId),
+                                      ),
+                                      (route) => false,
+                                    );
+                                  },
                                 );
                               },
                               style: ElevatedButton.styleFrom(

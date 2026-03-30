@@ -8,6 +8,7 @@ import 'package:towh/core/storage/app_preferences.dart';
 import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/player_data.dart';
+import 'package:towh/core/widgets/consent_aware_banner_ad.dart';
 import 'package:towh/core/widgets/cookie_consent_dialog.dart';
 import 'package:towh/features/game/screens/game_view.dart';
 import 'package:towh/features/history/screens/history_view.dart';
@@ -93,41 +94,52 @@ class _HomeViewState extends State<HomeView> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        height: 64,
-        decoration: BoxDecoration(
-          color: kColorWhite100,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Row(
-            children: [
-              Expanded(
-                child: NavBarItem(
-                  icon: FluentIcons.xbox_controller_24_regular,
-                  label: 'Play',
-                  isSelected: true,
-                  onTap: () {},
-                ),
-              ),
-              Expanded(
-                child: NavBarItem(
-                  icon: FluentIcons.history_24_regular,
-                  label: 'History',
-                  isSelected: false,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const HistoryView()),
-                    );
-                  },
-                ),
-              ),
-            ],
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(bottom: 4),
+            child: Center(child: ConsentAwareBannerAd()),
           ),
-        ),
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            height: 64,
+            decoration: BoxDecoration(
+              color: kColorWhite100,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: NavBarItem(
+                      icon: FluentIcons.xbox_controller_24_regular,
+                      label: 'Play',
+                      isSelected: true,
+                      onTap: () {},
+                    ),
+                  ),
+                  Expanded(
+                    child: NavBarItem(
+                      icon: FluentIcons.history_24_regular,
+                      label: 'History',
+                      isSelected: false,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HistoryView(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

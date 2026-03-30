@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:towh/core/ads/ad_service.dart';
 
 import '../../../core/models/game_document.dart';
 import '../../../core/repositories/game_repository.dart';
@@ -41,6 +42,7 @@ class _ResultViewState extends State<ResultView> {
   void initState() {
     super.initState();
     _selectedSticker = _stickers[Random().nextInt(_stickers.length)];
+    AdService.instance.preloadInterstitial();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       setState(() => _showPageContent = true);
@@ -168,12 +170,18 @@ class _ResultViewState extends State<ResultView> {
                                     height: 45,
                                     child: TextButton(
                                       onPressed: () {
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => const HomeView(),
-                                          ),
-                                          (route) => false,
+                                        AdService.instance.showInterstitialThen(
+                                          onComplete: () {
+                                            if (!context.mounted) return;
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const HomeView(),
+                                              ),
+                                              (route) => false,
+                                            );
+                                          },
                                         );
                                       },
                                       child: const Text(
@@ -199,14 +207,19 @@ class _ResultViewState extends State<ResultView> {
                                         final repeatedGameId = await _repository
                                             .repeatGame(game);
                                         if (!context.mounted) return;
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => GameView(
-                                              gameId: repeatedGameId,
-                                            ),
-                                          ),
-                                          (route) => false,
+                                        AdService.instance.showInterstitialThen(
+                                          onComplete: () {
+                                            if (!context.mounted) return;
+                                            Navigator.pushAndRemoveUntil(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => GameView(
+                                                  gameId: repeatedGameId,
+                                                ),
+                                              ),
+                                              (route) => false,
+                                            );
+                                          },
                                         );
                                       },
                                       style: ElevatedButton.styleFrom(
