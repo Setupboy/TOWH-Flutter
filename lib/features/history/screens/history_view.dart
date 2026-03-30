@@ -75,11 +75,8 @@ class HistoryView extends StatelessWidget {
 
               final games = snapshot.data!;
               if (games.isEmpty) {
-                return SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                    top: 24,
-                    bottom: scrollBottomPadding,
-                  ),
+                return Padding(
+                  padding: EdgeInsets.only(bottom: scrollBottomPadding),
                   child: _buildCompletedSection(
                     context,
                     repository,
