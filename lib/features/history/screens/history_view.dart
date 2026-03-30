@@ -12,9 +12,14 @@ import 'package:towh/features/home/screens/home_view.dart';
 import 'package:towh/features/home/widgets/game_box.dart';
 import 'package:towh/features/home/widgets/nav_bar_item.dart';
 import 'package:towh/features/home/widgets/player_chip.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HistoryView extends StatelessWidget {
   const HistoryView({super.key});
+
+  static final Uri _privacyUri = Uri.parse(
+    'https://sites.google.com/view/towh-privacy/home',
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +44,13 @@ class HistoryView extends StatelessWidget {
             height: 1,
           ),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Privacy policy',
+            onPressed: _openPrivacyPolicy,
+            icon: const Icon(Icons.help_outline_rounded),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Padding(
@@ -200,6 +212,10 @@ class HistoryView extends StatelessWidget {
       default:
         return stage;
     }
+  }
+
+  Future<void> _openPrivacyPolicy() async {
+    await launchUrl(_privacyUri, mode: LaunchMode.externalApplication);
   }
 
   Widget _buildSectionGroup({
