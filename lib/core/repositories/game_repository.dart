@@ -97,22 +97,11 @@ class GameRepository {
 
     await _saveGame(
       game.copyWith(
-        players: players,
-        stage: isLastPlayer ? 'ready_to_play' : 'players_answers',
-        currentStep: isLastPlayer ? 3 : 2,
+        stage: isLastPlayer ? 'voting' : 'players_answers',
+        currentStep: isLastPlayer ? 4 : 2,
         currentPlayerIndex: isLastPlayer ? 0 : playerIndex + 1,
-        updatedAt: DateTime.now(),
-      ),
-    );
-  }
-
-  Future<void> goToReadyStage(String gameId) async {
-    final game = await continueGame(gameId);
-    await _saveGame(
-      game.copyWith(
-        stage: 'ready_to_play',
-        currentStep: 3,
-        currentPlayerIndex: 0,
+        currentVotingTurnIndex: isLastPlayer ? 0 : game.currentVotingTurnIndex,
+        players: isLastPlayer ? _assignColors(players) : players,
         updatedAt: DateTime.now(),
       ),
     );
@@ -234,7 +223,20 @@ class GameRepository {
     if (isarGame == null) {
       throw StateError('Game not found: $gameId');
     }
-    return _toGameDocument(isarGame);
+    final game = _toGameDocument(isarGame);
+    if (game.stage != 'ready_to_play') {
+      return game;
+    }
+
+    await startVoting(gameId);
+    final updatedGame = await _isar.isarGames
+        .filter()
+        .gameIdEqualTo(gameId)
+        .findFirst();
+    if (updatedGame == null) {
+      throw StateError('Game not found after starting voting: $gameId');
+    }
+    return _toGameDocument(updatedGame);
   }
 
   Future<GameDocument> restartPlayerAnswers(String gameId) async {

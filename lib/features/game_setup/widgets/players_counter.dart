@@ -4,6 +4,9 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_fonts.dart';
 
 class PlayersCounter extends StatelessWidget {
+  static const int minPlayers = 3;
+  static const int maxPlayers = 20;
+
   final int players;
   final VoidCallback onAdd;
   final VoidCallback onRemove;
@@ -29,7 +32,7 @@ class PlayersCounter extends StatelessWidget {
   }
 
   Widget _removeButton() {
-    final bool isEnabled = players > 3;
+    final bool isEnabled = players > minPlayers;
 
     return SizedBox(
       width: 72,
@@ -89,11 +92,13 @@ class PlayersCounter extends StatelessWidget {
   }
 
   Widget _addButton() {
+    final bool isEnabled = players < maxPlayers;
+
     return SizedBox(
       width: 72,
       height: double.infinity,
       child: Material(
-        color: kColorYellow200,
+        color: isEnabled ? kColorYellow200 : kColorYellow100,
         borderRadius: const BorderRadius.only(
           topRight: Radius.circular(24),
           bottomRight: Radius.circular(24),
@@ -103,9 +108,13 @@ class PlayersCounter extends StatelessWidget {
             topRight: Radius.circular(24),
             bottomRight: Radius.circular(24),
           ),
-          onTap: onAdd,
-          child: const Center(
-            child: Icon(Icons.add, size: 25, color: kColorBlue800),
+          onTap: isEnabled ? onAdd : null,
+          child: Center(
+            child: Icon(
+              Icons.add,
+              size: 25,
+              color: isEnabled ? kColorBlue800 : kColorBlue100,
+            ),
           ),
         ),
       ),

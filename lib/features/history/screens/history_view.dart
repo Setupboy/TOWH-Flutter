@@ -217,7 +217,7 @@ class HistoryView extends StatelessWidget {
       case 'players_answers':
         return 'Player Answers';
       case 'ready_to_play':
-        return 'Ready To Play';
+        return 'Voting';
       case 'voting':
         return 'Voting';
       case 'completed':

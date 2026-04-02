@@ -12,7 +12,7 @@ import '../widgets/continue_button.dart';
 import '../widgets/game_setup_app_bar.dart';
 import '../widgets/players_counter.dart';
 import '../widgets/quick_guide.dart';
-import 'ready_to_play_view.dart';
+import '../../game/screens/game_view.dart';
 
 class NewGameView extends StatefulWidget {
   const NewGameView({
@@ -246,11 +246,15 @@ class _NewGameViewState extends State<NewGameView> {
               PlayersCounter(
                 players: players,
                 onAdd: () => setState(() {
-                  players++;
+                  if (players < PlayersCounter.maxPlayers) {
+                    players++;
+                  }
                   _syncPlayerControllers();
                 }),
                 onRemove: () => setState(() {
-                  if (players > 3) players--;
+                  if (players > PlayersCounter.minPlayers) {
+                    players--;
+                  }
                   _syncPlayerControllers();
                 }),
               ),
@@ -769,7 +773,7 @@ class _NewGameViewState extends State<NewGameView> {
     } else {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => ReadyToPlayView(gameId: _gameId!)),
+        MaterialPageRoute(builder: (_) => GameView(gameId: _gameId!)),
       );
     }
   }

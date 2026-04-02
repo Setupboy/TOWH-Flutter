@@ -90,7 +90,7 @@ class _HomeViewState extends State<HomeView> {
               const SizedBox(height: 24),
               _buildInProgressSection(),
               const SizedBox(height: 24),
-              _buildCompletedSection(title: 'Repeat game'),
+              _buildCompletedSection(title: 'Game History'),
               const SizedBox(height: 24),
             ],
           ),
@@ -366,7 +366,7 @@ class _HomeViewState extends State<HomeView> {
       case 'players_answers':
         return 'Player Answers';
       case 'ready_to_play':
-        return 'Ready To Play';
+        return 'Voting';
       case 'voting':
         return 'Voting';
       case 'completed':

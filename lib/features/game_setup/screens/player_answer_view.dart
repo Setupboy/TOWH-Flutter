@@ -6,8 +6,7 @@ import 'package:towh/core/theme/app_colors.dart';
 import 'package:towh/core/theme/app_fonts.dart';
 import 'package:towh/core/utils/player_data.dart';
 import 'package:towh/core/widgets/game_fullscreen_scope.dart';
-
-import 'ready_to_play_view.dart';
+import 'package:towh/features/game/screens/game_view.dart';
 
 class PlayerAnswerView extends StatefulWidget {
   const PlayerAnswerView({super.key, required this.gameId});
@@ -220,9 +219,7 @@ class _PlayerAnswerViewState extends State<PlayerAnswerView> {
     if (game.currentPlayerIndex == game.players.length - 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => ReadyToPlayView(gameId: widget.gameId),
-        ),
+        MaterialPageRoute(builder: (_) => GameView(gameId: widget.gameId)),
       );
     } else {
       setState(() => _isSaving = false);
