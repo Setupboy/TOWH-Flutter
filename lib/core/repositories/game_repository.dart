@@ -25,6 +25,16 @@ class GameRepository {
     'red',
     'teal',
     'indigo',
+    'lime',
+    'magenta',
+    'brown',
+    'navy',
+    'mint',
+    'amber',
+    'coral',
+    'sky',
+    'olive',
+    'slate',
   ];
 
   final Random _random = Random();

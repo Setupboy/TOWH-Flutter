@@ -457,6 +457,26 @@ class _GameViewState extends State<GameView> {
         return const Color(0xFF00BCD4);
       case 'indigo':
         return const Color(0xFF3F51B5);
+      case 'lime':
+        return const Color(0xFF84CC16);
+      case 'magenta':
+        return const Color(0xFFD946EF);
+      case 'brown':
+        return const Color(0xFF8D6E63);
+      case 'navy':
+        return const Color(0xFF1E3A8A);
+      case 'mint':
+        return const Color(0xFF34D399);
+      case 'amber':
+        return const Color(0xFFF59E0B);
+      case 'coral':
+        return const Color(0xFFFF7F50);
+      case 'sky':
+        return const Color(0xFF38BDF8);
+      case 'olive':
+        return const Color(0xFF6B8E23);
+      case 'slate':
+        return const Color(0xFF64748B);
       default:
         return const Color(0xFF9C27B0);
     }
