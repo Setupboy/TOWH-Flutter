@@ -75,18 +75,22 @@ class HistoryView extends StatelessWidget {
 
               final games = snapshot.data!;
               if (games.isEmpty) {
-                return SingleChildScrollView(
-                  padding: EdgeInsets.fromLTRB(
-                    0,
-                    24,
-                    0,
-                    scrollBottomPadding,
-                  ),
-                  child: _buildCompletedSection(
-                    context,
-                    repository,
-                    addTopSpacing: false,
-                  ),
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: EdgeInsets.only(bottom: scrollBottomPadding),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight - scrollBottomPadding,
+                        ),
+                        child: _buildCompletedSection(
+                          context,
+                          repository,
+                          addTopSpacing: false,
+                        ),
+                      ),
+                    );
+                  },
                 );
               }
 
