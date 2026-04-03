@@ -14,46 +14,27 @@ import 'package:towh/features/home/widgets/nav_bar_item.dart';
 import 'package:towh/features/home/widgets/player_chip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HistoryView extends StatefulWidget {
+class HistoryView extends StatelessWidget {
   const HistoryView({super.key});
-
-  @override
-  State<HistoryView> createState() => _HistoryViewState();
-}
-
-class _HistoryViewState extends State<HistoryView> {
-  static const int _completedGamesBatchSize = 5;
-  static const double _loadMoreThreshold = 300;
 
   static final Uri _privacyUri = Uri.parse(
     'https://sites.google.com/view/towh-privacy/home',
   );
-
-  final ScrollController _scrollController = ScrollController();
-  int _visibleCompletedGames = _completedGamesBatchSize;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController
-      ..removeListener(_onScroll)
-      ..dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final repository = GameRepository.instance;
     final bottomInset = MediaQuery.of(context).padding.bottom;
     const bottomNavHeight = 64.0;
-    const bottomNavVerticalMargin = 16.0;
+    const bottomNavMargin = 8.0;
+    const bottomNavSafeGap = 8.0;
+    const contentBottomGap = 24.0;
     final scrollBottomPadding =
-        bottomInset + bottomNavHeight + bottomNavVerticalMargin + 16;
+        bottomInset +
+        bottomNavSafeGap +
+        bottomNavHeight +
+        (bottomNavMargin * 2) +
+        contentBottomGap;
 
     return Scaffold(
       backgroundColor: kColorWhite50,
@@ -87,118 +68,92 @@ class _HistoryViewState extends State<HistoryView> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: StreamBuilder<List<GameDocument>>(
             stream: repository.getInProgressGames(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
+            builder: (context, inProgressSnapshot) {
+              if (inProgressSnapshot.hasError) {
                 return const Text('Failed to load in-progress games.');
               }
-              if (!snapshot.hasData) {
+              if (!inProgressSnapshot.hasData) {
                 return const Text(
                   'Loading games...',
                   style: TextStyle(fontFamily: kFontMPL, color: kColorBlue800),
                 );
               }
 
-              final games = snapshot.data!;
-              if (games.isEmpty) {
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      controller: _scrollController,
-                      padding: EdgeInsets.only(bottom: scrollBottomPadding),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight:
-                              constraints.maxHeight - scrollBottomPadding,
-                        ),
-                        child: _buildCompletedSection(
-                          context,
-                          repository,
-                          addTopSpacing: false,
+              return StreamBuilder<List<GameDocument>>(
+                stream: repository.getCompletedGames(),
+                builder: (context, completedSnapshot) {
+                  if (completedSnapshot.hasError) {
+                    return const Center(child: Text('Failed to load history.'));
+                  }
+                  if (!completedSnapshot.hasData) {
+                    return const Center(
+                      child: Text(
+                        'Loading games...',
+                        style: TextStyle(
+                          fontFamily: kFontMPL,
+                          color: kColorBlue800,
                         ),
                       ),
                     );
-                  },
-                );
-              }
+                  }
 
-              return SingleChildScrollView(
-                controller: _scrollController,
-                padding: EdgeInsets.only(bottom: scrollBottomPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 24),
-                    _buildSectionGroup(
-                      title: 'In progress game',
-                      cards: games.map((game) {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: GameBox(
-                            gameTitle: game.activityName,
-                            detailLabel: 'Stage:',
-                            detailValue: _stageLabel(game.stage),
-                            players: List<Widget>.generate(
-                              game.players.length,
-                              (i) {
-                                final player = game.players[i];
-                                return PlayerChip(
-                                  name: player.name,
-                                  backgroundColor: avatarColorForIndex(i),
-                                );
-                              },
-                            ),
-                            onTap: () async {
-                              final gameToOpen = game.stage == 'players_answers'
-                                  ? await repository.restartPlayerAnswers(
-                                      game.id,
-                                    )
-                                  : game;
-                              if (!context.mounted) return;
-                              Navigator.push(
+                  final inProgressGames = inProgressSnapshot.data!;
+                  final completedGames = completedSnapshot.data!;
+
+                  if (inProgressGames.isEmpty && completedGames.isEmpty) {
+                    return _buildEmptyHistoryState(context);
+                  }
+
+                  return CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    slivers: [
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      if (inProgressGames.isNotEmpty) ...[
+                        _buildSectionTitleSliver('In progress game'),
+                        SliverList.builder(
+                          itemCount: inProgressGames.length,
+                          itemBuilder: (context, index) {
+                            final game = inProgressGames[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: _buildInProgressCard(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      buildGameStageView(gameToOpen),
-                                ),
-                              );
-                            },
-                            primaryActionLabel: 'Continue',
-                            onPrimaryAction: () async {
-                              final gameToOpen = game.stage == 'players_answers'
-                                  ? await repository.restartPlayerAnswers(
-                                      game.id,
-                                    )
-                                  : game;
-                              if (!context.mounted) return;
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      buildGameStageView(gameToOpen),
-                                ),
-                              );
-                            },
-                            secondaryActionLabel: 'Delete',
-                            onSecondaryAction: () async {
-                              final shouldDelete = await _showDeleteSheet(
-                                context,
-                              );
-                              if (shouldDelete == true) {
-                                await repository.deleteGame(game.id);
-                              }
-                            },
+                                repository,
+                                game,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      if (completedGames.isNotEmpty) ...[
+                        if (inProgressGames.isNotEmpty)
+                          const SliverToBoxAdapter(
+                            child: SizedBox(height: 24),
                           ),
-                        );
-                      }).toList(),
-                    ),
-                    _buildCompletedSection(
-                      context,
-                      repository,
-                      addTopSpacing: true,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                ),
+                        _buildSectionTitleSliver('Game History'),
+                        SliverList.builder(
+                          itemCount: completedGames.length,
+                          itemBuilder: (context, index) {
+                            final game = completedGames[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 2),
+                              child: _buildCompletedCard(
+                                context,
+                                repository,
+                                game,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: scrollBottomPadding),
+                      ),
+                    ],
+                  );
+                },
               );
             },
           ),
@@ -247,6 +202,89 @@ class _HistoryViewState extends State<HistoryView> {
     );
   }
 
+  Widget _buildInProgressCard(
+    BuildContext context,
+    GameRepository repository,
+    GameDocument game,
+  ) {
+    return GameBox(
+      gameTitle: game.activityName,
+      detailLabel: 'Stage:',
+      detailValue: _stageLabel(game.stage),
+      players: List<Widget>.generate(game.players.length, (i) {
+        final player = game.players[i];
+        return PlayerChip(
+          name: player.name,
+          backgroundColor: avatarColorForIndex(i),
+        );
+      }),
+      onTap: () async {
+        final gameToOpen = game.stage == 'players_answers'
+            ? await repository.restartPlayerAnswers(game.id)
+            : game;
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => buildGameStageView(gameToOpen)),
+        );
+      },
+      primaryActionLabel: 'Continue',
+      onPrimaryAction: () async {
+        final gameToOpen = game.stage == 'players_answers'
+            ? await repository.restartPlayerAnswers(game.id)
+            : game;
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => buildGameStageView(gameToOpen)),
+        );
+      },
+      secondaryActionLabel: 'Delete',
+      onSecondaryAction: () async {
+        final shouldDelete = await _showDeleteSheet(context);
+        if (shouldDelete == true) {
+          await repository.deleteGame(game.id);
+        }
+      },
+    );
+  }
+
+  Widget _buildCompletedCard(
+    BuildContext context,
+    GameRepository repository,
+    GameDocument game,
+  ) {
+    return GameBox(
+      gameTitle: game.activityName,
+      detailLabel: game.isTie ? '' : 'Winner:',
+      detailValue: game.isTie ? "It's a tie" : game.winnerChoice,
+      secondaryDetailLabel: game.isTie ? null : 'By:',
+      secondaryDetailValue: game.isTie ? null : game.winnerPlayerName,
+      players: List<Widget>.generate(game.players.length, (i) {
+        final player = game.players[i];
+        return PlayerChip(
+          name: player.name,
+          backgroundColor: avatarColorForIndex(i),
+        );
+      }),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => buildGameStageView(game)),
+        );
+      },
+      primaryActionLabel: 'Repeat Game',
+      onPrimaryAction: () async {
+        final repeatedGameId = await repository.repeatGame(game);
+        if (!context.mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => GameView(gameId: repeatedGameId)),
+        );
+      },
+    );
+  }
+
   String _stageLabel(String stage) {
     switch (stage) {
       case 'players_names':
@@ -268,28 +306,11 @@ class _HistoryViewState extends State<HistoryView> {
     await launchUrl(_privacyUri, mode: LaunchMode.externalApplication);
   }
 
-  void _onScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-    final position = _scrollController.position;
-    if (position.pixels < position.maxScrollExtent - _loadMoreThreshold) {
-      return;
-    }
-
-    setState(() {
-      _visibleCompletedGames += _completedGamesBatchSize;
-    });
-  }
-
-  Widget _buildSectionGroup({
-    required String title,
-    required List<Widget> cards,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
+  SliverToBoxAdapter _buildSectionTitleSliver(String title) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Text(
           title,
           style: const TextStyle(
             fontFamily: kFontMPL,
@@ -298,169 +319,85 @@ class _HistoryViewState extends State<HistoryView> {
             color: kColorBlue800,
           ),
         ),
-        const SizedBox(height: 8),
-        ...cards,
+      ),
+    );
+  }
+
+  Widget _buildEmptyHistoryState(BuildContext context) {
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(
+        parent: BouncingScrollPhysics(),
+      ),
+      slivers: [
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Center(child: _buildEmptyStateCard(context)),
+        ),
       ],
     );
   }
 
-  Widget _buildCompletedSection(
-    BuildContext context,
-    GameRepository repository, {
-    required bool addTopSpacing,
-  }) {
-    return StreamBuilder<List<GameDocument>>(
-      stream: repository.getCompletedGames(),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return const Center(child: Text('Failed to load history.'));
-        }
-        if (!snapshot.hasData) {
-          return const Center(
-            child: Text(
-              'Loading games...',
-              style: TextStyle(fontFamily: kFontMPL, color: kColorBlue800),
+  Widget _buildEmptyStateCard(BuildContext context) {
+    return SizedBox(
+      width: 380,
+      height: 125,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: kColorWhite100,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'You have not played any game yet',
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontFamily: kFontMPL,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                height: 1,
+                color: kColorBlue900,
+              ),
             ),
-          );
-        }
-
-        final games = snapshot.data!;
-        final visibleGames = games.take(_visibleCompletedGames).toList();
-        final hasMoreGames = visibleGames.length < games.length;
-        if (games.isEmpty) {
-          if (!addTopSpacing) {
-            return _buildEmptyState(context);
-          }
-
-          return const SizedBox.shrink();
-        }
-
-        return Padding(
-          padding: EdgeInsets.only(top: addTopSpacing ? 24 : 0),
-          child: _buildSectionGroup(
-            title: 'Game History',
-            cards: [
-              ...visibleGames.map((game) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 2),
-                  child: GameBox(
-                    gameTitle: game.activityName,
-                    detailLabel: game.isTie ? '' : 'Winner:',
-                    detailValue: game.isTie ? "It's a tie" : game.winnerChoice,
-                    secondaryDetailLabel: game.isTie ? null : 'By:',
-                    secondaryDetailValue: game.isTie
-                        ? null
-                        : game.winnerPlayerName,
-                    players: List<Widget>.generate(game.players.length, (i) {
-                      final player = game.players[i];
-                      return PlayerChip(
-                        name: player.name,
-                        backgroundColor: avatarColorForIndex(i),
-                      );
-                    }),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => buildGameStageView(game),
-                        ),
-                      );
-                    },
-                    primaryActionLabel: 'Repeat Game',
-                    onPrimaryAction: () async {
-                      final repeatedGameId = await repository.repeatGame(game);
-                      if (!context.mounted) return;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => GameView(gameId: repeatedGameId),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }),
-              if (hasMoreGames)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Center(
-                    child: SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+            const SizedBox(height: 24),
+            Align(
+              alignment: Alignment.center,
+              child: SizedBox(
+                width: 348,
+                height: 48,
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const NewGameView()),
+                    );
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                    decoration: BoxDecoration(
+                      color: kColorYellow200,
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        width: 380,
-        height: 125,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: kColorWhite100,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'You have not played any game yet',
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                  fontFamily: kFontMPL,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  height: 1,
-                  color: kColorBlue900,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Align(
-                alignment: Alignment.center,
-                child: SizedBox(
-                  width: 348,
-                  height: 48,
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const NewGameView()),
-                      );
-                    },
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                      decoration: BoxDecoration(
-                        color: kColorYellow200,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        '+New Game',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontFamily: kFontMPL,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          height: 1.46,
-                          color: kColorBlue900,
-                        ),
+                    child: const Text(
+                      '+New Game',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontFamily: kFontMPL,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        height: 1.46,
+                        color: kColorBlue900,
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
