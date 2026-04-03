@@ -328,15 +328,15 @@ class _GameViewState extends State<GameView> {
     final results = <VoteResultItem>[];
     for (int i = 0; i < game.players.length; i++) {
       final player = game.players[i];
-      results.add(
-        VoteResultItem(
-          choiceTitle: player.answer,
-          playerName: player.name,
-          color: _colorForStorageName(player.selectedColor),
-          voteCount: game.results[player.answer] ?? 0,
-          order: i,
-        ),
-      );
+        results.add(
+          VoteResultItem(
+            choiceTitle: player.answer,
+            playerName: player.name,
+            color: _colorForStorageName(player.selectedColor),
+            voteCount: game.voteCountForPlayer(player),
+            order: i,
+          ),
+        );
     }
     results.sort((a, b) {
       final byVotes = b.voteCount.compareTo(a.voteCount);

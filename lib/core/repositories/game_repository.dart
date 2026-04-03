@@ -141,7 +141,7 @@ class GameRepository {
       (GamePlayer player) => player.selectedColor == colorName,
     );
     players[currentIndex] = players[currentIndex].copyWith(
-      voteAnswer: selectedPlayer.answer,
+      voteAnswer: selectedPlayer.id,
     );
 
     final isLastTurn = currentIndex >= players.length - 1;
@@ -161,12 +161,11 @@ class GameRepository {
   Map<String, int> calculateResults(GameDocument game) {
     final results = <String, int>{};
     for (final player in game.players) {
-      if (player.answer.isNotEmpty) {
-        results.putIfAbsent(player.answer, () => 0);
-      }
-      if (player.voteAnswer.isNotEmpty) {
-        results[player.voteAnswer] = (results[player.voteAnswer] ?? 0) + 1;
-      }
+      results.putIfAbsent(player.id, () => 0);
+    }
+    for (final player in game.players) {
+      if (player.voteAnswer.isEmpty) continue;
+      results[player.voteAnswer] = (results[player.voteAnswer] ?? 0) + 1;
     }
     return results;
   }

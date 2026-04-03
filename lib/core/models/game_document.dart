@@ -39,16 +39,44 @@ class GameDocument {
 
   bool get isCompleted => status == 'completed';
 
-  String get winnerPlayerName {
+  GamePlayer? get winnerPlayer {
     if (winnerAnswer.isEmpty) {
-      return '';
+      return null;
     }
+
     for (final player in players) {
-      if (player.answer == winnerAnswer) {
-        return player.name;
+      if (player.id == winnerAnswer) {
+        return player;
       }
     }
-    return '';
+
+    for (final player in players) {
+      if (player.answer == winnerAnswer) {
+        return player;
+      }
+    }
+
+    return null;
+  }
+
+  String get winnerChoice {
+    final player = winnerPlayer;
+    if (player != null) {
+      return player.answer;
+    }
+    return winnerAnswer;
+  }
+
+  String get winnerPlayerName {
+    return winnerPlayer?.name ?? '';
+  }
+
+  int voteCountForPlayer(GamePlayer player) {
+    final byId = results[player.id];
+    if (byId != null) {
+      return byId;
+    }
+    return results[player.answer] ?? 0;
   }
 
   GameDocument copyWith({

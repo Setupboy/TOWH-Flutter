@@ -262,12 +262,12 @@ class _ResultViewState extends State<ResultView> {
     final results = <VoteResultItem>[];
     for (int i = 0; i < game.players.length; i++) {
       final player = game.players[i];
-      results.add(
-        VoteResultItem(
+        results.add(
+          VoteResultItem(
           choiceTitle: player.answer,
           playerName: player.name,
           color: _colorForStorageName(player.selectedColor),
-          voteCount: game.results[player.answer] ?? 0,
+          voteCount: game.voteCountForPlayer(player),
           order: i,
         ),
       );

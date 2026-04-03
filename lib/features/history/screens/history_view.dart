@@ -301,7 +301,7 @@ class HistoryView extends StatelessWidget {
                 child: GameBox(
                   gameTitle: game.activityName,
                   detailLabel: game.isTie ? '' : 'Winner:',
-                  detailValue: game.isTie ? "It's a tie" : game.winnerAnswer,
+                  detailValue: game.isTie ? "It's a tie" : game.winnerChoice,
                   secondaryDetailLabel: game.isTie ? null : 'By:',
                   secondaryDetailValue: game.isTie
                       ? null
