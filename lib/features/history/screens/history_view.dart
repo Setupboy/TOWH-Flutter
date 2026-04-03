@@ -107,7 +107,8 @@ class _HistoryViewState extends State<HistoryView> {
                       padding: EdgeInsets.only(bottom: scrollBottomPadding),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight - scrollBottomPadding,
+                          minHeight:
+                              constraints.maxHeight - scrollBottomPadding,
                         ),
                         child: _buildCompletedSection(
                           context,
@@ -272,8 +273,7 @@ class _HistoryViewState extends State<HistoryView> {
       return;
     }
     final position = _scrollController.position;
-    if (position.pixels <
-        position.maxScrollExtent - _loadMoreThreshold) {
+    if (position.pixels < position.maxScrollExtent - _loadMoreThreshold) {
       return;
     }
 
@@ -341,44 +341,44 @@ class _HistoryViewState extends State<HistoryView> {
             title: 'Game History',
             cards: [
               ...visibleGames.map((game) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 2),
-                child: GameBox(
-                  gameTitle: game.activityName,
-                  detailLabel: game.isTie ? '' : 'Winner:',
-                  detailValue: game.isTie ? "It's a tie" : game.winnerChoice,
-                  secondaryDetailLabel: game.isTie ? null : 'By:',
-                  secondaryDetailValue: game.isTie
-                      ? null
-                      : game.winnerPlayerName,
-                  players: List<Widget>.generate(game.players.length, (i) {
-                    final player = game.players[i];
-                    return PlayerChip(
-                      name: player.name,
-                      backgroundColor: avatarColorForIndex(i),
-                    );
-                  }),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => buildGameStageView(game),
-                      ),
-                    );
-                  },
-                  primaryActionLabel: 'Repeat Game',
-                  onPrimaryAction: () async {
-                    final repeatedGameId = await repository.repeatGame(game);
-                    if (!context.mounted) return;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => GameView(gameId: repeatedGameId),
-                      ),
-                    );
-                  },
-                ),
-              );
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: GameBox(
+                    gameTitle: game.activityName,
+                    detailLabel: game.isTie ? '' : 'Winner:',
+                    detailValue: game.isTie ? "It's a tie" : game.winnerChoice,
+                    secondaryDetailLabel: game.isTie ? null : 'By:',
+                    secondaryDetailValue: game.isTie
+                        ? null
+                        : game.winnerPlayerName,
+                    players: List<Widget>.generate(game.players.length, (i) {
+                      final player = game.players[i];
+                      return PlayerChip(
+                        name: player.name,
+                        backgroundColor: avatarColorForIndex(i),
+                      );
+                    }),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => buildGameStageView(game),
+                        ),
+                      );
+                    },
+                    primaryActionLabel: 'Repeat Game',
+                    onPrimaryAction: () async {
+                      final repeatedGameId = await repository.repeatGame(game);
+                      if (!context.mounted) return;
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => GameView(gameId: repeatedGameId),
+                        ),
+                      );
+                    },
+                  ),
+                );
               }),
               if (hasMoreGames)
                 const Padding(

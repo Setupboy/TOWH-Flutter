@@ -285,6 +285,24 @@ class _HomeViewState extends State<HomeView> {
             MaterialPageRoute(builder: (_) => buildGameStageView(gameToOpen)),
           );
         },
+        primaryActionLabel: 'Continue',
+        onPrimaryAction: () async {
+          final gameToOpen = game.stage == 'players_answers'
+              ? await _repository.restartPlayerAnswers(game.id)
+              : game;
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => buildGameStageView(gameToOpen)),
+          );
+        },
+        secondaryActionLabel: 'Delete',
+        onSecondaryAction: () async {
+          final shouldDelete = await _showDeleteSheet(context);
+          if (shouldDelete == true) {
+            await _repository.deleteGame(game.id);
+          }
+        },
       ),
     );
   }
@@ -298,6 +316,15 @@ class _HomeViewState extends State<HomeView> {
       secondaryDetailValue: game.isTie ? null : game.winnerPlayerName,
       players: _playerChips(game),
       onTap: () async {
+        final repeatedGameId = await _repository.repeatGame(game);
+        if (!mounted) return;
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => GameView(gameId: repeatedGameId)),
+        );
+      },
+      primaryActionLabel: 'Repeat Game',
+      onPrimaryAction: () async {
         final repeatedGameId = await _repository.repeatGame(game);
         if (!mounted) return;
         Navigator.push(
@@ -374,5 +401,132 @@ class _HomeViewState extends State<HomeView> {
       default:
         return stage;
     }
+  }
+
+  Future<bool?> _showDeleteSheet(BuildContext context) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          width: double.infinity,
+          padding: EdgeInsets.fromLTRB(
+            32,
+            12,
+            32,
+            MediaQuery.of(context).padding.bottom + 12,
+          ),
+          decoration: const BoxDecoration(
+            color: kColorWhite50,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 67,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: kColorBlue100,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Delete Game',
+                style: TextStyle(
+                  fontFamily: 'Baloo2',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: kColorBlue900,
+                  height: 1,
+                ),
+              ),
+              const SizedBox(height: 24),
+              const SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Are you sure you want to cancel the game?',
+                    textAlign: TextAlign.left,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontFamily: kFontMPL,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: kColorBlue800,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 34,
+                      width: 176,
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        style: TextButton.styleFrom(
+                          foregroundColor: kColorBlue900,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontFamily: kFontMPL,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: kColorBlue900,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: SizedBox(
+                      height: 34,
+                      width: 176,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        style: ElevatedButton.styleFrom(
+                          elevation: 0,
+                          backgroundColor: kColorYellow200,
+                          foregroundColor: kColorBlue900,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(
+                            fontFamily: kFontMPL,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: kColorBlue900,
+                            height: 1.46,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
