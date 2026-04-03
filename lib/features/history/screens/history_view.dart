@@ -14,12 +14,37 @@ import 'package:towh/features/home/widgets/nav_bar_item.dart';
 import 'package:towh/features/home/widgets/player_chip.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class HistoryView extends StatelessWidget {
+class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
+
+  @override
+  State<HistoryView> createState() => _HistoryViewState();
+}
+
+class _HistoryViewState extends State<HistoryView> {
+  static const int _completedGamesBatchSize = 5;
+  static const double _loadMoreThreshold = 300;
 
   static final Uri _privacyUri = Uri.parse(
     'https://sites.google.com/view/towh-privacy/home',
   );
+
+  final ScrollController _scrollController = ScrollController();
+  int _visibleCompletedGames = _completedGamesBatchSize;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +103,7 @@ class HistoryView extends StatelessWidget {
                 return LayoutBuilder(
                   builder: (context, constraints) {
                     return SingleChildScrollView(
+                      controller: _scrollController,
                       padding: EdgeInsets.only(bottom: scrollBottomPadding),
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
@@ -95,6 +121,7 @@ class HistoryView extends StatelessWidget {
               }
 
               return SingleChildScrollView(
+                controller: _scrollController,
                 padding: EdgeInsets.only(bottom: scrollBottomPadding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,6 +267,21 @@ class HistoryView extends StatelessWidget {
     await launchUrl(_privacyUri, mode: LaunchMode.externalApplication);
   }
 
+  void _onScroll() {
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    final position = _scrollController.position;
+    if (position.pixels <
+        position.maxScrollExtent - _loadMoreThreshold) {
+      return;
+    }
+
+    setState(() {
+      _visibleCompletedGames += _completedGamesBatchSize;
+    });
+  }
+
   Widget _buildSectionGroup({
     required String title,
     required List<Widget> cards,
@@ -283,6 +325,8 @@ class HistoryView extends StatelessWidget {
         }
 
         final games = snapshot.data!;
+        final visibleGames = games.take(_visibleCompletedGames).toList();
+        final hasMoreGames = visibleGames.length < games.length;
         if (games.isEmpty) {
           if (!addTopSpacing) {
             return _buildEmptyState(context);
@@ -295,7 +339,8 @@ class HistoryView extends StatelessWidget {
           padding: EdgeInsets.only(top: addTopSpacing ? 24 : 0),
           child: _buildSectionGroup(
             title: 'Game History',
-            cards: games.map((game) {
+            cards: [
+              ...visibleGames.map((game) {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 2),
                 child: GameBox(
@@ -334,7 +379,19 @@ class HistoryView extends StatelessWidget {
                   },
                 ),
               );
-            }).toList(),
+              }),
+              if (hasMoreGames)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Center(
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
+                ),
+            ],
           ),
         );
       },
