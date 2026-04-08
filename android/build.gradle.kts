@@ -43,6 +43,7 @@ subprojects {
     tasks.withType<JavaCompile>().configureEach {
         sourceCompatibility = "17"
         targetCompatibility = "17"
+        options.compilerArgs.add("-Xlint:-options")
     }
 
     tasks.withType<KotlinCompile>().configureEach {
